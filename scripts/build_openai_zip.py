@@ -25,14 +25,11 @@ import zipfile
 from pathlib import Path
 
 import sync
+from check import LISTING_LIMITS, MANIFEST_LIMITS
 
 ROOT = sync.ROOT
 PACKAGE = "openai"
 DIST = ROOT / "dist"
-LISTING_FIELDS = ("displayName", "shortDescription")
-LISTING_LIMIT = 30
-# The live 1.0.1 listing was accepted with a longer shortDescription, so it gets a note, not a failure.
-LISTING_NOTE_ONLY = ("shortDescription",)
 
 
 def git(*args: str) -> bytes:
@@ -91,16 +88,15 @@ def main(argv: list[str]) -> int:
 
     manifest = json.loads(git("cat-file", "blob", package["plugin.json"]))
     interface = manifest.get("extensions", {}).get("com.openai", {}).get("interface", {})
-    for field in LISTING_FIELDS:
-        value = interface.get(field)
+    fields = [(field, manifest.get(field), limit) for field, limit in MANIFEST_LIMITS.items()]
+    fields += [(f"interface.{field}", interface.get(field), limit) for field, limit in LISTING_LIMITS.items()]
+    for field, value, limit in fields:
         if not isinstance(value, str) or not value.strip():
-            print(f"FAIL plugin.json interface.{field} must be a non-empty string", file=sys.stderr)
+            print(f"FAIL plugin.json {field} must be a non-empty string", file=sys.stderr)
             return 1
-        if len(value) > LISTING_LIMIT:
-            if field not in LISTING_NOTE_ONLY:
-                print(f"FAIL plugin.json interface.{field} is {len(value)} chars; the limit is {LISTING_LIMIT}", file=sys.stderr)
-                return 1
-            print(f"note: {field} is {len(value)} chars; the directory docs name {LISTING_LIMIT}")
+        if len(value) > limit:
+            print(f"FAIL plugin.json {field} is {len(value)} chars; the directory allows {limit}", file=sys.stderr)
+            return 1
 
     names = sorted(rel for rel in package if rel != "README.md" and not (skills_only and rel == "mcp.json"))
     suffix = "-skills-only" if skills_only else ""

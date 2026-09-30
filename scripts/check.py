@@ -42,20 +42,55 @@ TIER_C = (
 )
 BANS = ("real-time", "realtime", "financial intelligence", "blackbox")
 # The copy rules ban the em dash (a hyphen is the only dash) and emoji, not Unicode as such.
-# Written as code points so this file stays plain ASCII: the dashes other than the hyphen,
-# the zero-width joiner, keycap and emoji presentation selector, then the blocks that render
-# as emoji - symbols, pictographs, flags and tag sequences.
-BANNED_POINTS = (0x2013, 0x2014, 0x2015, 0x200D, 0x20E3, 0xFE0F, 0x231A, 0x231B)
-BANNED_RANGES = ((0x23E9, 0x23FA), (0x2600, 0x27BF), (0x2B00, 0x2BFF), (0x1F000, 0x1FAFF), (0xE0020, 0xE007F))
+# Written as code points so this file stays plain ASCII. Banned: the dashes other than the
+# hyphen; the zero-width joiner, keycap, emoji presentation selector and tag characters, which
+# build or force an emoji; and EMOJI_RANGES. A character outside them that Unicode also lists
+# as emoji (a copyright sign, a check mark) renders as text, because the selector that would
+# turn it into an emoji is banned.
+BANNED_POINTS = (0x2013, 0x2014, 0x2015, 0x200D, 0x20E3, 0xFE0F)
+BANNED_RANGES = ((0xE0020, 0xE007F),)
+# From emoji-data.txt, Unicode 18.0.0: every Emoji_Presentation character (shown as an emoji by
+# default), plus Extended_Pictographic above U+FFFF, which also reserves the unassigned points
+# where later emoji will be encoded, so an emoji newer than this table still fails.
+EMOJI_RANGES = (
+    (0x231A, 0x231B), (0x23E9, 0x23EC), (0x23F0, 0x23F0), (0x23F3, 0x23F3), (0x25FD, 0x25FE),
+    (0x2614, 0x2615), (0x2648, 0x2653), (0x267F, 0x267F), (0x2693, 0x2693), (0x26A1, 0x26A1),
+    (0x26AA, 0x26AB), (0x26BD, 0x26BE), (0x26C4, 0x26C5), (0x26CE, 0x26CE), (0x26D4, 0x26D4),
+    (0x26EA, 0x26EA), (0x26F2, 0x26F3), (0x26F5, 0x26F5), (0x26FA, 0x26FA), (0x26FD, 0x26FD),
+    (0x2705, 0x2705), (0x270A, 0x270B), (0x2728, 0x2728), (0x274C, 0x274C), (0x274E, 0x274E),
+    (0x2753, 0x2755), (0x2757, 0x2757), (0x2795, 0x2797), (0x27B0, 0x27B0), (0x27BF, 0x27BF),
+    (0x2B1B, 0x2B1C), (0x2B50, 0x2B50), (0x2B55, 0x2B55), (0x1F004, 0x1F004), (0x1F02C, 0x1F02F),
+    (0x1F094, 0x1F09F), (0x1F0AF, 0x1F0B0), (0x1F0C0, 0x1F0C0), (0x1F0CF, 0x1F0D0),
+    (0x1F0F6, 0x1F0FF), (0x1F170, 0x1F171), (0x1F17E, 0x1F17F), (0x1F18E, 0x1F18E),
+    (0x1F191, 0x1F19A), (0x1F1AF, 0x1F1FF), (0x1F201, 0x1F20F), (0x1F21A, 0x1F21A),
+    (0x1F22F, 0x1F22F), (0x1F232, 0x1F23A), (0x1F23C, 0x1F23F), (0x1F249, 0x1F25F),
+    (0x1F266, 0x1F321), (0x1F324, 0x1F393), (0x1F396, 0x1F397), (0x1F399, 0x1F39B),
+    (0x1F39E, 0x1F3F0), (0x1F3F3, 0x1F3F5), (0x1F3F7, 0x1F4FD), (0x1F4FF, 0x1F53D),
+    (0x1F549, 0x1F54E), (0x1F550, 0x1F567), (0x1F56F, 0x1F570), (0x1F573, 0x1F57A),
+    (0x1F587, 0x1F587), (0x1F58A, 0x1F58D), (0x1F590, 0x1F590), (0x1F595, 0x1F596),
+    (0x1F5A4, 0x1F5A5), (0x1F5A8, 0x1F5A8), (0x1F5B1, 0x1F5B2), (0x1F5BC, 0x1F5BC),
+    (0x1F5C2, 0x1F5C4), (0x1F5D1, 0x1F5D3), (0x1F5DC, 0x1F5DE), (0x1F5E1, 0x1F5E1),
+    (0x1F5E3, 0x1F5E3), (0x1F5E8, 0x1F5E8), (0x1F5EF, 0x1F5EF), (0x1F5F3, 0x1F5F3),
+    (0x1F5FA, 0x1F64F), (0x1F680, 0x1F6C5), (0x1F6CB, 0x1F6D2), (0x1F6D5, 0x1F6E5),
+    (0x1F6E9, 0x1F6E9), (0x1F6EB, 0x1F6F0), (0x1F6F3, 0x1F6FF), (0x1F7DC, 0x1F7F0),
+    (0x1F80C, 0x1F80F), (0x1F848, 0x1F84F), (0x1F85A, 0x1F85F), (0x1F888, 0x1F88F),
+    (0x1F8AE, 0x1F8AF), (0x1F8BC, 0x1F8BF), (0x1F8C2, 0x1F8CF), (0x1F8D9, 0x1F8FF),
+    (0x1F90C, 0x1F93A), (0x1F93C, 0x1F945), (0x1F947, 0x1F9FF), (0x1FA58, 0x1FA5F),
+    (0x1FA6E, 0x1FAFF), (0x1FC00, 0x1FFFD),
+)
 FORBIDDEN = re.compile(
     "["
     + "".join(chr(point) for point in BANNED_POINTS)
-    + "".join(f"{chr(low)}-{chr(high)}" for low, high in BANNED_RANGES)
+    + "".join(f"{chr(low)}-{chr(high)}" for low, high in BANNED_RANGES + EMOJI_RANGES)
     + "]"
 )
 # Every other file a vendor or a reader sees is UTF-8 text and passes copy_lint.
 BINARY = {".png": b"\x89PNG\r\n\x1a\n"}
-PUBLIC = ("anthropic", "openai", "xai", ".claude-plugin", ".grok-plugin", ".agents", "README.md", "SECURITY.md", "LICENSE")
+PUBLIC_FILES = ("README.md", "SECURITY.md", "LICENSE")
+PUBLIC = ("anthropic", "openai", "xai", ".claude-plugin", ".grok-plugin", ".agents", *PUBLIC_FILES)
+# Final Plugins Directory submission limits, from developers.openai.com/plugins/deploy/submission-errors.
+MANIFEST_LIMITS = {"name": 64, "description": 1024}
+LISTING_LIMITS = {"displayName": 30, "shortDescription": 30, "longDescription": 4000, "developerName": 80}
 # openai.yaml is written in one shape: "interface:" then two-space fields holding a quoted string.
 YAML_KEYS = ("display_name", "short_description", "icon_small", "icon_large", "brand_color", "default_prompt")
 YAML_FIELD = re.compile(r'  ([a-z_]+): "([^"\\]*)"')
@@ -170,8 +205,12 @@ def check_packages() -> None:
         value = interface.get(field)
         if not isinstance(value, str) or not value.strip():
             fail(f"openai/plugin.json: interface.{field} must be a non-empty string")
-    if len(interface["displayName"]) > 30:
-        fail("openai/plugin.json: interface.displayName is over the 30 characters the directory allows")
+    for field, limit in MANIFEST_LIMITS.items():
+        if len(portable[field]) > limit:
+            fail(f"openai/plugin.json: {field} is over the {limit} characters the directory allows")
+    for field, limit in LISTING_LIMITS.items():
+        if len(interface[field]) > limit:
+            fail(f"openai/plugin.json: interface.{field} is over the {limit} characters the directory allows")
     if sorted(p.name for p in (openai / "assets").iterdir()) != ["logo.png"]:
         fail("openai/assets must hold only logo.png")
     openai_mcp = load_json(openai / "mcp.json")
@@ -214,6 +253,8 @@ def check_copy() -> None:
     """Copy rules over every public file: text read raw, JSON also as its decoded strings."""
     for name in PUBLIC:
         base = ROOT / name
+        if not (base.is_file() if name in PUBLIC_FILES else base.is_dir()):
+            fail(f"{name} missing")
         for path in [base] if base.is_file() else sorted(p for p in base.rglob("*") if p.is_file()):
             label = path.relative_to(ROOT).as_posix()
             data = path.read_bytes()
@@ -272,6 +313,10 @@ def check_docs() -> None:
             fail(f"README.md must name {needle}")
     if "sugra.ai/stats" in readme or "`/stats`" in readme:
         fail("README.md must not point readers at /stats")
+    # README.md links LICENSE and every manifest says MIT.
+    license_file = ROOT / "LICENSE"
+    if not license_file.is_file() or license_file.read_text(encoding="utf-8").splitlines()[:1] != ["MIT License"]:
+        fail("LICENSE must be a file holding the MIT License")
 
 
 def main(argv: list[str]) -> int:

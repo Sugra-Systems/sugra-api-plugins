@@ -16,7 +16,7 @@
     "com.openai": {
       "interface": {
         "displayName": "Sugra API",
-        "shortDescription": "HTTPS and MCP skills for the Sugra API. Docs: docs.sugra.ai.",
+        "shortDescription": "Skills and MCP for Sugra API",
         "longDescription": "Work with the Sugra API over HTTPS and MCP. One key, seven product directions. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
         "developerName": "Sugra Systems, Inc.",
         "category": "Productivity",

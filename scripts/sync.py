@@ -22,6 +22,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import unicodedata
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -68,7 +69,7 @@ def plain(path: str, commit: str) -> str:
         any(part in ("", ".", "..") or part.lower() == ".git" for part in parts)
         or "\\" in path
         or ":" in path
-        or any(ord(char) < 32 for char in path)
+        or any(unicodedata.category(char) == "Cc" for char in path)
     ):
         raise SystemExit(f"FAIL {path!r} at {commit}: not a plain relative path")
     return path
