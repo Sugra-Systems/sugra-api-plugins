@@ -6,8 +6,8 @@
 <clone> is a clone of sugra-api-skills that holds the pinned commit.
 
 The ZIP holds the files committed at HEAD, never the working tree. The builder
-refuses while openai/ or skills-source.json differ from HEAD (untracked files
-included) and while the package skills differ from the pinned sugra-api-skills
+refuses while openai/ or skills-source.json differ from HEAD (untracked and
+ignored files included) and while the package skills differ from the pinned sugra-api-skills
 commit. It names both commits in the archive comment and this repository's
 commit in the file name. Entries are stored uncompressed with a fixed date,
 mode and host, so one commit gives one ZIP, byte for byte.
@@ -59,7 +59,7 @@ def main(argv: list[str]) -> int:
         print(__doc__, file=sys.stderr)
         return 2
     source = Path(args[1])
-    dirty = git("status", "--porcelain", "--untracked-files=all", "--", PACKAGE, "skills-source.json")
+    dirty = git("status", "--porcelain", "--untracked-files=all", "--ignored", "--", PACKAGE, "skills-source.json")
     if dirty:
         print(f"FAIL commit {PACKAGE}/ and skills-source.json first:\n" + dirty.decode(), file=sys.stderr)
         return 1

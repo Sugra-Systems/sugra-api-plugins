@@ -45,12 +45,20 @@ TIER_C = (
 BANS = ("real-time", "realtime", "financial intelligence", "blackbox")
 # The copy rules ban the em dash (a hyphen is the only dash) and emoji, not Unicode as such.
 # Written as code points so this file stays plain ASCII. Banned: the dashes other than the
-# hyphen; the zero-width joiner, keycap, emoji presentation selector and tag characters, which
-# build or force an emoji; and EMOJI_RANGES. A character outside them that Unicode also lists
-# as emoji (a copyright sign, a check mark) renders as text, because the selector that would
-# turn it into an emoji is banned.
-BANNED_POINTS = (0x2013, 0x2014, 0x2015, 0x200D, 0x20E3, 0xFE0F)
-BANNED_RANGES = ((0xE0020, 0xE007F),)
+# hyphen and the keycap; IGNORABLE_RANGES; and EMOJI_RANGES. A character outside them that
+# Unicode also lists as emoji (a copyright sign, a check mark) renders as text, because the
+# selector that would turn it into an emoji is banned.
+BANNED_POINTS = (0x2013, 0x2014, 0x2015, 0x20E3)
+# Every Default_Ignorable_Code_Point of DerivedCoreProperties.txt, Unicode 18.0.0: characters a
+# reader does not see (zero-width characters, joiners, bidi controls, variation selectors, tag
+# characters). Invisible text has no place in a public file, so each one fails as a class; this
+# also covers the joiner, selectors and tags that build or force an emoji.
+IGNORABLE_RANGES = (
+    (0x00AD, 0x00AD), (0x034F, 0x034F), (0x061C, 0x061C), (0x115F, 0x1160), (0x17B4, 0x17B5),
+    (0x180B, 0x180F), (0x200B, 0x200F), (0x202A, 0x202E), (0x2060, 0x206F), (0x3164, 0x3164),
+    (0xFE00, 0xFE0F), (0xFEFF, 0xFEFF), (0xFFA0, 0xFFA0), (0xFFF0, 0xFFF8), (0x1BCA0, 0x1BCA3),
+    (0x1D173, 0x1D17A), (0xE0000, 0xE0FFF),
+)
 # From emoji-data.txt, Unicode 18.0.0: every Emoji_Presentation character (shown as an emoji by
 # default), plus Extended_Pictographic above U+FFFF, which also reserves the unassigned points
 # where later emoji will be encoded, so an emoji newer than this table still fails.
@@ -83,7 +91,7 @@ EMOJI_RANGES = (
 FORBIDDEN = re.compile(
     "["
     + "".join(chr(point) for point in BANNED_POINTS)
-    + "".join(f"{chr(low)}-{chr(high)}" for low, high in BANNED_RANGES + EMOJI_RANGES)
+    + "".join(f"{chr(low)}-{chr(high)}" for low, high in IGNORABLE_RANGES + EMOJI_RANGES)
     + "]"
 )
 # Every other file a vendor or a reader sees is UTF-8 text and passes copy_lint.
@@ -104,8 +112,12 @@ def fail(msg: str) -> None:
 
 
 def views(text: str) -> tuple[str, str, str]:
-    """The text as written; as a renderer shows it, with HTML character references decoded; and as a
-    reader reads it, with format characters (zero-width, soft hyphen) removed and NFKC folding applied."""
+    """The text as written; with HTML character references decoded; and that decoded text with format
+    characters removed and NFKC folding applied.
+
+    The copy lint checks honest text in these three views. It does not render Markdown or HTML, so a
+    word split by markup inside the word is outside its scope: it is not a filter against an author
+    who hides a word on purpose."""
     shown = html.unescape(text)
     read = unicodedata.normalize("NFKC", "".join(char for char in shown if unicodedata.category(char) != "Cf"))
     return text, shown, read
@@ -115,7 +127,7 @@ def copy_lint(text: str, label: str) -> None:
     for view in views(text):
         found = FORBIDDEN.search(view)
         if found:
-            fail(f"{label}: U+{ord(found.group()):04X} is a banned dash or emoji")
+            fail(f"{label}: U+{ord(found.group()):04X} is a banned dash, emoji or invisible character")
         lowered = view.lower()
         for ban in BANS:
             if ban in lowered:
