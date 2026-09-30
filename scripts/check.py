@@ -7,10 +7,12 @@ The clone must hold the pinned commit and the main branch of sugra-api-skills.
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 import sync
@@ -101,17 +103,26 @@ def fail(msg: str) -> None:
     raise SystemExit(1)
 
 
+def views(text: str) -> tuple[str, str, str]:
+    """The text as written; as a renderer shows it, with HTML character references decoded; and as a
+    reader reads it, with format characters (zero-width, soft hyphen) removed and NFKC folding applied."""
+    shown = html.unescape(text)
+    read = unicodedata.normalize("NFKC", "".join(char for char in shown if unicodedata.category(char) != "Cf"))
+    return text, shown, read
+
+
 def copy_lint(text: str, label: str) -> None:
-    found = FORBIDDEN.search(text)
-    if found:
-        fail(f"{label}: U+{ord(found.group()):04X} is a banned dash or emoji")
-    lowered = text.lower()
-    for ban in BANS:
-        if ban in lowered:
-            fail(f"{label}: banned phrase {ban}")
-    for fragment in TIER_C:
-        if fragment in lowered:
-            fail(f"{label}: commercial name {fragment}")
+    for view in views(text):
+        found = FORBIDDEN.search(view)
+        if found:
+            fail(f"{label}: U+{ord(found.group()):04X} is a banned dash or emoji")
+        lowered = view.lower()
+        for ban in BANS:
+            if ban in lowered:
+                fail(f"{label}: banned phrase {ban}")
+        for fragment in TIER_C:
+            if fragment in lowered:
+                fail(f"{label}: commercial name {fragment}")
 
 
 def load_json(path: Path) -> dict:
@@ -119,9 +130,10 @@ def load_json(path: Path) -> dict:
     if not path.is_file():
         fail(f"{label} missing")
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
     except ValueError as exc:
         fail(f"{label}: {exc}")
+    data = sync.strict_json(text, label)
     if not isinstance(data, dict):
         fail(f"{label} must be a JSON object")
     return data
@@ -250,7 +262,7 @@ def parse_openai_yaml(text: str, label: str) -> dict[str, str]:
 
 
 def check_copy() -> None:
-    """Copy rules over every public file: text read raw, JSON also as its decoded strings."""
+    """Copy rules over every public file in each of its views; JSON, parsed strictly, also as its decoded strings."""
     for name in PUBLIC:
         base = ROOT / name
         if not (base.is_file() if name in PUBLIC_FILES else base.is_dir()):
@@ -269,11 +281,7 @@ def check_copy() -> None:
                 fail(f"{label}: not UTF-8 text; only {sorted(BINARY)} files may be binary")
             copy_lint(text, label)
             if path.suffix.lower() == ".json":
-                try:
-                    decoded = json.loads(text)
-                except ValueError as exc:
-                    fail(f"{label}: {exc}")
-                copy_lint(json.dumps(decoded, ensure_ascii=False), label)
+                copy_lint(json.dumps(sync.strict_json(text, label), ensure_ascii=False), label)
 
 
 def check_marketplaces() -> None:

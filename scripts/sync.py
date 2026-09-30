@@ -22,7 +22,6 @@ import re
 import subprocess
 import sys
 import tempfile
-import unicodedata
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,6 +34,13 @@ PACKAGES = {
     "xai": (),
 }
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+# A copied source path is an allow list, not a list of bad spellings: lower-case ASCII letters,
+# digits and inner hyphens with at most one extension, or the exact file name SKILL.md. Such a
+# path means the same file on every filesystem - no case folding, normalisation, trailing dot or
+# space, separator or control character can make two of them meet or leave the skill folder.
+NAME = r"[a-z0-9]+(?:-[a-z0-9]+)*"
+SOURCE_PATH = re.compile(rf"{NAME}/(?:SKILL\.md|(?:{NAME}/)*{NAME}(?:\.[a-z0-9]+)?)")
+DEVICE = re.compile(r"(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\..*)?")
 
 
 def is_link(path: Path) -> bool:
@@ -63,16 +69,28 @@ def inside(path: Path, base: Path) -> None:
 
 
 def plain(path: str, commit: str) -> str:
-    """A source path is relative and plain: no dot, dot-dot or .git part, no backslash, colon or control character."""
-    parts = path.split("/")
-    if (
-        any(part in ("", ".", "..") or part.lower() == ".git" for part in parts)
-        or "\\" in path
-        or ":" in path
-        or any(unicodedata.category(char) == "Cc" for char in path)
-    ):
+    """A source path matches SOURCE_PATH and names no Windows device in any part."""
+    if not SOURCE_PATH.fullmatch(path) or any(DEVICE.fullmatch(part) for part in path.split("/")):
         raise SystemExit(f"FAIL {path!r} at {commit}: not a plain relative path")
     return path
+
+
+def strict_json(text: str | bytes, label: str):
+    """JSON as a strict parser reads it: no NaN or Infinity, no key twice in one object."""
+
+    def constant(name: str):
+        raise ValueError(f"{name} is not JSON")
+
+    def pairs(items: list[tuple[str, object]]) -> dict:
+        keys = [key for key, _ in items]
+        if len(keys) != len(set(keys)):
+            raise ValueError("a key appears twice in one object")
+        return dict(items)
+
+    try:
+        return json.loads(text, parse_constant=constant, object_pairs_hook=pairs)
+    except ValueError as exc:
+        raise SystemExit(f"FAIL {label}: {exc}") from None
 
 
 def refuse_links(base: Path) -> None:
@@ -103,7 +121,7 @@ def replace_file(dest: Path, data: bytes) -> None:
 
 def pinned() -> str:
     guard(PIN)
-    data = json.loads(PIN.read_text(encoding="utf-8"))
+    data = strict_json(PIN.read_text(encoding="utf-8"), "skills-source.json")
     if not isinstance(data, dict):
         data = {}
     commit = data.get("commit")
@@ -145,6 +163,12 @@ def source_files(source: Path, commit: str) -> dict[str, bytes]:
         if kind != "blob" or mode not in ("100644", "100755"):
             raise SystemExit(f"FAIL {path} at {commit}: mode {mode} is not a regular file")
         out[path] = source_git(source, "cat-file", "blob", blob)
+    # SKILL.md is the one upper-case name, so skill.md beside it would be the same file on Windows or macOS
+    folded: dict[str, str] = {}
+    for path in sorted(out):
+        other = folded.setdefault(path.casefold(), path)
+        if other != path:
+            raise SystemExit(f"FAIL {other!r} and {path!r} at {commit}: one file on a case-insensitive filesystem")
     return out
 
 

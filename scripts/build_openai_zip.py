@@ -16,7 +16,6 @@ mode and host, so one commit gives one ZIP, byte for byte.
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import subprocess
 import sys
@@ -65,7 +64,7 @@ def main(argv: list[str]) -> int:
         print(f"FAIL commit {PACKAGE}/ and skills-source.json first:\n" + dirty.decode(), file=sys.stderr)
         return 1
     commit = git("rev-parse", "HEAD").decode().strip()
-    pin = json.loads(git("show", "HEAD:skills-source.json"))
+    pin = sync.strict_json(git("show", "HEAD:skills-source.json"), "skills-source.json at HEAD")
     skills_commit = pin.get("commit") if isinstance(pin, dict) else None
     if skills_commit != sync.pinned():
         print("FAIL skills-source.json at HEAD differs from the working tree", file=sys.stderr)
@@ -86,7 +85,7 @@ def main(argv: list[str]) -> int:
         print("FAIL run python scripts/sync.py and commit", file=sys.stderr)
         return 1
 
-    manifest = json.loads(git("cat-file", "blob", package["plugin.json"]))
+    manifest = sync.strict_json(git("cat-file", "blob", package["plugin.json"]), "openai/plugin.json")
     interface = manifest.get("extensions", {}).get("com.openai", {}).get("interface", {})
     fields = [(field, manifest.get(field), limit) for field, limit in MANIFEST_LIMITS.items()]
     fields += [(f"interface.{field}", interface.get(field), limit) for field, limit in LISTING_LIMITS.items()]
