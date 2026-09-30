@@ -17,8 +17,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -102,19 +104,32 @@ def main(argv: list[str]) -> int:
 
     names = sorted(rel for rel in package if rel != "README.md" and not (skills_only and rel == "mcp.json"))
     suffix = "-skills-only" if skills_only else ""
+    # dist/ is ignored, so nothing reviewed it: refuse a link or a path that leaves the repository
+    sync.guard(DIST)
     DIST.mkdir(exist_ok=True)
+    sync.refuse_links(DIST)
     out = DIST / f"sugra-api-openai-{manifest['version']}{suffix}-{commit[:12]}.zip"
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_STORED) as archive:
-        archive.comment = (
-            f"Sugra-Systems/sugra-api-plugins {commit} {PACKAGE}; "
-            f"skills {sync.SOURCE_REPOSITORY} {skills_commit}"
-        ).encode()
-        for rel in names:
-            info = zipfile.ZipInfo(rel, date_time=(1980, 1, 1, 0, 0, 0))
-            info.create_system = 3
-            info.external_attr = 0o644 << 16
-            info.compress_type = zipfile.ZIP_STORED
-            archive.writestr(info, git("cat-file", "blob", package[rel]))
+    sync.inside(out, DIST)
+    sync.guard(out)
+    # a new file renamed over out, so an existing link or hard link at out is replaced, never written through
+    fd, tmp = tempfile.mkstemp(dir=DIST, prefix=".zip-")
+    try:
+        with os.fdopen(fd, "wb") as handle, zipfile.ZipFile(handle, "w", zipfile.ZIP_STORED) as archive:
+            archive.comment = (
+                f"Sugra-Systems/sugra-api-plugins {commit} {PACKAGE}; "
+                f"skills {sync.SOURCE_REPOSITORY} {skills_commit}"
+            ).encode()
+            for rel in names:
+                info = zipfile.ZipInfo(rel, date_time=(1980, 1, 1, 0, 0, 0))
+                info.create_system = 3
+                info.external_attr = 0o644 << 16
+                info.compress_type = zipfile.ZIP_STORED
+                archive.writestr(info, git("cat-file", "blob", package[rel]))
+        os.chmod(tmp, 0o644)
+        os.replace(tmp, out)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
     digest = hashlib.sha256(out.read_bytes()).hexdigest()
     print(out.relative_to(ROOT).as_posix())
     print(f"version {manifest['version']} commit {commit} skills {skills_commit} files {len(names)} sha256 {digest}")

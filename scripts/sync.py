@@ -51,8 +51,27 @@ def guard(path: Path) -> None:
         current = current / part
         if is_link(current):
             raise SystemExit(f"FAIL {current.relative_to(ROOT).as_posix()}: symlink")
-    if path.exists() and not path.resolve().is_relative_to(ROOT):
+    if not path.resolve().is_relative_to(ROOT):
         raise SystemExit(f"FAIL {rel.as_posix()}: resolves outside the repository")
+
+
+def inside(path: Path, base: Path) -> None:
+    """Refuse a destination that does not resolve beneath base, whether or not it exists yet."""
+    if not path.resolve().is_relative_to(base.resolve()):
+        raise SystemExit(f"FAIL {path}: outside {base.relative_to(ROOT).as_posix()}")
+
+
+def plain(path: str, commit: str) -> str:
+    """A source path is relative and plain: no dot, dot-dot or .git part, no backslash, colon or control character."""
+    parts = path.split("/")
+    if (
+        any(part in ("", ".", "..") or part.lower() == ".git" for part in parts)
+        or "\\" in path
+        or ":" in path
+        or any(ord(char) < 32 for char in path)
+    ):
+        raise SystemExit(f"FAIL {path!r} at {commit}: not a plain relative path")
+    return path
 
 
 def refuse_links(base: Path) -> None:
@@ -121,6 +140,7 @@ def source_files(source: Path, commit: str) -> dict[str, bytes]:
     for path, mode, kind, blob in entries:
         if path.split("/")[0] not in skills:
             continue
+        plain(path, commit)
         if kind != "blob" or mode not in ("100644", "100755"):
             raise SystemExit(f"FAIL {path} at {commit}: mode {mode} is not a regular file")
         out[path] = source_git(source, "cat-file", "blob", blob)
@@ -185,12 +205,14 @@ def write(want: dict[str, bytes], commit: str) -> None:
             if owned(rel, owned_paths):
                 continue
             dest = target / rel
+            inside(dest, target)
             guard(dest)
             dest.unlink()
             print(f"removed {package}/skills/{rel}")
         for rel, data in want.items():
             if have.get(rel) != data:
                 dest = target / rel
+                inside(dest, target)
                 guard(dest.parent)
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 guard(dest)

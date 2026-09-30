@@ -8,6 +8,7 @@ The clone must hold the pinned commit and the main branch of sugra-api-skills.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -40,6 +41,24 @@ TIER_C = (
     "cboe",
 )
 BANS = ("real-time", "realtime", "financial intelligence", "blackbox")
+# The copy rules ban the em dash (a hyphen is the only dash) and emoji, not Unicode as such.
+# Written as code points so this file stays plain ASCII: the dashes other than the hyphen,
+# the zero-width joiner, keycap and emoji presentation selector, then the blocks that render
+# as emoji - symbols, pictographs, flags and tag sequences.
+BANNED_POINTS = (0x2013, 0x2014, 0x2015, 0x200D, 0x20E3, 0xFE0F, 0x231A, 0x231B)
+BANNED_RANGES = ((0x23E9, 0x23FA), (0x2600, 0x27BF), (0x2B00, 0x2BFF), (0x1F000, 0x1FAFF), (0xE0020, 0xE007F))
+FORBIDDEN = re.compile(
+    "["
+    + "".join(chr(point) for point in BANNED_POINTS)
+    + "".join(f"{chr(low)}-{chr(high)}" for low, high in BANNED_RANGES)
+    + "]"
+)
+# Every other file a vendor or a reader sees is UTF-8 text and passes copy_lint.
+BINARY = {".png": b"\x89PNG\r\n\x1a\n"}
+PUBLIC = ("anthropic", "openai", "xai", ".claude-plugin", ".grok-plugin", ".agents", "README.md", "SECURITY.md", "LICENSE")
+# openai.yaml is written in one shape: "interface:" then two-space fields holding a quoted string.
+YAML_KEYS = ("display_name", "short_description", "icon_small", "icon_large", "brand_color", "default_prompt")
+YAML_FIELD = re.compile(r'  ([a-z_]+): "([^"\\]*)"')
 
 
 def fail(msg: str) -> None:
@@ -48,8 +67,9 @@ def fail(msg: str) -> None:
 
 
 def copy_lint(text: str, label: str) -> None:
-    if not text.isascii():
-        fail(f"{label}: must be plain ASCII")
+    found = FORBIDDEN.search(text)
+    if found:
+        fail(f"{label}: U+{ord(found.group()):04X} is a banned dash or emoji")
     lowered = text.lower()
     for ban in BANS:
         if ban in lowered:
@@ -87,7 +107,6 @@ def check_manifest(manifest: dict, package: str) -> None:
     author = manifest.get("author")
     if not isinstance(author, dict) or author.get("name") != "Sugra Systems, Inc.":
         fail(f"{package} manifest: author.name must be Sugra Systems, Inc.")
-    copy_lint(json.dumps(manifest), f"{package} manifest")
 
 
 def check_mcp(conf: dict, kind: str, label: str) -> None:
@@ -164,10 +183,7 @@ def check_packages() -> None:
         label = yaml_path.relative_to(ROOT).as_posix()
         if not yaml_path.is_file():
             fail(f"{label} missing")
-        yaml_text = yaml_path.read_text(encoding="utf-8")
-        if "interface:" not in yaml_text or "display_name:" not in yaml_text:
-            fail(f"{label} must declare interface.display_name")
-        copy_lint(yaml_text, label)
+        parse_openai_yaml(yaml_path.read_text(encoding="utf-8"), label)
 
     xai = ROOT / "xai"
     grok_plugin = load_json(xai / ".grok-plugin" / "plugin.json")
@@ -176,9 +192,47 @@ def check_packages() -> None:
         fail("xai/.grok-plugin must hold only plugin.json")
     check_mcp(load_json(xai / ".mcp.json"), "http", "xai/.mcp.json")
 
-    for package in LAYOUT:
-        for path in sorted((ROOT / package / "skills").rglob("*.md")):
-            copy_lint(path.read_text(encoding="utf-8"), path.relative_to(ROOT).as_posix())
+
+def parse_openai_yaml(text: str, label: str) -> dict[str, str]:
+    """Read openai.yaml in the one shape this repository writes; anything else fails."""
+    lines = text.split("\n")
+    if lines[0] != "interface:" or lines[-1] != "":
+        fail(f"{label} must start with interface: and end with a newline")
+    fields: dict[str, str] = {}
+    for line in lines[1:-1]:
+        match = YAML_FIELD.fullmatch(line)
+        if not match or match[1] not in YAML_KEYS or match[1] in fields:
+            fail(f"{label}: {line!r} is not an interface field written as '  key: \"value\"'")
+        fields[match[1]] = match[2]
+    for key in ("display_name", "short_description"):
+        if not fields.get(key, "").strip():
+            fail(f"{label}: interface.{key} must be a non-empty string")
+    return fields
+
+
+def check_copy() -> None:
+    """Copy rules over every public file: text read raw, JSON also as its decoded strings."""
+    for name in PUBLIC:
+        base = ROOT / name
+        for path in [base] if base.is_file() else sorted(p for p in base.rglob("*") if p.is_file()):
+            label = path.relative_to(ROOT).as_posix()
+            data = path.read_bytes()
+            magic = BINARY.get(path.suffix.lower())
+            if magic is not None:
+                if not data.startswith(magic):
+                    fail(f"{label}: not a {path.suffix.lower()} file")
+                continue
+            try:
+                text = data.decode("utf-8")
+            except UnicodeDecodeError:
+                fail(f"{label}: not UTF-8 text; only {sorted(BINARY)} files may be binary")
+            copy_lint(text, label)
+            if path.suffix.lower() == ".json":
+                try:
+                    decoded = json.loads(text)
+                except ValueError as exc:
+                    fail(f"{label}: {exc}")
+                copy_lint(json.dumps(decoded, ensure_ascii=False), label)
 
 
 def check_marketplaces() -> None:
@@ -189,7 +243,6 @@ def check_marketplaces() -> None:
         plugins = market.get("plugins")
         if market.get("name") != MARKETPLACE or not isinstance(plugins, list) or [p.get("name") for p in plugins] != ["sugra-api"]:
             fail(f"{label} marketplace must be {MARKETPLACE} listing only sugra-api")
-        copy_lint(json.dumps(market), f"{label} marketplace")
     if claude["plugins"][0].get("source") != "./anthropic" or claude["plugins"][0].get("version") != VERSIONS["anthropic"]:
         fail("claude marketplace must point at ./anthropic with its version")
     if grok["plugins"][0].get("source") != {"type": "local", "path": "./xai"} or grok["plugins"][0].get("version") != VERSIONS["xai"]:
@@ -205,12 +258,9 @@ def check_docs() -> None:
     for package in LAYOUT:
         path = ROOT / package / "README.md"
         text = path.read_text(encoding="utf-8")
-        copy_lint(text, f"{package}/README.md")
         if "scripts/sync.py" not in text or MCP_URL not in text:
             fail(f"{package}/README.md must name scripts/sync.py and {MCP_URL}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    copy_lint(readme, "README.md")
-    copy_lint((ROOT / "SECURITY.md").read_text(encoding="utf-8"), "SECURITY.md")
     for needle in (
         "sugra-api@sugra-api-plugins",
         "Sugra-Systems/sugra-api-plugins#xai",
@@ -245,6 +295,7 @@ def main(argv: list[str]) -> int:
     check_packages()
     check_marketplaces()
     check_docs()
+    check_copy()
     print("ok", ", ".join(LAYOUT), "packages")
     return 0
 
