@@ -1,0 +1,21 @@
+{
+  "name": "sugra-api",
+  "displayName": "Sugra API",
+  "version": "1.2.1",
+  "description": "Skills and the hosted MCP server for the Sugra API: find the right endpoint, call it with the right parameters, and cite the source and as-of date of every figure.",
+  "author": {
+    "name": "Sugra Systems, Inc.",
+    "email": "support@sugra.systems",
+    "url": "https://sugra.systems"
+  },
+  "homepage": "https://sugra.ai",
+  "documentationUrl": "https://docs.sugra.ai",
+  "supportUrl": "https://sugra.systems/contact",
+  "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
+  "license": "MIT",
+  "privacyPolicyUrl": "https://sugra.systems/privacy-policy",
+  "termsOfServiceUrl": "https://sugra.systems/terms-of-service",
+  "icon": "./assets/logo.png",
+  "keywords": ["sugra", "sugra.ai", "api", "mcp", "data"],
+  "skills": "./skills"
+}

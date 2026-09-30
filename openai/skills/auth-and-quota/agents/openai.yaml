@@ -1,0 +1,5 @@
+interface:
+  display_name: "Auth and quota"
+  short_description: "Handle Sugra keys and daily quota"
+  brand_color: "#F5A623"
+  default_prompt: "Use $auth-and-quota to set up a Sugra key and stay inside the daily quota."

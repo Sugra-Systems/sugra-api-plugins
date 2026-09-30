@@ -1,0 +1,5 @@
+interface:
+  display_name: "Using Sugra API"
+  short_description: "Map HTTPS and MCP for Sugra API"
+  brand_color: "#F5A623"
+  default_prompt: "Use $using-sugra-api to work with the Sugra API over HTTPS or MCP."

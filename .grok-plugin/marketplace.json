@@ -1,0 +1,27 @@
+{
+  "name": "sugra-api-plugins",
+  "description": "Official Sugra API plugins. HTTPS and MCP. Documentation truth is https://docs.sugra.ai.",
+  "owner": {
+    "name": "Sugra Systems, Inc.",
+    "email": "support@sugra.systems"
+  },
+  "plugins": [
+    {
+      "name": "sugra-api",
+      "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+      "category": "development",
+      "source": {
+        "type": "local",
+        "path": "./xai"
+      },
+      "homepage": "https://docs.sugra.ai",
+      "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"],
+      "domains": ["sugra.ai", "docs.sugra.ai", "app.sugra.ai", "mcp.sugra.ai", "sugra.systems"],
+      "version": "1.2.0",
+      "author": {
+        "name": "Sugra Systems, Inc.",
+        "email": "support@sugra.systems"
+      }
+    }
+  ]
+}

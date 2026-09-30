@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "sugra-api-plugins",
+  "description": "Official Sugra API plugins. HTTPS and MCP. Documentation truth is https://docs.sugra.ai.",
+  "owner": {
+    "name": "Sugra Systems, Inc.",
+    "email": "support@sugra.systems",
+    "url": "https://sugra.systems"
+  },
+  "plugins": [
+    {
+      "name": "sugra-api",
+      "source": "./anthropic",
+      "description": "Skills and the hosted MCP server for the Sugra API: find the right endpoint, call it with the right parameters, and cite the source and as-of date of every figure.",
+      "version": "1.2.1",
+      "author": {
+        "name": "Sugra Systems, Inc.",
+        "email": "support@sugra.systems"
+      },
+      "homepage": "https://sugra.ai",
+      "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
+      "license": "MIT",
+      "keywords": ["sugra", "sugra.ai", "api", "mcp", "data"],
+      "category": "development"
+    }
+  ]
+}
