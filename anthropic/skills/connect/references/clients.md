@@ -54,4 +54,4 @@ Remote MCP tools against `https://mcp.sugra.ai/mcp` with Bearer.
 
 ## ChatGPT and claude.ai
 
-Hosted connector only. No SKILL.md load on ChatGPT.
+ChatGPT: these skills install from the Plugins Directory (https://chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef); the MCP tools attach as a hosted connector (Settings -> Connectors -> Add MCP server). claude.ai: hosted connector.

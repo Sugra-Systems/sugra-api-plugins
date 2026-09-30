@@ -32,7 +32,7 @@ MCP: `call_endpoint` / `fetch_data` return the same payload (a top-level array i
 
 ## Time
 
-`meta.data_time` is the observation or publication clock of the data, not the HTTP response time. A row-level `as_of` is the period the figure is about. Quote both when they differ. Do not describe a delayed series as a live tick.
+`data_time` in `meta` (or `_meta` on a flat payload) is the observation or publication clock of the data, not the HTTP response time. A row-level `as_of` is the period the figure is about. Quote both when they differ. Do not describe a delayed series as a live tick.
 
 ## Attribution
 

@@ -13,7 +13,7 @@ Split the question. Call two or three operations. Do not invent a combined index
 1. Split the question into 2-3 concrete asks (place, series, snapshot). Name the directions involved (Finance, Macro, Entity, Net Atlas, News, Earth, Research).
 2. For each ask, discover then call (`discover-and-call`). Prefer sovereign or intergovernmental sources when the catalog offers them.
 3. Keep units, geography, and clocks separate. Do not blend a port throughput z-score with a weather reading into one invented number.
-4. Quote each figure with its source from `meta` and its `as_of` / `meta.data_time`.
+4. Quote each figure with its source and `data_time` from `meta` (or `_meta` on a flat payload, see `envelope-and-attribution`) and its row-level `as_of` when present.
 5. Close with what the catalog did not cover, not a prediction.
 
 ## Example shape (not a canned path list)

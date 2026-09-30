@@ -14,7 +14,7 @@ Do not invent paths or `operation_id`s. Confirm the operation on https://docs.su
 2. Search https://docs.sugra.ai. Machine companion: `GET https://sugra.ai/openapi.json`. Coarse map: `GET /services`, `GET /sources`.
 3. Read parameters and, for POST, the request body. Required names come from docs or the spec.
 4. Call `https://sugra.ai` with `x-api-key`. GET uses query params. POST uses JSON body plus any path or query params the spec lists.
-5. Parse `{data, meta}`. Cite source and `data_time`. Read `X-RateLimit-Remaining`.
+5. Parse `{data, meta}`, or the flat object with `meta` / `_meta` that a few payloads return. Cite source and `data_time`. Read `X-RateLimit-Remaining`.
 
 ```
 GET https://sugra.ai/api/v1/etf/sectors/relative-strength?window=1m
