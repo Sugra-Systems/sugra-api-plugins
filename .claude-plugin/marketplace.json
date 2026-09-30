@@ -11,16 +11,16 @@
     {
       "name": "sugra-api",
       "source": "./anthropic",
-      "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
-      "version": "1.2.0",
+      "description": "Skills and the hosted MCP server for the Sugra API: find the right endpoint, call it with the right parameters, and cite the source and as-of date of every figure.",
+      "version": "1.2.1",
       "author": {
         "name": "Sugra Systems, Inc.",
         "email": "support@sugra.systems"
       },
-      "homepage": "https://docs.sugra.ai",
+      "homepage": "https://sugra.ai",
       "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
       "license": "MIT",
-      "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"],
+      "keywords": ["sugra", "sugra.ai", "api", "mcp", "data"],
       "category": "development"
     }
   ]

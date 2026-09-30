@@ -21,14 +21,24 @@ ROOT = sync.ROOT
 REPOSITORY = "https://github.com/Sugra-Systems/sugra-api-plugins"
 MARKETPLACE = "sugra-api-plugins"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.0", "openai": "1.2.0", "xai": "1.2.0"}
+VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.0", "xai": "1.2.0"}
+# the Anthropic listing shows the homepage and the documentation as two links
+HOMEPAGES = {"anthropic": "https://sugra.ai", "openai": "https://docs.sugra.ai", "xai": "https://docs.sugra.ai"}
+# links the Anthropic directory reads from plugin.json into the listing
+ANTHROPIC_LINKS = {
+    "documentationUrl": "https://docs.sugra.ai",
+    "supportUrl": "https://sugra.systems/contact",
+    "privacyPolicyUrl": "https://sugra.systems/privacy-policy",
+    "termsOfServiceUrl": "https://sugra.systems/terms-of-service",
+    "icon": "./assets/logo.png",
+}
 MCP_URL = "https://app.sugra.ai/mcp"
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
 LAYOUT = {
-    "anthropic": {".claude-plugin", ".mcp.json", "README.md", "skills"},
+    "anthropic": {".claude-plugin", ".mcp.json", "README.md", "assets", "skills"},
     "openai": {"README.md", "assets", "mcp.json", "plugin.json", "skills"},
     "xai": {".grok-plugin", ".mcp.json", "README.md", "skills"},
 }
@@ -159,8 +169,8 @@ def check_manifest(manifest: dict, package: str) -> None:
             fail(f"{package} manifest: {field} must be a non-empty string")
     if manifest["name"] != "sugra-api" or manifest["version"] != VERSIONS[package]:
         fail(f"{package} manifest: name must be sugra-api and version {VERSIONS[package]}")
-    if manifest["homepage"] != "https://docs.sugra.ai" or manifest["repository"] != REPOSITORY:
-        fail(f"{package} manifest: homepage must be https://docs.sugra.ai and repository {REPOSITORY}")
+    if manifest["homepage"] != HOMEPAGES[package] or manifest["repository"] != REPOSITORY:
+        fail(f"{package} manifest: homepage must be {HOMEPAGES[package]} and repository {REPOSITORY}")
     if manifest["license"] != "MIT":
         fail(f"{package} manifest: license must be MIT")
     author = manifest.get("author")
@@ -207,12 +217,18 @@ def check_packages() -> None:
     anthropic = ROOT / "anthropic"
     claude_plugin = load_json(anthropic / ".claude-plugin" / "plugin.json")
     check_manifest(claude_plugin, "anthropic")
-    if claude_plugin.get("privacyPolicyUrl") != "https://sugra.systems/privacy-policy":
-        fail("anthropic manifest: privacyPolicyUrl must be https://sugra.systems/privacy-policy")
+    for field, value in ANTHROPIC_LINKS.items():
+        if claude_plugin.get(field) != value:
+            fail(f"anthropic manifest: {field} must be {value}")
     if claude_plugin.get("skills") not in ("./skills", "./skills/"):
         fail("anthropic manifest: skills must be ./skills")
     if sorted(p.name for p in (anthropic / ".claude-plugin").iterdir()) != ["plugin.json"]:
         fail("anthropic/.claude-plugin must hold only plugin.json")
+    if sorted(p.name for p in (anthropic / "assets").iterdir()) != ["logo.png"]:
+        fail("anthropic/assets must hold only logo.png")
+    logo = anthropic / "assets" / "logo.png"
+    if not logo.is_file() or logo.read_bytes() != (ROOT / "openai" / "assets" / "logo.png").read_bytes():
+        fail("anthropic/assets/logo.png must be a file identical to openai/assets/logo.png")
     check_mcp(load_json(anthropic / ".mcp.json"), "http", "anthropic/.mcp.json")
 
     openai = ROOT / "openai"
