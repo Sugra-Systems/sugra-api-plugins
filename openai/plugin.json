@@ -1,0 +1,38 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sugra-api",
+  "version": "1.2.0",
+  "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+  "author": {
+    "name": "Sugra Systems, Inc.",
+    "email": "support@sugra.systems",
+    "url": "https://sugra.systems"
+  },
+  "homepage": "https://docs.sugra.ai",
+  "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
+  "license": "MIT",
+  "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Sugra API",
+        "shortDescription": "Skills and MCP for Sugra API",
+        "longDescription": "Work with the Sugra API over HTTPS and MCP. One key, seven product directions. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+        "developerName": "Sugra Systems, Inc.",
+        "category": "Productivity",
+        "capabilities": ["Read"],
+        "websiteURL": "https://sugra.ai",
+        "privacyPolicyURL": "https://sugra.systems/privacy-policy",
+        "termsOfServiceURL": "https://sugra.systems/terms-of-service",
+        "defaultPrompt": [
+          "What can Sugra API do, and which endpoints need no key?",
+          "Where do I get a Sugra key, and how do I use it without pasting it in chat?",
+          "Look up an endpoint on docs.sugra.ai"
+        ],
+        "brandColor": "#F5A623",
+        "composerIcon": "./assets/logo.png",
+        "logo": "./assets/logo.png"
+      }
+    }
+  }
+}

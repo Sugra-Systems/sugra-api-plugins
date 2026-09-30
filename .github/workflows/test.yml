@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check out the skills source
+        uses: actions/checkout@v4
+        with:
+          repository: Sugra-Systems/sugra-api-skills
+          ref: main
+          fetch-depth: 0
+          path: .skills-source
+          persist-credentials: false
+      - name: Check packages
+        run: python scripts/check.py --source .skills-source

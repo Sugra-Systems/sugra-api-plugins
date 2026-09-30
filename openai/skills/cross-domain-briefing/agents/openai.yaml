@@ -1,0 +1,5 @@
+interface:
+  display_name: "Cross-domain briefing"
+  short_description: "Brief from two or three directions"
+  brand_color: "#F5A623"
+  default_prompt: "Use $cross-domain-briefing to compose one briefing from two or three Sugra directions."

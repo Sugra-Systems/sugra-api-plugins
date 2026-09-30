@@ -1,0 +1,14 @@
+{
+  "name": "sugra-api",
+  "version": "1.2.0",
+  "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+  "author": {
+    "name": "Sugra Systems, Inc.",
+    "email": "support@sugra.systems",
+    "url": "https://sugra.systems"
+  },
+  "homepage": "https://docs.sugra.ai",
+  "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
+  "license": "MIT",
+  "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"]
+}
