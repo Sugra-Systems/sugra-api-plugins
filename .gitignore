@@ -1,0 +1,15 @@
+.claude/
+.codex/
+.Codex/
+.grok/
+.agents/skills/
+.agents/commands/
+dist/
+__pycache__/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+*.pyc
+.env
+.env.local
+.skills-source/

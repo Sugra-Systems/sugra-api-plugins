@@ -1,0 +1,5 @@
+interface:
+  display_name: "Connect"
+  short_description: "Attach HTTPS or MCP to Sugra"
+  brand_color: "#F5A623"
+  default_prompt: "Use $connect to attach a client to Sugra over HTTPS or MCP."

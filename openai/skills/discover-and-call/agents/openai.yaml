@@ -1,0 +1,5 @@
+interface:
+  display_name: "Discover and call"
+  short_description: "Find and call a Sugra operation"
+  brand_color: "#F5A623"
+  default_prompt: "Use $discover-and-call to find a Sugra operation on docs.sugra.ai and call it."
