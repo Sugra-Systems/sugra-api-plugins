@@ -21,7 +21,7 @@ ROOT = sync.ROOT
 REPOSITORY = "https://github.com/Sugra-Systems/sugra-api-plugins"
 MARKETPLACE = "sugra-api-plugins"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.0", "xai": "1.2.0"}
+VERSIONS = {"anthropic": "1.2.2", "openai": "1.2.1", "xai": "1.2.1"}
 # the Anthropic listing shows the homepage and the documentation as two links
 HOMEPAGES = {"anthropic": "https://sugra.ai", "openai": "https://docs.sugra.ai", "xai": "https://docs.sugra.ai"}
 # links the Anthropic directory reads from plugin.json into the listing

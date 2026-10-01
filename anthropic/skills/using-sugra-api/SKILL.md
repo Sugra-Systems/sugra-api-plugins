@@ -12,7 +12,7 @@ The surface is LLM-friendly: one `x-api-key`, one JSON envelope `{data, meta}` o
 
 These files are English. Reply in the user's language.
 
-Public hedge (not a live count): 1,500+ endpoints, 160+ primary sources, 36 domains. Live counts: skill `live-docs`.
+Public hedge (not a live count): 1,600+ endpoints, 160+ primary sources, 36 domains. Quote these as "more than", never as an exact figure. The current operation list is `https://sugra.ai/openapi.json` (skill `live-docs`).
 
 ## Two complete ways in
 
@@ -21,7 +21,11 @@ Public hedge (not a live count): 1,500+ endpoints, 160+ primary sources, 36 doma
 | HTTPS `https://sugra.ai` | The agent can GET/POST | `x-api-key` on `/api/v1/...` |
 | MCP | The host is an MCP client | hosted `https://mcp.sugra.ai/mcp` or local `sugra-api-mcp` |
 
-Both reach the same API. Use the surface the host already has, or the one the user named. Key: https://app.sugra.ai/settings/billing (Free: 50 requests/day). Do not log the key.
+Both reach the same API. Use the surface the host already has, or the one the user named. Key: sign up at https://app.sugra.ai/register (a key is issued at signup), manage keys at https://app.sugra.ai/developer/keys. Free: 50 requests a day per account. Do not log the key.
+
+## Before quoting a figure
+
+A call that returns data is not yet an answer. Check that `meta.endpoint` is the operation meant, and that the place, entity, period, and measure in `data` are the ones the user asked about. An optional parameter left out takes its default, which can be another country or period; a required one must be set. Details: skill `discover-and-call`.
 
 ## Seven directions (one key, one budget)
 
@@ -41,7 +45,7 @@ Both reach the same API. Use the surface the host already has, or the one the us
 |---|---|
 | Live docs, search, Ask AI, sources, blog | `live-docs` |
 | Attach HTTP, hosted MCP, stdio, self-host, each client | `connect` |
-| Key, plans, 401/429, Bearer vs `x-api-key` | `auth-and-quota` |
-| Find and call an operation (HTTP and MCP) | `discover-and-call` |
+| Key, plans, quota, errors, Bearer vs `x-api-key` | `auth-and-quota` |
+| Find, call, and check an operation (HTTP and MCP) | `discover-and-call` |
 | Envelope, sources, clocks, MCP shaping | `envelope-and-attribution` |
 | Two or three directions in one answer | `cross-domain-briefing` |

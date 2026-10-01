@@ -1,6 +1,6 @@
 ---
 name: discover-and-call
-description: Find the right Sugra operation and call it over HTTPS or MCP. Use when the path or operation_id is unknown, before guessing parameters, or after a catalog miss. Confirm details on https://docs.sugra.ai. Do not invent routes.
+description: Find the right Sugra operation, call it over HTTPS or MCP, and check that the result answers the question. Use when the path or operation_id is unknown, before guessing parameters, before quoting a figure, or after a catalog miss. Confirm details on https://docs.sugra.ai. Do not invent routes.
 license: MIT
 ---
 
@@ -11,10 +11,10 @@ Do not invent paths or `operation_id`s. Confirm the operation on https://docs.su
 ## HTTP loop
 
 1. If the path is already known, skip to step 4 after confirming it on docs.sugra.ai.
-2. Search https://docs.sugra.ai. Machine companion: `GET https://sugra.ai/openapi.json`. Coarse map: `GET /services`, `GET /sources`.
-3. Read parameters and, for POST, the request body. Required names come from docs or the spec.
-4. Call `https://sugra.ai` with `x-api-key`. GET uses query params. POST uses JSON body plus any path or query params the spec lists.
-5. Parse `{data, meta}`, or the flat object with `meta` / `_meta` that a few payloads return. Cite source and `data_time`. Read `X-RateLimit-Remaining`.
+2. Search https://docs.sugra.ai. Machine companion: `GET https://sugra.ai/openapi.json`. Coarse map of source families: `GET https://sugra.ai/sources`.
+3. Read every parameter with its default and, for POST, the request body. Parameter names come from docs or the spec, spelled exactly: over HTTP an unknown query parameter is ignored without an error, so a misspelled filter (`country` for `countries`) returns the default data.
+4. Call `https://sugra.ai` with `x-api-key`. Set every parameter the question names (place, identifier, period, frequency, unit). GET uses query params. POST uses JSON body plus any path or query params the spec lists.
+5. Parse `{data, meta}`, or the flat object with `meta` / `_meta` that a few payloads return. Check the answer (below), then cite source and `data_time`. Read `X-RateLimit-Remaining`.
 
 ```
 GET https://sugra.ai/api/v1/etf/sectors/relative-strength?window=1m
@@ -26,11 +26,11 @@ x-api-key: sugra_...
 Works on hosted and stdio. Do not call hosted-only names on stdio. The catalog tools (`search_endpoints`, `describe_endpoint`, `list_toolsets`, `list_sources`) read the catalog bundled with the server and do not call https://sugra.ai; only `call_endpoint`, `fetch_data`, and the entity tools do.
 
 1. `search_endpoints(query=..., toolset=None, source=None, limit=10)`. Unknown `toolset` / `source` returns `unknown_toolset` / `unknown_source` with the valid set, not an empty hit list.
-2. Pick an `operation_id` from `results`. Confirm it on docs.sugra.ai.
-3. `describe_endpoint(operation_id=...)` - params, `request_body_schema` on POST, `agent_hints` (`duration_class`, `max_concurrency`, `bulk_cost`).
-4. `call_endpoint(operation_id=..., params={...}, body=...)`.
+2. Pick an `operation_id` from `results` by its summary, not by its rank: the first hit is not always the measure asked for (a search for an unemployment rate can rank a labour force participation series first). Confirm it on docs.sugra.ai.
+3. `describe_endpoint(operation_id=...)` - params with defaults, `request_body_schema` on POST, `agent_hints` (`duration_class`, `max_concurrency`, `bulk_cost`).
+4. `call_endpoint(operation_id=..., params={...}, body=...)`. Set every parameter the question names. A key the operation does not declare returns `unknown_parameters` with `accepted` and, when close, `did_you_mean`.
 
-`fetch_data(query=...)` is a one-shot. If it misses, use the four-step loop. `list_toolsets` and `list_sources` (resources `sugra://catalog/domains`, `sugra://catalog/sources`) are the map, not the query.
+`fetch_data(query=...)` is a one-shot: it calls the top catalog match with the params given. A missing required parameter returns `needs_params` with the selected endpoint and candidates; a missing optional one silently takes its default. Check the answer below before using it; if the operation or the place is wrong, use the four-step loop. `list_toolsets` and `list_sources` (resources `sugra://catalog/domains`, `sugra://catalog/sources`) are the map, not the query.
 
 Shaping on `call_endpoint` / `fetch_data`: `limit` bounds the records list, `fields` (dotted paths) projects each record, and `include_raw` attaches the complete original payload under `raw` when it fits the size cap. An object `data` without a records list, or an envelope-less object, counts as one record (`meta` / `_meta` stay), and lists nested inside records are never truncated. On the hosted server a projection that matches nothing removes nothing, and the records list can also be the one list inside an object `data`, when exactly one of `data`, `entries`, `events`, `history`, `items`, `observations`, `points`, `records`, `results`, `rows`, `series`, `timeseries` holds a list (for example `data.items`). A `fields` entry that names a key of that `data` itself projects `data` as one record instead, and `meta.shaped.records_path` names the list used. Stdio packages up to 0.12.0 do not look inside an object `data` for a records list, can return empty records when no field matches, and report no `records_path`. `meta.shaped` reports what applied.
 
@@ -38,9 +38,20 @@ Hosted only: `resolve_entity`, `get_snapshot`, `get_timeseries`. LEI/VAT and san
 
 The MCP prompts (`market_snapshot`, `macro_briefing`, `sanctions_screening`, `sector_compare`, `earth_conditions`, `source_overview`) are numbered recipes over the gateway tools. They are not the catalog and do not cover every direction. For anything they do not name, use the loop above.
 
-## Misses
+## Check the answer before quoting it
+
+1. `meta.endpoint` is the operation you meant.
+2. The place, entity, and period in `data` are the ones asked about, not a default.
+3. The measure is the one asked about: a participation rate is not an unemployment rate, a level is not a change, a monthly figure is not an annual one.
+4. `meta.period`, `data_time`, and any row `as_of` say which period the figure covers (skill `envelope-and-attribution`).
+
+If any check fails, fix the call. Do not present a near miss as the answer, and do not fill a gap from memory.
+
+## Misses and errors
 
 A miss is not "Sugra has no data". Search docs.sugra.ai. Widen the query. Drop a bad MCP `toolset`/`source` filter. If MCP search still misses, fetch live `/openapi.json` (the wheel catalog can lag), then HTTP-call if the spec has it.
+
+An error message usually names the fix: read it before retrying. A 400 or 422 over HTTPS names the parameter or value to change; over MCP a 422 can arrive as a bare `HTTP 422`. Full table: skill `auth-and-quota`.
 
 Do not add per-endpoint MCP tools to skip this loop. Do not skip `describe_endpoint` when the parameter list is unknown.
 

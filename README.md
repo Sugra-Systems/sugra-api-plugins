@@ -19,7 +19,7 @@ Official [Sugra API](https://sugra.ai) plugins for Claude, ChatGPT and Codex, an
 
 ## Install
 
-Get a key at [app.sugra.ai/settings/billing](https://app.sugra.ai/settings/billing) (Free: 50 requests/day).
+Get a key at [app.sugra.ai/register](https://app.sugra.ai/register) (Free: 50 requests/day).
 
 ### Claude Code
 

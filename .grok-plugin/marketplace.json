@@ -17,7 +17,7 @@
       "homepage": "https://docs.sugra.ai",
       "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"],
       "domains": ["sugra.ai", "docs.sugra.ai", "app.sugra.ai", "mcp.sugra.ai", "sugra.systems"],
-      "version": "1.2.0",
+      "version": "1.2.1",
       "author": {
         "name": "Sugra Systems, Inc.",
         "email": "support@sugra.systems"

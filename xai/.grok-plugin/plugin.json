@@ -1,6 +1,6 @@
 {
   "name": "sugra-api",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
   "author": {
     "name": "Sugra Systems, Inc.",

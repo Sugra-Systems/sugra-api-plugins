@@ -1,12 +1,12 @@
 ---
 name: connect
-description: Attach a client to Sugra over HTTPS or MCP. Use when setting up Claude Desktop, Claude Code, ChatGPT, claude.ai, Cursor, VS Code, Gemini CLI, Grok, OpenBB, a custom HTTP agent, or self-hosted MCP.
+description: Attach a client to Sugra over HTTPS or MCP and install these skills. Use when setting up Claude (claude.ai, Desktop, Code), ChatGPT, Codex, Cursor, VS Code, Gemini CLI, Grok, OpenBB, a custom HTTP agent, or self-hosted MCP.
 license: MIT
 ---
 
 # Connect
 
-Same key for every path: https://app.sugra.ai/settings/billing, prefix `sugra_...`. Do not log it. Client JSON blocks: [references/clients.md](references/clients.md).
+Same key for every path: sign up at https://app.sugra.ai/register (a key is issued at signup), manage keys at https://app.sugra.ai/developer/keys. Prefix `sugra_...`. Do not log it. Client blocks: [references/clients.md](references/clients.md).
 
 ## 1. HTTPS API
 
@@ -15,17 +15,18 @@ GET https://sugra.ai/api/v1/...
 x-api-key: sugra_...
 ```
 
-System endpoints (`/health`, `/about`, `/services`, `/sources`, `/openapi.json`) need no key. Recipes: https://github.com/Sugra-Systems/sugra-api-cookbook. Endpoint detail: https://docs.sugra.ai.
+System endpoints (`/health`, `/about`, `/sources`, `/openapi.json`) need no key. Recipes: https://github.com/Sugra-Systems/sugra-api-cookbook. Endpoint detail: https://docs.sugra.ai.
 
 ## 2. Hosted MCP
 
 Canonical: `https://mcp.sugra.ai/mcp`
 Permanent alias: `https://app.sugra.ai/mcp`
 
-Auth: `Authorization: Bearer sugra_...` or OAuth (audience `https://app.sugra.ai/mcp`, scope `sugra:read`). Discovery is public. `tools/call` and `resources/read` need Bearer.
+Auth: `Authorization: Bearer sugra_...` on either host, or OAuth with the Sugra account (audience `https://app.sugra.ai/mcp`, scope `sugra:read`). Command-line clients that sign in with OAuth use `https://app.sugra.ai/mcp`. Discovery is public. `tools/call` and `resources/read` need Bearer.
 
-claude.ai: Settings -> Connectors -> Add custom connector.
-ChatGPT: install skills from the Plugins Directory (https://chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef). Hosted MCP tools: Settings -> Connectors -> Add MCP server.
+- claude.ai, Claude Desktop, Claude mobile: "Sugra API" in Anthropic's Connectors Directory (https://url.sugra.ai/claude); connect and sign in. Claude Code signed in with the same claude.ai account lists it in `/mcp`. Manual: Customize -> Connectors -> Add custom connector with the hosted URL.
+- ChatGPT: the Sugra API app (https://url.sugra.ai/openai) connects the hosted MCP server; sign in. These skills are a separate listing (section 6). Manual: Settings -> Connectors -> Add MCP server with the hosted URL.
+- Claude Code, Codex, Gemini CLI, Grok, Cursor, VS Code: the vendor plugin (section 6) or the hosted URL with Bearer ([references/clients.md](references/clients.md)).
 
 Hosted tools: the gateway tools every transport has (`fetch_data`, `search_endpoints`, `describe_endpoint`, `call_endpoint`, `list_toolsets`, `list_sources`, `sugra_entity_screen`, `sugra_entity_lookup`) plus composed tools that register only on the hosted server:
 
@@ -48,8 +49,6 @@ Gateway tools only. Catalog search works without the key; `call_endpoint` / `fet
 
 Package CLI: `sugra-api-mcp doctor`, `search`, `describe`, `call`.
 
-Claude Desktop, Claude Code, Gemini CLI, Cursor, VS Code, and similar IDEs use the stdio block in [references/clients.md](references/clients.md), or the hosted URL with Bearer.
-
 ## 4. Self-hosted MCP HTTP
 
 ```bash
@@ -62,12 +61,25 @@ Gateway tools only; the hosted-only composed tools do not register here. Operato
 
 Public extension `openbb-sugra` uses the HTTPS API, not MCP.
 
+## 6. Install these skills
+
+The Claude Code, Codex, and Grok plugins carry these skills and also connect the hosted MCP server (`https://app.sugra.ai/mcp`, OAuth sign-in).
+
+| Client | Install |
+|---|---|
+| Claude Code | `/plugin marketplace add Sugra-Systems/sugra-api-plugins`, then `/plugin install sugra-api@sugra-api-plugins` |
+| Codex | `codex plugin marketplace add Sugra-Systems/sugra-api-plugins`, then `codex plugin add sugra-api@sugra-api-plugins` |
+| Grok | `grok plugin install Sugra-Systems/sugra-api-plugins#xai --trust` |
+| ChatGPT | Plugins Directory listing https://chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef (skills; MCP comes from the app in section 2) |
+| Any agent that reads Agent Skills | `npx skills add https://mcp.sugra.ai`, or copy the folders of https://github.com/Sugra-Systems/sugra-api-skills |
+
 ## Pick
 
 | Host | Typical attach |
 |---|---|
 | Script, custom agent, OpenBB | HTTPS `x-api-key` |
-| ChatGPT | Plugins Directory listing plus hosted MCP |
-| claude.ai | Hosted MCP connector |
-| Claude Desktop / Code, Cursor, VS Code, Gemini CLI, Grok | stdio package or hosted MCP |
+| claude.ai, Claude Desktop | Connectors Directory listing |
+| ChatGPT | Sugra API app, plus the skills listing |
+| Claude Code, Codex, Grok | vendor plugin, or hosted MCP with Bearer |
+| Cursor, VS Code, Gemini CLI | stdio package or hosted MCP with Bearer |
 | Own HTTP MCP process | self-host |
