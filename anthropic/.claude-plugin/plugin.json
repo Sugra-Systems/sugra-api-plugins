@@ -1,7 +1,7 @@
 {
   "name": "sugra-api",
   "displayName": "Sugra API",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Skills and the hosted MCP server for the Sugra API: find the right endpoint, call it with the right parameters, and cite the source and as-of date of every figure.",
   "author": {
     "name": "Sugra Systems, Inc.",

@@ -1,6 +1,6 @@
 ---
 name: live-docs
-description: Find current Sugra documentation. Use when an endpoint, parameter, count, or version might be stale. Canonical docs are https://docs.sugra.ai (search and Ask AI). Also OpenAPI, /sources, /stats, the blog, and MCP tools/list.
+description: Find current Sugra documentation. Use when an endpoint, parameter, default, or version might be stale. Canonical docs are https://docs.sugra.ai (search and Ask AI). Also OpenAPI, /sources, the blog, and MCP tools/list.
 license: MIT
 ---
 
@@ -14,8 +14,8 @@ Entry on the API host: https://sugra.ai/docs (same site). Do not use `https://su
 
 1. Open https://docs.sugra.ai (Welcome: directions, key, envelope, plans, MCP).
 2. Search the docs site, or use Ask AI, for the operation or topic.
-3. Open the endpoint page in API Reference before calling. Confirm method, path, parameters, and body.
-4. If a page offers a Markdown view or `.md` URL, prefer that for a compact read.
+3. Open the endpoint page in API Reference before calling. Confirm method, path, parameters with their defaults, and body.
+4. Pages have a Markdown version at the page URL plus `.md`, and https://docs.sugra.ai/llms.txt indexes them. Prefer those for a compact read.
 
 Do not invent a path. Do not treat this SKILL.md, a README, or a cookbook recipe as the operation list.
 
@@ -25,12 +25,10 @@ Do not invent a path. Do not treat this SKILL.md, a README, or a cookbook recipe
 |---|---|
 | `GET https://sugra.ai/openapi.json` | HTTP contract for the call |
 | `GET https://sugra.ai/sources` | live source families |
-| `GET https://sugra.ai/services` | service list |
 | `GET https://sugra.ai/about` | product surface |
 | `GET https://sugra.ai/health` | liveness |
-| `GET https://sugra.ai/stats` | live counts |
 
-Public copy still uses hedges (1,500+ / 160+ / 36). `/stats` is the live counter. The MCP wheel catalog can lag OpenAPI. If MCP search misses, search docs.sugra.ai, then OpenAPI, then say whether the operation exists.
+These need no key. Public copy uses hedges (1,600+ endpoints, 160+ sources, 36 domains); quote them as hedges, not as counts. The MCP wheel catalog can lag OpenAPI. If MCP search misses, search docs.sugra.ai, then OpenAPI, then say whether the operation exists.
 
 MCP after connect: `initialize` (`serverInfo.version`), `tools/list`, `prompts/list`, `resources/list`.
 
@@ -41,8 +39,10 @@ MCP after connect: `initialize` (`serverInfo.version`), `tools/list`, `prompts/l
 | https://sugra.ai | product |
 | https://sugra.systems | company, legal, API marketing, direction pages |
 | https://sugra.systems/blog | blog index; article also as `/{slug}.md`; `llms.txt` |
-| https://app.sugra.ai | keys, billing, playground |
-| https://app.sugra.ai/settings/billing | issue a key |
+| https://app.sugra.ai | keys, usage, billing, playground |
+| https://app.sugra.ai/register | sign up; a key is issued at signup |
+| https://app.sugra.ai/developer/keys | manage keys |
+| https://sugra.systems/api/pricing | plans and prices |
 | https://pypi.org/project/sugra-api-mcp/ | MCP package version |
 | https://github.com/Sugra-Systems/sugra-api-mcp | MCP server |
 | https://github.com/Sugra-Systems/sugra-api-cookbook | HTTP recipes |

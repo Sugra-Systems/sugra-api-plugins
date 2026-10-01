@@ -4,4 +4,4 @@ This repository ships plugin packages: Agent Skills (Markdown instructions) and 
 
 Report a vulnerability in these files to support@sugra.systems and abuse@sugra.systems. Do not open a public issue with exploit detail.
 
-Do not put API keys in a plugin file, commit, or chat. Issue keys at https://app.sugra.ai/settings/billing.
+Do not put API keys in a plugin file, commit, or chat. Issue keys at https://app.sugra.ai/developer/keys.

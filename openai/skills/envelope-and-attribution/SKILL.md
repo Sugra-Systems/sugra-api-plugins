@@ -17,10 +17,28 @@ Most responses:
     "endpoint": "/api/v1/...",
     "data_time": "2026-06-12T19:30:00Z",
     "response_time": "2026-06-12T19:30:01Z",
-    "provider": "Sugra API"
+    "provider": "Sugra API ...",
+    "source": "fred",
+    "attribution": "<upstream notice, quote it verbatim>",
+    "cached": false
   }
 }
 ```
+
+Always present: `endpoint` (the operation that answered), `data_time`, `response_time`, `provider`. Present when they apply:
+
+| Key | Meaning |
+|---|---|
+| `source` | the upstream source id; name it only when it is a sovereign, intergovernmental, or academic source (Attribution below) |
+| `attribution` | a notice the source requires; repeat it word for word wherever the figure is shown |
+| `period` | the unit of observation (for example `2026-Q1`) when `data_time` is the start of a period |
+| `data_age_days` | days since the source's own timestamp; absent when the source gave only a date or period |
+| `cached` | served from the platform cache |
+| `stale`, `stale_since` | the data is older than it should be; say so when quoting it |
+| `fallback_used`, `fallback_chain` | a secondary source answered |
+| `notes` | a data quality caveat; pass it on |
+
+Some payloads also carry a `license` inside `data`. Keep it with the figure.
 
 Some payloads are envelope-less (a flat object with `meta` or `_meta` on the same record). Provenance keys still apply.
 
@@ -32,13 +50,13 @@ MCP: `call_endpoint` / `fetch_data` return the same payload (a top-level array i
 
 ## Time
 
-`data_time` in `meta` (or `_meta` on a flat payload) is the observation or publication clock of the data, not the HTTP response time. A row-level `as_of` is the period the figure is about. Quote both when they differ. Do not describe a delayed series as a live tick.
+`data_time` in `meta` (or `_meta` on a flat payload) is the observation or publication clock of the data, not the HTTP response time. When `meta.period` is present, `data_time` is the start of that period, not a moment of observation. A row-level `as_of` is the period the figure is about. Quote both when they differ. Do not describe a delayed series as a live tick, and say so when `stale` is true.
 
 ## Attribution
 
-Every figure needs a source and an as-of. Read them from `meta` / `_meta`. Live list: https://sugra.ai/sources (MCP resource `sugra://attribution`).
+Every figure needs a source and an as-of. Read them from `meta` / `_meta`: name the source, give the period, and when `attribution` is present repeat it verbatim. Live list: https://sugra.ai/sources (MCP resource `sugra://attribution`).
 
 - Sovereign, intergovernmental, and academic sources are named openly (for example FRED, IMF, ECB, NOAA, World Bank, SEC EDGAR).
-- Commercial upstreams appear under Sugra-branded wrappers (Sugra Finance, Sugra News, Sugra Crypto, Sugra Forex, Sugra Weather). Do not substitute a commercial vendor name.
+- Commercial upstreams appear under Sugra-branded wrappers (Sugra Finance, Sugra News, Sugra Crypto, Sugra Forex, Sugra Weather). Cite the wrapper, not the vendor, even when `meta.source` carries the vendor's id; a required `attribution` notice is still repeated as given.
 
 This is data presentation, not investment, legal, or compliance advice. Screening tools return a signal, not a determination.

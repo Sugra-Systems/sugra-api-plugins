@@ -12,7 +12,7 @@
       "name": "sugra-api",
       "source": "./anthropic",
       "description": "Skills and the hosted MCP server for the Sugra API: find the right endpoint, call it with the right parameters, and cite the source and as-of date of every figure.",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "author": {
         "name": "Sugra Systems, Inc.",
         "email": "support@sugra.systems"
