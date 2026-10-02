@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef"><img src="https://img.shields.io/badge/ChatGPT-Plugins_Directory-F5A623" alt="ChatGPT Plugins Directory"></a>
+  <a href="https://chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"><img src="https://img.shields.io/badge/ChatGPT-Plugins_Directory-F5A623" alt="ChatGPT Plugins Directory"></a>
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
@@ -37,10 +37,10 @@ codex plugin add sugra-api-skills@sugra-api-plugins
 
 ### ChatGPT
 
-Listed in the Plugins Directory (Install plugin):
+Sugra API in the Plugins Directory, the hosted MCP server and these skills in one listing (Install plugin):
 
 ```
-https://chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef
+https://chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91
 ```
 
 ### Grok

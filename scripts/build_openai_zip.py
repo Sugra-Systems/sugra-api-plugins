@@ -10,11 +10,16 @@ ignored files included) and while the package skills differ from the pinned sugr
 commit. It names both commits in the archive comment and this repository's
 commit in the file name. Entries are stored uncompressed with a fixed date,
 mode and host, so one commit gives one ZIP, byte for byte.
+
+The skills join the existing Sugra API listing in the directory, so the ZIP's
+plugin.json carries that listing's name and listing fields; the directory refuses
+an update whose name differs from the listing's.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -28,6 +33,23 @@ from check import LISTING_LIMITS, MANIFEST_LIMITS
 ROOT = sync.ROOT
 PACKAGE = "openai"
 DIST = ROOT / "dist"
+# the Sugra API listing in the Plugins Directory, https://chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91
+LISTING_NAME = "app-6a33ce728e488191a82df247ab605e91"
+# the listing carries the hosted MCP server beside the skills, so its fields describe both
+LISTING_INTERFACE = {
+    "displayName": "Sugra API",
+    "shortDescription": "Data from primary sources",
+    "longDescription": (
+        "Sugra API brings data from primary sources into ChatGPT and Codex: economic indicators, "
+        "central banks, market data, company filings, news, weather and climate, and more. "
+        "The plugin connects the hosted Sugra MCP server and adds skills to find the right endpoint, "
+        "call it with the right parameters, and cite the source and date of every figure. "
+        "Documentation: https://docs.sugra.ai."
+    ),
+    "category": "Developer Tools",
+}
+# the directory names a skill plugin-name:skill-name, at most 64 characters
+SKILL_IDENTITY_LIMIT = 64
 
 
 def git(*args: str) -> bytes:
@@ -83,6 +105,12 @@ def main(argv: list[str]) -> int:
 
     manifest = sync.strict_json(git("cat-file", "blob", package["plugin.json"]), "openai/plugin.json")
     interface = manifest.get("extensions", {}).get("com.openai", {}).get("interface", {})
+    manifest["name"] = LISTING_NAME
+    interface.update(LISTING_INTERFACE)
+    for skill in sorted({rel.split("/")[1] for rel in package if rel.startswith("skills/")}):
+        if len(f"{LISTING_NAME}:{skill}") > SKILL_IDENTITY_LIMIT:
+            print(f"FAIL {LISTING_NAME}:{skill} is over the {SKILL_IDENTITY_LIMIT} characters the directory allows", file=sys.stderr)
+            return 1
     fields = [(field, manifest.get(field), limit) for field, limit in MANIFEST_LIMITS.items()]
     fields += [(f"interface.{field}", interface.get(field), limit) for field, limit in LISTING_LIMITS.items()]
     for field, value, limit in fields:
@@ -114,7 +142,11 @@ def main(argv: list[str]) -> int:
                 info.create_system = 3
                 info.external_attr = 0o644 << 16
                 info.compress_type = zipfile.ZIP_STORED
-                archive.writestr(info, git("cat-file", "blob", package[rel]))
+                if rel == "plugin.json":
+                    data = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode()
+                else:
+                    data = git("cat-file", "blob", package[rel])
+                archive.writestr(info, data)
         os.chmod(tmp, 0o644)
         os.replace(tmp, out)
     except BaseException:

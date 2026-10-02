@@ -37,6 +37,7 @@
         "category": "Productivity",
         "capabilities": ["Read"],
         "websiteURL": "https://sugra.ai",
+        "supportURL": "https://sugra.systems/contact",
         "privacyPolicyURL": "https://sugra.systems/privacy-policy",
         "termsOfServiceURL": "https://sugra.systems/terms-of-service",
         "defaultPrompt": [
