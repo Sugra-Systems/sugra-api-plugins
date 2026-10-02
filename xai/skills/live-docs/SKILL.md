@@ -1,6 +1,6 @@
 ---
 name: live-docs
-description: Find current Sugra documentation. Use when an endpoint, parameter, default, or version might be stale, including the latest sugra-api-mcp package on PyPI. Canonical docs are https://docs.sugra.ai (search and Ask AI). Also OpenAPI, /sources, the blog, and MCP tools/list.
+description: Find current Sugra documentation. Use when an endpoint, parameter, default, or version might be stale. Canonical docs are https://docs.sugra.ai (search and Ask AI). Also OpenAPI, /sources, the blog, and MCP tools/list.
 license: MIT
 ---
 
@@ -27,7 +27,7 @@ Do not invent a path. Do not treat this SKILL.md, a README, or a cookbook recipe
 
 These need no key. Public copy uses hedges (1,600+ endpoints, 160+ sources, 36 domains); quote them as hedges, not as counts. The MCP wheel catalog can lag OpenAPI. If MCP search misses, search docs.sugra.ai, then OpenAPI, then say whether the operation exists.
 
-MCP after connect: `initialize` (`serverInfo.version`), `tools/list`, `prompts/list`, `resources/list`.
+MCP once connected: `initialize` (`serverInfo.version`), `tools/list`, `prompts/list`, `resources/list`.
 
 ## Other public surfaces (search these, not the open web first)
 
@@ -40,10 +40,7 @@ MCP after connect: `initialize` (`serverInfo.version`), `tools/list`, `prompts/l
 | https://app.sugra.ai/register | sign up; a key is issued at signup |
 | https://app.sugra.ai/developer/keys | manage keys |
 | https://sugra.systems/api/pricing | plans and prices |
-| https://pypi.org/project/sugra-api-mcp/ | MCP package version |
-| https://github.com/Sugra-Systems/sugra-api-mcp | MCP server |
-| https://github.com/Sugra-Systems/sugra-api-cookbook | HTTP recipes |
-| https://github.com/Sugra-Systems/openbb-sugra | OpenBB provider |
+| https://docs.sugra.ai/doc-2444801 | ecosystem: MCP package, HTTP recipes, OpenBB provider |
 
 Legal: https://sugra.systems/terms-of-service and sibling policy pages. Contacts: `support@`, `legal@`, `privacy@`, `abuse@` sugra.systems.
 
