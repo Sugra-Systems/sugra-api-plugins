@@ -1,11 +1,11 @@
 {
   "name": "sugra-api-plugins",
   "interface": {
-    "displayName": "Sugra API"
+    "displayName": "Sugra API Plugins"
   },
   "plugins": [
     {
-      "name": "sugra-api",
+      "name": "sugra-api-skills",
       "source": {
         "source": "local",
         "path": "./openai"

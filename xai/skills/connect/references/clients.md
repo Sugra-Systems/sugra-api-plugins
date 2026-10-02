@@ -1,6 +1,8 @@
 # Client attach blocks
 
-Stdio MCP (local package). Put the key in the client's config file or environment, never in chat or on a typed command line (shell history keeps it).
+Every block shows the placeholder `sugra_...`, where the user puts their own key. Do not ask for the key in chat, and do not read it from the environment or a file. Keep the key out of project files that get committed. A key typed into a command line stays in shell history, so run a command below as shown, with the placeholder, and have the user replace the placeholder with their key in the user settings file the command wrote, named under each client (`~` is the home folder, `%USERPROFILE%` on Windows).
+
+Stdio MCP (local package):
 
 ```json
 {
@@ -19,43 +21,55 @@ File: macOS `~/Library/Application Support/Claude/claude_desktop_config.json`; W
 
 ## Claude Code
 
-The server inherits Claude Code's environment. Read the key without echo, then start Claude Code from that shell:
+Hosted:
 
 ```bash
-read -rs SUGRA_API_KEY && export SUGRA_API_KEY
-claude mcp add sugra -- sugra-api-mcp
+claude mcp add --transport http sugra https://mcp.sugra.ai/mcp --header "Authorization: Bearer sugra_..."
 ```
 
-Or the same JSON in a project `.mcp.json`. Hosted instead of the package, with OAuth, so no key is stored:
+Local package:
 
 ```bash
-claude mcp add --transport http sugra https://app.sugra.ai/mcp
+claude mcp add sugra -e SUGRA_API_KEY=sugra_... -- sugra-api-mcp
 ```
 
-Then run `/mcp` in Claude Code and sign in.
+Either command writes to `~/.claude.json`.
 
-Signed in with a claude.ai account that connected "Sugra API" from the Connectors Directory: nothing to add, `/mcp` lists it. Skills plus MCP in one step: the plugin in `connect` section 6.
+Signed in with a claude.ai account that connected "Sugra API" from the Connectors Directory: nothing to add, `/mcp` lists it. These skills install separately: the plugin in `connect` section 6.
 
 ## Codex
 
-```bash
-read -rs SUGRA_API_KEY && export SUGRA_API_KEY
-codex mcp add sugra --url https://mcp.sugra.ai/mcp --bearer-token-env-var SUGRA_API_KEY
+Hosted, in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.sugra]
+url = "https://mcp.sugra.ai/mcp"
+http_headers = { "Authorization" = "Bearer sugra_..." }
 ```
 
-Codex reads the key from the environment at start, so it never lands in the config file. Skills plus MCP in one step: the plugin in `connect` section 6.
+Local package:
+
+```bash
+codex mcp add sugra --env SUGRA_API_KEY=sugra_... -- sugra-api-mcp
+```
+
+The command writes to the same `~/.codex/config.toml`. These skills install separately: the plugin in `connect` section 6.
 
 ## Gemini CLI
 
-User `~/.gemini/settings.json` or project `.gemini/settings.json`, same `mcpServers` block. Or:
+User `~/.gemini/settings.json` takes the same `mcpServers` block. Or add the local package by command:
 
 ```bash
-read -rs SUGRA_API_KEY && export SUGRA_API_KEY
-gemini mcp add --scope user -e SUGRA_API_KEY="$SUGRA_API_KEY" sugra sugra-api-mcp
-gemini mcp add --scope user --transport http --header "Authorization: Bearer $SUGRA_API_KEY" sugra https://mcp.sugra.ai/mcp
+gemini mcp add --scope user -e SUGRA_API_KEY=sugra_... sugra sugra-api-mcp
 ```
 
-`gemini mcp list`, then `/mcp` in session.
+Or hosted:
+
+```bash
+gemini mcp add --scope user --transport http sugra https://mcp.sugra.ai/mcp --header "Authorization: Bearer sugra_..."
+```
+
+With `--scope user` either command writes to `~/.gemini/settings.json`. `gemini mcp list`, then `/mcp` in session.
 
 ## Cursor, VS Code, Zed, Cline, Continue.dev, Windsurf
 
@@ -63,7 +77,13 @@ Each has an MCP settings file (`mcp.json` or equivalent). Use the stdio block ab
 
 ## Grok
 
-`grok plugin install Sugra-Systems/sugra-api-plugins#xai --trust` installs these skills and connects the hosted MCP server. Or add hosted MCP as a remote server with Bearer, or local stdio with `SUGRA_API_KEY`.
+Hosted:
+
+```bash
+grok mcp add --transport http sugra https://mcp.sugra.ai/mcp --header "Authorization: Bearer sugra_..."
+```
+
+Or the local package: `grok mcp add sugra -e SUGRA_API_KEY=sugra_... -- sugra-api-mcp`. Either command writes to `~/.grok/config.toml`. These skills install separately: `grok plugin install Sugra-Systems/sugra-api-plugins#xai` (`connect` section 6).
 
 ## xAI SDK / Responses API
 

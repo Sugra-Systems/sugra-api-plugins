@@ -1,23 +1,38 @@
 {
   "name": "sugra-api-plugins",
-  "description": "Official Sugra API plugins. HTTPS and MCP. Documentation truth is https://docs.sugra.ai.",
+  "description": "Sugra API plugins: the Sugra API skills, one package per vendor.",
   "owner": {
     "name": "Sugra Systems, Inc.",
     "email": "support@sugra.systems"
   },
   "plugins": [
     {
-      "name": "sugra-api",
-      "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+      "name": "sugra-api-skills",
+      "description": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure.",
       "category": "development",
       "source": {
         "type": "local",
         "path": "./xai"
       },
-      "homepage": "https://docs.sugra.ai",
-      "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"],
-      "domains": ["sugra.ai", "docs.sugra.ai", "app.sugra.ai", "mcp.sugra.ai", "sugra.systems"],
-      "version": "1.2.1",
+      "homepage": "https://sugra.ai",
+      "keywords": [
+        "economic data",
+        "macroeconomics",
+        "economic indicators",
+        "central banks",
+        "government statistics",
+        "market data",
+        "company filings",
+        "news",
+        "weather",
+        "climate",
+        "internet infrastructure",
+        "research papers",
+        "sanctions screening",
+        "public data"
+      ],
+      "domains": ["sugra.ai", "docs.sugra.ai", "app.sugra.ai", "sugra.systems"],
+      "version": "1.3.0",
       "author": {
         "name": "Sugra Systems, Inc.",
         "email": "support@sugra.systems"

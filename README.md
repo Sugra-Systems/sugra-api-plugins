@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-Official [Sugra API](https://sugra.ai) plugins for Claude, ChatGPT and Codex, and Grok: one folder per vendor. Each plugin bundles the Sugra API skills and connects the hosted Sugra API MCP server.
+[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex and Grok, one folder per vendor. Each plugin carries only the Sugra API skills; the MCP server is a separate product.
 
 | Repository | What |
 |---|---|
@@ -25,14 +25,14 @@ Get a key at [app.sugra.ai/register](https://app.sugra.ai/register) (Free: 50 re
 
 ```
 /plugin marketplace add Sugra-Systems/sugra-api-plugins
-/plugin install sugra-api@sugra-api-plugins
+/plugin install sugra-api-skills@sugra-api-plugins
 ```
 
 ### Codex
 
 ```
 codex plugin marketplace add Sugra-Systems/sugra-api-plugins
-codex plugin add sugra-api@sugra-api-plugins
+codex plugin add sugra-api-skills@sugra-api-plugins
 ```
 
 ### ChatGPT
@@ -46,15 +46,12 @@ https://chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef
 ### Grok
 
 ```
-grok plugin marketplace add Sugra-Systems/sugra-api-plugins
-grok plugin install sugra-api@sugra-api-plugins --trust
+grok plugin install Sugra-Systems/sugra-api-plugins#xai
 ```
-
-Or the folder directly: `grok plugin install Sugra-Systems/sugra-api-plugins#xai --trust`.
 
 ### Other agents
 
-Cursor, Gemini CLI and any client that reads Agent Skills: copy the skills from [sugra-api-skills](https://github.com/Sugra-Systems/sugra-api-skills) and connect the hosted MCP server, `https://mcp.sugra.ai`.
+Cursor, Gemini CLI and any client that reads Agent Skills: copy the skills from [sugra-api-skills](https://github.com/Sugra-Systems/sugra-api-skills) and connect the hosted MCP server, `https://mcp.sugra.ai/mcp`.
 
 ## Layout
 

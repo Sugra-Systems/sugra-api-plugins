@@ -1,7 +1,6 @@
 """Build the OpenAI Plugins Directory ZIP from openai/. Stdlib only.
 
-    python scripts/build_openai_zip.py --source <clone>                 package with mcp.json
-    python scripts/build_openai_zip.py --source <clone> --skills-only   package without mcp.json
+    python scripts/build_openai_zip.py --source <clone>
 
 <clone> is a clone of sugra-api-skills that holds the pinned commit.
 
@@ -52,9 +51,6 @@ def tree(prefix: str) -> dict[str, str]:
 
 def main(argv: list[str]) -> int:
     args = argv[1:]
-    skills_only = "--skills-only" in args
-    if skills_only:
-        args.remove("--skills-only")
     if len(args) != 2 or args[0] != "--source":
         print(__doc__, file=sys.stderr)
         return 2
@@ -97,13 +93,12 @@ def main(argv: list[str]) -> int:
             print(f"FAIL plugin.json {field} is {len(value)} chars; the directory allows {limit}", file=sys.stderr)
             return 1
 
-    names = sorted(rel for rel in package if rel != "README.md" and not (skills_only and rel == "mcp.json"))
-    suffix = "-skills-only" if skills_only else ""
+    names = sorted(rel for rel in package if rel != "README.md")
     # dist/ is ignored, so nothing reviewed it: refuse a link or a path that leaves the repository
     sync.guard(DIST)
     DIST.mkdir(exist_ok=True)
     sync.refuse_links(DIST)
-    out = DIST / f"sugra-api-openai-{manifest['version']}{suffix}-{commit[:12]}.zip"
+    out = DIST / f"sugra-api-openai-{manifest['version']}-{commit[:12]}.zip"
     sync.inside(out, DIST)
     sync.guard(out)
     # a new file renamed over out, so an existing link or hard link at out is replaced, never written through

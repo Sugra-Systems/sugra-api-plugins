@@ -1,23 +1,38 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "sugra-api",
-  "version": "1.2.1",
-  "description": "Work with the Sugra API over HTTPS and MCP. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+  "name": "sugra-api-skills",
+  "version": "1.3.0",
+  "description": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure.",
   "author": {
     "name": "Sugra Systems, Inc.",
     "email": "support@sugra.systems",
     "url": "https://sugra.systems"
   },
-  "homepage": "https://docs.sugra.ai",
+  "homepage": "https://sugra.ai",
   "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
   "license": "MIT",
-  "keywords": ["sugra", "sugra.ai", "docs.sugra.ai", "mcp.sugra.ai"],
+  "keywords": [
+    "economic data",
+    "macroeconomics",
+    "economic indicators",
+    "central banks",
+    "government statistics",
+    "market data",
+    "company filings",
+    "news",
+    "weather",
+    "climate",
+    "internet infrastructure",
+    "research papers",
+    "sanctions screening",
+    "public data"
+  ],
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "Sugra API",
-        "shortDescription": "Skills and MCP for Sugra API",
-        "longDescription": "Work with the Sugra API over HTTPS and MCP. One key, seven product directions. Documentation truth is https://docs.sugra.ai (search and Ask AI).",
+        "displayName": "Sugra API Skills",
+        "shortDescription": "Skills for the Sugra API",
+        "longDescription": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure. Documentation: https://docs.sugra.ai.",
         "developerName": "Sugra Systems, Inc.",
         "category": "Productivity",
         "capabilities": ["Read"],
