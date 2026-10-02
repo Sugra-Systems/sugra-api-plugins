@@ -1,8 +1,8 @@
 {
-  "name": "sugra-api",
-  "displayName": "Sugra API",
-  "version": "1.2.2",
-  "description": "Skills and the hosted MCP server for the Sugra API: find the right endpoint, call it with the right parameters, and cite the source and as-of date of every figure.",
+  "name": "sugra-api-skills",
+  "displayName": "Sugra API Skills",
+  "version": "1.3.0",
+  "description": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure.",
   "author": {
     "name": "Sugra Systems, Inc.",
     "email": "support@sugra.systems",
@@ -16,6 +16,21 @@
   "privacyPolicyUrl": "https://sugra.systems/privacy-policy",
   "termsOfServiceUrl": "https://sugra.systems/terms-of-service",
   "icon": "./assets/logo.png",
-  "keywords": ["sugra", "sugra.ai", "api", "mcp", "data"],
+  "keywords": [
+    "economic data",
+    "macroeconomics",
+    "economic indicators",
+    "central banks",
+    "government statistics",
+    "market data",
+    "company filings",
+    "news",
+    "weather",
+    "climate",
+    "internet infrastructure",
+    "research papers",
+    "sanctions screening",
+    "public data"
+  ],
   "skills": "./skills"
 }

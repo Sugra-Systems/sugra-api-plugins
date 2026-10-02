@@ -20,11 +20,34 @@ import sync
 ROOT = sync.ROOT
 REPOSITORY = "https://github.com/Sugra-Systems/sugra-api-plugins"
 MARKETPLACE = "sugra-api-plugins"
+# the plugin carries skills only and is named for them; the MCP server is a separate product, "Sugra API"
+PLUGIN = "sugra-api-skills"
+DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.2", "openai": "1.2.1", "xai": "1.2.1"}
-# the Anthropic listing shows the homepage and the documentation as two links
-HOMEPAGES = {"anthropic": "https://sugra.ai", "openai": "https://docs.sugra.ai", "xai": "https://docs.sugra.ai"}
-# links the Anthropic directory reads from plugin.json into the listing
+VERSIONS = {"anthropic": "1.3.0", "openai": "1.3.0", "xai": "1.3.0"}
+HOMEPAGE = "https://sugra.ai"
+# one description and one keyword list for every manifest and marketplace entry
+DESCRIPTION = (
+    "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS "
+    "or MCP, and cite the source and date of every figure."
+)
+KEYWORDS = [
+    "economic data",
+    "macroeconomics",
+    "economic indicators",
+    "central banks",
+    "government statistics",
+    "market data",
+    "company filings",
+    "news",
+    "weather",
+    "climate",
+    "internet infrastructure",
+    "research papers",
+    "sanctions screening",
+    "public data",
+]
+# links the Anthropic package sets in plugin.json
 ANTHROPIC_LINKS = {
     "documentationUrl": "https://docs.sugra.ai",
     "supportUrl": "https://sugra.systems/contact",
@@ -32,15 +55,15 @@ ANTHROPIC_LINKS = {
     "termsOfServiceUrl": "https://sugra.systems/terms-of-service",
     "icon": "./assets/logo.png",
 }
-MCP_URL = "https://app.sugra.ai/mcp"
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
+# No package holds an MCP configuration: the MCP server is listed on its own.
 LAYOUT = {
-    "anthropic": {".claude-plugin", ".mcp.json", "README.md", "assets", "skills"},
-    "openai": {"README.md", "assets", "mcp.json", "plugin.json", "skills"},
-    "xai": {".grok-plugin", ".mcp.json", "README.md", "skills"},
+    "anthropic": {".claude-plugin", "README.md", "assets", "skills"},
+    "openai": {"README.md", "assets", "plugin.json", "skills"},
+    "xai": {".grok-plugin", "README.md", "skills"},
 }
 TIER_C = (
     "yahoo",
@@ -161,27 +184,34 @@ def load_json(path: Path) -> dict:
     return data
 
 
+def declares_mcp(value: object) -> bool:
+    """An mcpServers key at any depth of a JSON value."""
+    if isinstance(value, dict):
+        return "mcpServers" in value or any(declares_mcp(v) for v in value.values())
+    if isinstance(value, list):
+        return any(declares_mcp(v) for v in value)
+    return False
+
+
 def check_manifest(manifest: dict, package: str) -> None:
     """Fields every package manifest carries, whatever its vendor requires."""
     for field in ("name", "version", "description", "homepage", "repository", "license"):
         value = manifest.get(field)
         if not isinstance(value, str) or not value.strip():
             fail(f"{package} manifest: {field} must be a non-empty string")
-    if manifest["name"] != "sugra-api" or manifest["version"] != VERSIONS[package]:
-        fail(f"{package} manifest: name must be sugra-api and version {VERSIONS[package]}")
-    if manifest["homepage"] != HOMEPAGES[package] or manifest["repository"] != REPOSITORY:
-        fail(f"{package} manifest: homepage must be {HOMEPAGES[package]} and repository {REPOSITORY}")
+    if manifest["name"] != PLUGIN or manifest["version"] != VERSIONS[package]:
+        fail(f"{package} manifest: name must be {PLUGIN} and version {VERSIONS[package]}")
+    if manifest["homepage"] != HOMEPAGE or manifest["repository"] != REPOSITORY:
+        fail(f"{package} manifest: homepage must be {HOMEPAGE} and repository {REPOSITORY}")
+    if manifest["description"] != DESCRIPTION or manifest.get("keywords") != KEYWORDS:
+        fail(f"{package} manifest: description and keywords must be the shared DESCRIPTION and KEYWORDS")
     if manifest["license"] != "MIT":
         fail(f"{package} manifest: license must be MIT")
     author = manifest.get("author")
     if not isinstance(author, dict) or author.get("name") != "Sugra Systems, Inc.":
         fail(f"{package} manifest: author.name must be Sugra Systems, Inc.")
-
-
-def check_mcp(conf: dict, kind: str, label: str) -> None:
-    servers = conf.get("mcpServers")
-    if not isinstance(servers, dict) or list(servers) != ["sugra-api"] or servers["sugra-api"] != {"type": kind, "url": MCP_URL}:
-        fail(f"{label} must define only sugra-api as type {kind} at {MCP_URL}")
+    if declares_mcp(manifest):
+        fail(f"{package} manifest: a skills plugin declares no mcpServers")
 
 
 def check_layout() -> None:
@@ -217,6 +247,8 @@ def check_packages() -> None:
     anthropic = ROOT / "anthropic"
     claude_plugin = load_json(anthropic / ".claude-plugin" / "plugin.json")
     check_manifest(claude_plugin, "anthropic")
+    if claude_plugin.get("displayName") != DISPLAY_NAME:
+        fail(f"anthropic manifest: displayName must be {DISPLAY_NAME}")
     for field, value in ANTHROPIC_LINKS.items():
         if claude_plugin.get(field) != value:
             fail(f"anthropic manifest: {field} must be {value}")
@@ -229,7 +261,6 @@ def check_packages() -> None:
     logo = anthropic / "assets" / "logo.png"
     if not logo.is_file() or logo.read_bytes() != (ROOT / "openai" / "assets" / "logo.png").read_bytes():
         fail("anthropic/assets/logo.png must be a file identical to openai/assets/logo.png")
-    check_mcp(load_json(anthropic / ".mcp.json"), "http", "anthropic/.mcp.json")
 
     openai = ROOT / "openai"
     portable = load_json(openai / "plugin.json")
@@ -241,6 +272,8 @@ def check_packages() -> None:
     interface = ((portable.get("extensions") or {}).get("com.openai") or {}).get("interface") or {}
     if interface.get("composerIcon") != "./assets/logo.png" or interface.get("logo") != "./assets/logo.png":
         fail("openai/plugin.json: interface icons must be ./assets/logo.png")
+    if interface.get("displayName") != DISPLAY_NAME:
+        fail(f"openai/plugin.json: interface.displayName must be {DISPLAY_NAME}")
     for field in ("displayName", "shortDescription", "longDescription", "developerName", "category"):
         value = interface.get(field)
         if not isinstance(value, str) or not value.strip():
@@ -253,10 +286,6 @@ def check_packages() -> None:
             fail(f"openai/plugin.json: interface.{field} is over the {limit} characters the directory allows")
     if sorted(p.name for p in (openai / "assets").iterdir()) != ["logo.png"]:
         fail("openai/assets must hold only logo.png")
-    openai_mcp = load_json(openai / "mcp.json")
-    if set(openai_mcp) != {"$schema", "mcpServers"} or openai_mcp["$schema"] != AGENT_PLUGINS + "mcp.schema.json":
-        fail("openai/mcp.json must hold only the Agent Plugins $schema and mcpServers")
-    check_mcp(openai_mcp, "streamable-http", "openai/mcp.json")
     for skill in sorted(p for p in (openai / "skills").iterdir() if p.is_dir()):
         yaml_path = skill / "agents" / "openai.yaml"
         label = yaml_path.relative_to(ROOT).as_posix()
@@ -269,7 +298,6 @@ def check_packages() -> None:
     check_manifest(grok_plugin, "xai")
     if sorted(p.name for p in (xai / ".grok-plugin").iterdir()) != ["plugin.json"]:
         fail("xai/.grok-plugin must hold only plugin.json")
-    check_mcp(load_json(xai / ".mcp.json"), "http", "xai/.mcp.json")
 
 
 def parse_openai_yaml(text: str, label: str) -> dict[str, str]:
@@ -318,8 +346,14 @@ def check_marketplaces() -> None:
     codex = load_json(ROOT / ".agents" / "plugins" / "marketplace.json")
     for label, market in (("claude", claude), ("grok", grok), ("codex", codex)):
         plugins = market.get("plugins")
-        if market.get("name") != MARKETPLACE or not isinstance(plugins, list) or [p.get("name") for p in plugins] != ["sugra-api"]:
-            fail(f"{label} marketplace must be {MARKETPLACE} listing only sugra-api")
+        if market.get("name") != MARKETPLACE or not isinstance(plugins, list) or [p.get("name") for p in plugins] != [PLUGIN]:
+            fail(f"{label} marketplace must be {MARKETPLACE} listing only {PLUGIN}")
+        if declares_mcp(market):
+            fail(f"{label} marketplace: a skills plugin declares no mcpServers")
+    for label, market in (("claude", claude), ("grok", grok)):
+        entry = market["plugins"][0]
+        if entry.get("description") != DESCRIPTION or entry.get("keywords") != KEYWORDS or entry.get("homepage") != HOMEPAGE:
+            fail(f"{label} marketplace entry must carry the shared DESCRIPTION, KEYWORDS and {HOMEPAGE}")
     if claude["plugins"][0].get("source") != "./anthropic" or claude["plugins"][0].get("version") != VERSIONS["anthropic"]:
         fail("claude marketplace must point at ./anthropic with its version")
     if grok["plugins"][0].get("source") != {"type": "local", "path": "./xai"} or grok["plugins"][0].get("version") != VERSIONS["xai"]:
@@ -335,11 +369,11 @@ def check_docs() -> None:
     for package in LAYOUT:
         path = ROOT / package / "README.md"
         text = path.read_text(encoding="utf-8")
-        if "scripts/sync.py" not in text or MCP_URL not in text:
-            fail(f"{package}/README.md must name scripts/sync.py and {MCP_URL}")
+        if "scripts/sync.py" not in text:
+            fail(f"{package}/README.md must name scripts/sync.py")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for needle in (
-        "sugra-api@sugra-api-plugins",
+        f"{PLUGIN}@{MARKETPLACE}",
         "Sugra-Systems/sugra-api-plugins#xai",
         "Sugra-Systems/sugra-api-skills",
         "docs.sugra.ai",
