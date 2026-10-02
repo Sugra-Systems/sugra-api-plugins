@@ -4,7 +4,7 @@ The Sugra API Skills plugin for Claude. It teaches Claude to find the right Sugr
 
 ## What it contains
 
-- Seven skills: connect, auth-and-quota, discover-and-call, envelope-and-attribution, cross-domain-briefing, live-docs and using-sugra-api. They are instructions for Claude.
+- Six skills: auth-and-quota, discover-and-call, envelope-and-attribution, cross-domain-briefing, live-docs and using-sugra-api. They are instructions for Claude.
 
 The Sugra API MCP server is a separate product: connect "Sugra API" from the Connectors Directory, https://url.sugra.ai/claude. The skills use its tools when it is connected.
 
@@ -19,7 +19,8 @@ The Sugra API MCP server is a separate product: connect "Sugra API" from the Con
 - The plugin sends nothing by itself. It stores no key and reads none from your files or environment.
 - When the Sugra API MCP server is connected, Claude calls its tools with the tool name and its parameters, such as an endpoint name or a country code. That connection and its sign-in belong to the server, not to this plugin.
 - If you ask for a direct HTTPS call, the skills show you the request to https://sugra.ai to run yourself: you put your own Sugra key in the x-api-key header, next to the endpoint and its parameters.
-- When documentation may be out of date, the skills point Claude at public pages on https://docs.sugra.ai and https://sugra.ai.
+- To check current documentation, the skills point Claude at public pages that need no key: https://docs.sugra.ai, https://sugra.ai (the product page, the OpenAPI file, the source list and the health check) and https://sugra.systems (the company site, with pricing, blog and legal pages). No key goes with these requests.
+- For sign-up and keys, the skills give you links to https://app.sugra.ai. For questions, or a fault that persists, they give you Sugra's addresses at sugra.systems: support@, legal@, privacy@ and abuse@.
 
 Privacy policy: https://sugra.systems/privacy-policy. Terms of service: https://sugra.systems/terms-of-service.
 

@@ -6,7 +6,7 @@ license: MIT
 
 # Cross-domain briefing
 
-Split the question. Call two or three operations. Do not invent a combined index. HTTP and MCP are both valid; use the surface already connected (skill `connect`). Confirm each operation on https://docs.sugra.ai.
+Split the question. Call two or three operations. Do not invent a combined index. HTTP and MCP are both valid; use the surface already connected. Confirm each operation on https://docs.sugra.ai.
 
 ## Pattern
 

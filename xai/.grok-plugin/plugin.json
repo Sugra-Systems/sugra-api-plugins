@@ -1,6 +1,6 @@
 {
   "name": "sugra-api-skills",
-  "version": "1.3.0",
+  "version": "1.2.0",
   "description": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure.",
   "author": {
     "name": "Sugra Systems, Inc.",

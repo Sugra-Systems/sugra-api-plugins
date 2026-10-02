@@ -24,7 +24,7 @@ MARKETPLACE = "sugra-api-plugins"
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.3.0", "openai": "1.3.0", "xai": "1.3.0"}
+VERSIONS = {"anthropic": "1.2.0", "openai": "1.2.0", "xai": "1.2.0"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (

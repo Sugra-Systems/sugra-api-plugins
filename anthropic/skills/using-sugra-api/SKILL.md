@@ -19,7 +19,7 @@ Public hedge (not a live count): 1,600+ endpoints, 160+ primary sources, 36 doma
 | Surface | When | How |
 |---|---|---|
 | HTTPS `https://sugra.ai` | The agent can GET/POST | `x-api-key` on `/api/v1/...` |
-| MCP | The host is an MCP client | hosted `https://mcp.sugra.ai/mcp` or local `sugra-api-mcp` |
+| MCP | The host is an MCP client | the Sugra API MCP server; setup for each client: https://docs.sugra.ai/doc-2263382 |
 
 Both reach the same API. Use the surface the host already has, or the one the user named. Key: sign up at https://app.sugra.ai/register (a key is issued at signup), manage keys at https://app.sugra.ai/developer/keys. Free: 50 requests a day per account. Do not log the key.
 
@@ -44,8 +44,7 @@ A call that returns data is not yet an answer. Check that `meta.endpoint` is the
 | Need | Skill |
 |---|---|
 | Live docs, search, Ask AI, sources, blog | `live-docs` |
-| Attach HTTP, hosted MCP, stdio, self-host, each client | `connect` |
-| Key, plans, quota, errors, Bearer vs `x-api-key` | `auth-and-quota` |
+| Key, plans, quota, errors | `auth-and-quota` |
 | Find, call, and check an operation (HTTP and MCP) | `discover-and-call` |
 | Envelope, sources, clocks, MCP shaping | `envelope-and-attribution` |
 | Two or three directions in one answer | `cross-domain-briefing` |

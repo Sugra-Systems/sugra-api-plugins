@@ -1,21 +1,16 @@
 ---
 name: auth-and-quota
-description: Authenticate to Sugra over HTTPS and MCP, stay inside the daily quota, and act on each error. Use when setting up a client, before a bulk call, or when a call returns 400, 401, 404, 422, 429, 5xx, missing_api_key, missing_bearer_token, unknown_parameters, needs_params, or upstream_*.
+description: Use a Sugra key, stay inside the daily quota, and act on each error over HTTPS or MCP. Use when the user needs a key, before a bulk call, or when a call returns 400, 401, 404, 422, 429, 5xx, missing_api_key, missing_bearer_token, unknown_parameters, needs_params, or upstream_*.
 license: MIT
 ---
 
 # Auth and quota
 
-One key. Two header shapes. Volume gating only: every plan sees every endpoint. Plans and errors on https://docs.sugra.ai (search Authentication, Rate limits).
+One key. Volume gating only: every plan sees every endpoint. Plans and errors on https://docs.sugra.ai (search Authentication, Rate limits).
 
 Sign up at https://app.sugra.ai/register: a Free key is issued at signup. Keys: https://app.sugra.ai/developer/keys. Plans and prices: https://sugra.systems/api/pricing. Prefix `sugra_...`. Do not log the key, and do not put it in a skill file, a commit, or a chat.
 
-| Plan | Requests / day |
-|---|---|
-| Free | 50 |
-| Dev | 5,000 |
-| Pro | 50,000 |
-| Enterprise | custom |
+Free: 50 requests a day. Paid plans raise that volume; the volume and price of each plan are on the pricing page.
 
 The daily quota belongs to the account, not to one key: every key of the account draws on the same count. It resets at 00:00 UTC.
 
@@ -27,23 +22,15 @@ A keyed data call costs at least 1 request. The public system endpoints (`/healt
 x-api-key: sugra_...
 ```
 
-Not `Authorization: Bearer` on `https://sugra.ai`.
+On `https://sugra.ai` the key goes only in the `x-api-key` header.
 
 Keyed responses carry `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (the last second of the UTC quota day in ISO 8601, `YYYY-MM-DDT23:59:59Z`), and `X-Request-ID`. A 429 also carries `Retry-After` (seconds).
 
 ## MCP
 
-| Transport | Client auth | Process env |
-|---|---|---|
-| Hosted `https://mcp.sugra.ai/mcp` | `Authorization: Bearer` (raw key or OAuth JWT) | n/a |
-| Local stdio | none on the wire | `SUGRA_API_KEY` in the server process |
-| Self-hosted HTTP | client Bearer; process `SUGRA_API_KEY` is only a downstream fallback | |
+How each MCP client signs in to the Sugra API MCP server: https://docs.sugra.ai/doc-2263382.
 
-OAuth JWT: audience `https://app.sugra.ai/mcp`, scope `sugra:read`. Hosted discovery is public. `tools/call` and `resources/read` return 401 `missing_bearer_token` without Bearer.
-
-Stdio catalog tools (`search_endpoints`, `describe_endpoint`, `list_toolsets`, `list_sources`) work without a key. `call_endpoint`, `fetch_data`, and entity tools return `missing_api_key` until `SUGRA_API_KEY` is set.
-
-MCP tool JSON does not forward `X-RateLimit-*`. Read an MCP error's `error` first, then follow its `hint` or `retry_hint` when it has one. When the API answered, the error has a numeric `status_code`, plus `request_id` (the API's `X-Request-ID`) and `retry_after` (seconds) when the API sent them. A network failure (`upstream_timeout`, `upstream_connect_error`, `upstream_transport_error`) has no HTTP status and carries a `reason`. An answer too large for MCP comes back trimmed with `meta.truncated`, or as `response_too_large`: narrow the filters. Catalog and validation errors (`unknown_parameters`, `missing_required_parameters`, `needs_params`, `missing_required_parameter_groups`, `unknown_operation_id`) make no API call and carry their own fields (table below). Downstream MCP still calls the API with `x-api-key`.
+MCP tool JSON does not forward `X-RateLimit-*`. Read an MCP error's `error` first, then follow its `hint` or `retry_hint` when it has one. When the API answered, the error has a numeric `status_code`, plus `request_id` (the API's `X-Request-ID`) and `retry_after` (seconds) when the API sent them. A network failure (`upstream_timeout`, `upstream_connect_error`, `upstream_transport_error`) has no HTTP status and carries a `reason`. An answer too large for MCP comes back trimmed with `meta.truncated`, or as `response_too_large`: narrow the filters. Catalog and validation errors (`unknown_parameters`, `missing_required_parameters`, `needs_params`, `missing_required_parameter_groups`, `unknown_operation_id`) make no API call and carry their own fields (table below).
 
 ## Errors
 
@@ -56,9 +43,9 @@ Read the message before anything else: it usually names the fix.
 | MCP `missing_required_parameters` / `needs_params` / `missing_required_parameter_groups` | required parameters are missing | fill them from the returned list, then call again |
 | MCP `unknown_operation_id` | the id is not in the catalog | search again; do not guess an id |
 | HTTP 404 | no such path, or no such item (an airport, a paper, a series) | if the message names a missing item, fix the input; otherwise check the path on docs.sugra.ai. Do not guess |
-| HTTP 401 / MCP `missing_api_key` / `missing_bearer_token` | missing or invalid credential | stop. Do not retry the same call. |
+| HTTP 401 / MCP `missing_api_key` / `missing_bearer_token` | missing or invalid credential | stop. Do not retry the same call. Over MCP, point the user to the sign-in page in MCP above |
 | HTTP 429 / MCP 429 | the account's quota is spent, or a short protective limit | wait for `Retry-After` / `retry_after`, or until `X-RateLimit-Reset`. On the hosted server a spent quota carries `reason: daily_limit_reached` (with `daily_limit` and `plan` when known): tell the user it resets at 00:00 UTC |
 | MCP `server_busy` / `deadline_exceeded` | the MCP server is at its limit, or the call ran past its time budget | do what its `retry_hint` says |
-| HTTP 5xx / MCP `upstream_*` | platform or upstream fault | if the message says the input does not exist (an unknown series or identifier), fix the input; otherwise retry once with backoff, then report to support@sugra.systems with `X-Request-ID` / `request_id` when there is one, else with the whole error |
+| HTTP 5xx / MCP `upstream_*` | platform or upstream fault | if the message says the input does not exist (an unknown series or identifier), fix the input; otherwise retry once with backoff, then tell the user to write to support@sugra.systems with `X-Request-ID` / `request_id` when there is one, else with the whole error |
 
 Do not retry a 4xx unchanged. Retry a 429 only after the wait it names.
