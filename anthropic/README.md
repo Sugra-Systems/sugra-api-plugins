@@ -4,7 +4,7 @@ The Sugra API Skills plugin for Claude. It teaches Claude to find the right Sugr
 
 ## What it contains
 
-- Six skills: auth-and-quota, discover-and-call, envelope-and-attribution, cross-domain-briefing, live-docs and using-sugra-api. They are instructions for Claude.
+- Ten skills: auth-and-quota, discover-and-call, envelope-and-attribution, cross-domain-briefing, live-docs, using-sugra-api, markets-data, macro-data, earth-data and news-data. They are instructions for Claude.
 
 The Sugra API MCP server is a separate product: connect "Sugra API" from the Connectors Directory, https://url.sugra.ai/claude. The skills use its tools when it is connected.
 

@@ -1,0 +1,98 @@
+# Equities bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any listed company; us = a route that covers US filers only.
+equities.earnings_calendar:
+  other:
+    op: quotes_symbol_calendar
+    params: {symbol: "<ticker>"}
+    unit: other
+    note: "next earnings date, with dividend dates; a date marked estimated is not confirmed by the company"
+    fallback:
+      op: market_calendar_earnings
+      params: {from: "<YYYY-MM-DD>", to: "<YYYY-MM-DD>"}
+      note: "market-wide list for a date window"
+equities.earnings_surprise:
+  other:
+    op: quotes_symbol_earnings_history
+    params: {symbol: "<ticker>", limit: 12}
+    unit: other
+    note: "reported against expected EPS per quarter in the quote currency, surprise in percent; name the quarter"
+equities.estimates:
+  other:
+    op: quotes_symbol_forward_estimates
+    params: {symbol: "<ticker>"}
+    unit: other
+    note: "analysts' forward EPS and revenue estimates in the reporting currency, with the number of analysts; a consensus, not a forecast of ours"
+equities.model_estimate:
+  us:
+    op: estimates_ticker_model
+    params: {ticker: "<ticker>", horizon: 1}
+    unit: usd
+    note: "a damped-trend projection from the company's own filing history, labelled a model, never a consensus; horizon is fiscal years ahead"
+equities.income_statement:
+  us:
+    op: fundamentals_ticker_income
+    params: {ticker: "<ticker>", form: 10-K, periods: 5}
+    unit: usd
+    note: "annual 10-K or quarterly 10-Q lines from the filings; a 10-Q flow line is fiscal year-to-date as filed (the second quarter holds six months), so one quarter is that value less the previous 10-Q of the same fiscal year, labelled computed, and the first quarter is as filed; foreign filers report in their own currency unless usd is set, then name the conversion"
+equities.ratios:
+  us:
+    op: fundamentals_ticker_ratios
+    params: {ticker: "<ticker>"}
+    unit: ratio
+    note: "margins, returns, leverage and liquidity from the latest filing, no price in them; price multiples come from quotes_symbol_statistics"
+    fallback:
+      op: quotes_symbol_statistics
+      params: {symbol: "<ticker>"}
+      note: "price multiples and margins on the current price"
+equities.sector_percentile:
+  us:
+    op: equities_symbol_sector_percentiles
+    params: {symbol: "<ticker>"}
+    unit: pct
+    note: "percentile of each ratio among sector peers; US large-cap index members only, another company is outside its reach"
+equities.earnings_quality:
+  us:
+    op: equities_symbol_earnings_quality
+    params: {symbol: "<ticker>", years: 1}
+    unit: other
+    note: "three academic scores from the annual filings; quote each score with its scale and threshold as the response states them"
+equities.earnings_event_study:
+  us:
+    op: equities_symbol_earnings_event_study
+    params: {symbol: "<ticker>", lookback: 8}
+    unit: pct
+    note: "abnormal and cumulative abnormal returns around each announcement against the market proxy, in percent"
+equities.earnings_drift:
+  us:
+    op: equities_symbol_earnings_pead
+    params: {symbol: "<ticker>", lookback: 8}
+    unit: pct
+    note: "drift after the announcement split by the surprise, cumulative abnormal return to drift_window_end sessions, in percent"
+equities.analyst_actions:
+  other:
+    op: analyst_actions_ticker
+    params: {ticker: "<ticker>", limit: 25}
+    unit: other
+    note: "rating changes and price-target moves stated in news headlines, with firm and date; facts from headlines, not a consensus"
+equities.sector_strength:
+  us:
+    op: etf_sectors_relative_strength
+    unit: pct
+    note: "the eleven US sector funds ranked by trailing return over window (1m by default, or ytd, 1y, 3y, 5y, 10y), in percent"
+equities.valuation_multiples:
+  us:
+    op: multpl_sp500
+    unit: ratio
+    note: "price to earnings, cyclically adjusted price to earnings, earnings and dividend yields of the US large-cap index; yields are in percent"
+equities.factor_returns:
+  other:
+    op: fama_french_factors
+    params: {model: "3", frequency: monthly, limit: 60}
+    unit: pct
+    note: "academic factor returns in percent per period: market premium, size, value, and in the larger models profitability, investment and momentum; US market by default"
+equities.float_shares:
+  us:
+    op: fundamentals_ticker_profile
+    params: {ticker: "<ticker>"}
+    unit: count
+    note: "shares outstanding and public float from the latest filing cover; public float is a dollar value at the filing date, not a share count"

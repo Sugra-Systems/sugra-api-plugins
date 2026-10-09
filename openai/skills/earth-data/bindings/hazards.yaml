@@ -1,0 +1,146 @@
+# Hazards bindings: concept id -> place -> call spec, gap or compute. Read mechanics.md first.
+# other = any place on Earth. Boxes: min_lat, max_lat, min_lon, max_lon in decimal degrees.
+hazards.official_warnings:
+  us:
+    op: weather_nws_alerts_active
+    params: {area: "<two-letter state>"}
+    unit: other
+    note: "warnings, watches and advisories in force, with severity, urgency, certainty, validity and the issuing office as issued; filter with event, a label from weather_nws_alert_types (Hurricane Warning, Storm Surge Warning, Extreme Heat Warning); quote the warning and its issuer, never paraphrase it into advice"
+    fallback:
+      op: weather_us_alerts
+      params: {state: "<two-letter state>"}
+  other: {gap: "no national warning feed outside the US, apart from tsunami messages (hazards.tsunami) and volcanic ash advisories (hazards.volcanic_ash)", substitute: "hazards.impact_alerts, automatic and not an official warning: say so, and name the national service by link"}
+hazards.impact_alerts:
+  other:
+    op: hazards_alerts
+    params: {event_type: "<earthquake | tropical_cyclone | flood | drought | volcanic_activity | wildfire>"}
+    unit: other
+    note: "automatic GDACS alerts, green, orange or red, with the population in the zone; no human check and never an official warning; a box narrows it; no money damage"
+    fallback:
+      op: disasters_events
+      params: {types: "<EQ, TC, FL, VO, WF or DR, semicolon-separated>"}
+      note: "the same automatic alerts by date range, from_date and to_date; a year of one type exceeds the response cap at limit 100: limit 20 or a shorter range, and read the total available to see what was left out"
+hazards.tropical_cyclones:
+  other:
+    op: hazards_tropical_cyclones
+    params: {basin: "<Atlantic or Pacific>"}
+    unit: other
+    note: "active storms of the Atlantic and the eastern and central Pacific: centre, maximum sustained wind (kt), minimum pressure (hPa), motion, classification; the category is computed here from the wind; no cone, track or wind radii; empty off season or when none is active: say so. Other basins: the fallback"
+    fallback:
+      op: hazards_alerts
+      params: {event_type: tropical_cyclone}
+      note: "automatic alerts for storms in every basin, with the population in the zone"
+hazards.cyclone_forecast_track:
+  other: {gap: "no forecast track, cone, wind radii or wind-speed probabilities of a cyclone", substitute: "the current centre, wind and motion from hazards.tropical_cyclones and the official advisory by link; never draw or describe a cone from memory"}
+hazards.earthquakes:
+  other:
+    op: hazards_earthquakes
+    params: {window: day}
+    unit: other
+    note: "USGS events: moment magnitude, depth in km, place, UTC time; window hour or day holds all magnitudes, week or month M2.5 and up; min_magnitude and a box narrow it; first magnitudes are revised"
+    fallback:
+      op: earthquakes_search
+      params: {starttime: "<YYYY-MM-DD>", minmagnitude: 5}
+      note: "the full USGS catalog with depth filters"
+hazards.earthquake_losses:
+  other:
+    op: earthquakes_search
+    params: {starttime: "<YYYY-MM-DD>", minmagnitude: 5, alertlevel: "<green | yellow | orange | red>"}
+    unit: other
+    note: "alertlevel filters by the PAGER loss level, the higher of the fatality and economic-loss bands; a band, not a number; reissued as data arrive; if the rows carry no fatality or loss estimate, say the band only"
+    fallback:
+      op: hazards_alerts
+      params: {event_type: earthquake}
+      note: "automatic alert level and population in the zone, not a loss estimate"
+hazards.shaking_at_point:
+  other: {gap: "no shaking intensity or ground acceleration at a point", substitute: "distance from the epicentre and depth from hazards.earthquakes, and the loss level of hazards.earthquake_losses; the intensity map of the agency by link"}
+hazards.tsunami:
+  other: {op: hazards_tsunami, unit: other, note: "messages in force of the US tsunami warning centres, severity, urgency and certainty verbatim from the centre; empty when none is in force: say so; the threat is decided by the centre, not by the magnitude"}
+hazards.volcanoes:
+  other:
+    op: volcanoes_eruptions
+    params: {country: "<country name in lower case, e.g. iceland>"}
+    unit: other
+    note: "the NOAA eruption record: VEI 0-8, deaths, damage in USD mn where given, houses destroyed; min_year, max_year and min_vei narrow it; the last years: the fallback; pass the country NAME: ISO2 and ISO3 codes return total 0 although the parameter claims to take them; total 0 for a country with a known eruption record means the form did not match, never that it had no eruptions: say so and take the fallback"
+    fallback:
+      op: volcanoes_eruptions_recent
+      params: {years: 5}
+hazards.volcanic_ash:
+  other:
+    op: hazards_volcanic_ash
+    unit: other
+    note: "advisories of the Washington VAAC only (the Americas): observed ash cloud and forecasts at +6, +12 and +18 h with flight-level bands; the severity is computed here from the colour code; elsewhere the fallback, then the regional VAAC by link"
+    fallback:
+      op: transport_aviation_advisories
+      params: {advisory_type: SIGMET_INTL}
+      note: "international SIGMETs, ash among them"
+hazards.volcano_alert_level:
+  other: {gap: "no feed of volcano ground alert levels", substitute: "the aviation colour code inside hazards.volcanic_ash where an advisory exists, the volcano record from volcanoes_volcano_vnum, and the observatory's level by link; the two levels are separate"}
+hazards.wildfires:
+  other:
+    op: hazards_wildfires
+    params: {min_lat: "<south>", max_lat: "<north>", min_lon: "<west>", max_lon: "<east>", days: 1}
+    unit: count
+    note: "NASA FIRMS satellite detections in the box (required), days 1-5, highest radiative power first; power in MW; a detection is a thermal anomaly at a pixel, not a fire area: flares and industry trigger it, clouds hide fires; a box the size of a large state (California) exceeds the response cap even for days 1: split it into boxes of a few degrees and add the counts, labelled computed"
+    fallback:
+      op: fires_area
+      params: {west: "<west>", south: "<south>", east: "<east>", north: "<north>", days: 1}
+hazards.wildfire_perimeters:
+  other: {gap: "no fire perimeters or containment shares", substitute: "detections of hazards.wildfires day to day and the lines and substations near them (power.grid_assets); the incident page of the fire agency by link"}
+hazards.lightning:
+  us: {gap: "no lightning feed over North America: the only feed sees the Meteosat disc", substitute: "thunderstorm warnings of hazards.official_warnings and convective advisories of logistics.aviation_advisories"}
+  other:
+    op: hazards_lightning
+    params: {min_lat: "<south>", max_lat: "<north>", min_lon: "<west>", max_lon: "<east>"}
+    unit: count
+    note: "EUMETSAT flashes of the newest 10-minute granule, about 10-15 minutes old: Europe, Africa, the Atlantic and eastern South America only; min_confidence 0.9 keeps the reliable flashes; outside the disc it is a gap"
+hazards.drought_category:
+  us: {gap: "no D0-D4 categories of the weekly drought monitor and no area share in any category", substitute: "say the share is not in the data first; then at most one proxy in at most three calls, weather.water_balance at one or two named points against past years or drought alerts of hazards.impact_alerts, labelled as a proxy and never as a share; the monitor's map by link"}
+  other: {gap: "no official drought category", substitute: "weather.water_balance against past years and drought alerts of hazards.impact_alerts, automatic"}
+hazards.disaster_costs:
+  other: {gap: "no damage in money for storms, floods, droughts or fires; the national billion-dollar disaster series ends with 2024", substitute: "damage in USD mn of eruptions in hazards.volcanoes, the loss band of hazards.earthquake_losses, and the official summary of the event by link with its date; never a figure from memory"}
+hazards.insured_losses:
+  other: {gap: "no insured catastrophe losses", substitute: "the published estimate of the rights holder by link with its date, never reprinted; the economic side as in hazards.disaster_costs"}
+hazards.space_weather_scales:
+  other:
+    op: space_weather_scales
+    unit: other
+    note: "current NOAA levels R (radio blackout), S (solar radiation storm), G (geomagnetic storm), 1-5, 0 = none"
+    fallback:
+      op: space_weather_alerts
+      params: {last: 10}
+      note: "SWPC alerts, watches and warnings as issued"
+hazards.kp_index:
+  other:
+    op: space_weather_kp_index
+    params: {last: 30}
+    unit: index
+    note: "planetary Kp 0-9 at 1-minute resolution over about 6 hours; Kp 5 = G1 up to Kp 9 = G5"
+hazards.flare_probabilities:
+  other:
+    op: space_weather_solar_probabilities
+    params: {last: 3}
+    unit: pct
+    note: "C, M and X class flare and proton event probabilities for 1, 2 and 3 days; a flare is not a storm"
+hazards.air_quality:
+  other:
+    op: air_quality_current
+    params: {latitude: "<lat>", longitude: "<lon>"}
+    unit: other
+    note: "PM2.5, PM10, NO2, O3 in ug/m3 with the European and the US index, two different scales; the averaging period is not stated: say so"
+    fallback:
+      op: air_quality
+      params: {lat: "<lat>", lon: "<lon>"}
+      note: "the CAMS model layer gives surface concentrations in ug/m3: a model estimate, not a measurement"
+hazards.air_quality_forecast:
+  other:
+    op: air_quality_forecast
+    params: {latitude: "<lat>", longitude: "<lon>", hours: 120}
+    unit: other
+    note: "hourly PM2.5, PM10, ozone and indexes up to 120 hours; a model forecast"
+hazards.air_columns_satellite:
+  other:
+    op: air_quality
+    params: {lat: "<lat>", lon: "<lon>", products: "<no2, o3, co, ch4 or aer_ai, comma-separated>"}
+    unit: other
+    note: "the latest Sentinel-5P pass: column densities in mol/m2, not surface air and not an index; a polar orbiter sees a place about once a day, so values are often empty: say so"

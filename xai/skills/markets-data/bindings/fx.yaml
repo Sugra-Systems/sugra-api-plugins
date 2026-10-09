@@ -1,0 +1,61 @@
+# FX bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any currency pair or economy; a country code marks a route of that economy only.
+fx.spot:
+  other:
+    op: forex_rates
+    params: {base: USD, cadence: daily, symbols: "<ISO codes, comma-separated>"}
+    unit: ratio
+    note: "the level of a pair is the central-bank reference fixing, units of each currency per 1 base (USD or EUR), labelled a fixing with its date, never a market quote (no traded pair quote is served); a pair without USD is the cross of the two USD rates, labelled computed"
+    fallback:
+      op: forex_latest
+      params: {symbols: "<ISO codes, comma-separated>"}
+      note: "euro reference rates, EUR base, fixed near 16:00 Central European Time"
+fx.reference_rate:
+  other:
+    op: forex_rates
+    params: {base: USD, cadence: daily, symbols: "<ISO codes, comma-separated>"}
+    unit: ratio
+    note: "central-bank reference panel, units of each currency per 1 base, daily fixing with its date; a fixing, not a close"
+    fallback:
+      op: forex_latest
+      params: {symbols: "<ISO codes, comma-separated>"}
+      note: "euro reference rates, EUR base, fixed near 16:00 Central European Time"
+  gb:
+    op: boe_fx
+    params: {days: 90}
+    unit: ratio
+    note: "Bank of England daily rates against GBP, units of currency per 1 GBP"
+  ca:
+    op: boc_fx
+    params: {recent_months: 3}
+    unit: ratio
+    note: "Bank of Canada daily rates, CAD per unit of the other currency, published 16:30 ET"
+  au:
+    gap: "the Reserve Bank of Australia's own daily rates come only as the whole table since 2023, with no filter, larger than one response can carry"
+    substitute: "fx.reference_rate under other with AUD among the symbols, the central-bank reference panel, named as that panel and not the Reserve Bank's rate"
+fx.effective:
+  other:
+    op: bis_fx_effective
+    params: {country: "<2-letter country code>", eer_type: R, last_n: 12}
+    unit: index
+    note: "trade-weighted effective rate from the BIS, monthly index; eer_type R is real, N nominal: name which; a rise is an appreciation"
+  us:
+    op: macro_country_section
+    key: us/dtwexbgs
+    transforms: [mom_pct, yoy_pct]
+    unit: index
+    note: "nominal broad trade-weighted dollar index, daily; the real effective rate comes from bis_fx_effective"
+    fallback:
+      op: bis_fx_effective
+      params: {country: us, eer_type: R, last_n: 12}
+  au:
+    op: rba_reer
+    unit: index
+    note: "Reserve Bank of Australia real and nominal effective rates of the AUD; name which"
+fx.rate_differential:
+  other:
+    compute: "the difference of the two economies' rates.treasury_2y yields on the same date, in percentage points, labelled computed; name both yields and the date"
+fx.implied_vol:
+  other:
+    gap: "implied volatility of currency pairs is not in the catalog"
+    substitute: "realized volatility of the pair from daily forex_history rates or markets.realized_vol on the pair symbol, named as realized, never as implied"

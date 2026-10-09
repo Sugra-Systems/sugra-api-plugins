@@ -1,0 +1,77 @@
+# Weather bindings: concept id -> place -> call spec, gap or compute. Read mechanics.md first.
+# other = any place on Earth; a place is a point: latitude and longitude, or city with country as a separate parameter.
+weather.forecast:
+  other:
+    op: v2_weather_forecast
+    params: {latitude: "<lat>", longitude: "<lon>", forecast_days: 3}
+    unit: other
+    note: "model forecast, hourly steps and daily aggregates; every hourly step comes along, so more than 3 days exceeds the response cap: keep forecast_days to 3, and take the days beyond from the fallback; degC, mm, km/h by default (temperature_unit fahrenheit, wind_speed_unit mph for US texts); a grid value, not a station; deterministic, so beyond 5-7 days speak in probabilities; the response names no model run (weather.model_run); city and country instead of the point, never one City,CC string"
+    fallback:
+      op: weather_forecast
+      params: {latitude: "<lat>", longitude: "<lon>", days: 16}
+      note: "the older daily-only route, 1 to 16 days: maximum and minimum temperature, precipitation and wind per day; the same model blend, daily aggregates only"
+weather.official_forecast:
+  us:
+    op: weather_nws_forecast
+    params: {lat: "<lat>", lon: "<lon>"}
+    unit: other
+    note: "the National Weather Service seven-day forecast, 14 day and night periods, degF and mph; US territory only; hourly periods: weather_nws_forecast_hourly with the same point"
+    fallback:
+      op: weather_us_forecast
+      params: {latitude: "<lat>", longitude: "<lon>"}
+      note: "the same service, 7 days"
+  other: {gap: "no official forecast of a national weather service outside the US", substitute: "weather.forecast, named as a model forecast, and the national service by link"}
+weather.observation:
+  us:
+    op: weather_nws_station_station_id_observation_latest
+    params: {station_id: "<NWS station id, e.g. KJFK>"}
+    unit: other
+    note: "latest station report with quality flags (V verified, Z preliminary) and the raw METAR; station ids by state from weather_nws_stations; a window of reports: weather_nws_station_station_id_observations with start and end"
+    fallback:
+      op: transport_aviation_metar
+      params: {ids: "<ICAO id>"}
+  other:
+    op: transport_aviation_metar
+    params: {ids: "<ICAO ids, comma-separated>"}
+    unit: other
+    note: "airport stations worldwide, decoded METAR, UTC; away from an airport use the fallback and say it is a model"
+    fallback:
+      op: weather
+      params: {lat: "<lat>", lon: "<lon>"}
+      note: "nearest grid node of the weather models, each value with its source model: a model analysis, not a station"
+weather.history:
+  other:
+    op: v2_weather_history
+    params: {latitude: "<lat>", longitude: "<lon>", start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "daily from 1940; a reanalysis grid, not a station record; daily sums close at local midnight (timezone auto); carries reference evapotranspiration; a range up to a year also carries every hourly step, so more than about 3 days exceeds the response cap: keep the range to 3 days, and take a longer daily window from the fallback"
+    fallback:
+      op: weather_history
+      params: {latitude: "<lat>", longitude: "<lon>", start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+      note: "the older daily-only route, up to about 2 years per call; the same reanalysis, daily aggregates only"
+weather.degree_days:
+  other:
+    op: energy_demand
+    params: {lat: "<lat>", lon: "<lon>", base_c: 18}
+    unit: other
+    note: "degree-days now only: the mean of the last analysis cycles (cycles 4, about one day) at one point, no population weights, below the true daily integral; base_c 18.3 for the 65 degF base. For a forecast or past window compute from the daily mean temperature of weather.forecast or weather.history: cooling max(0, Tmean - base), heating max(0, base - Tmean), labelled computed"
+weather.degree_day_normals:
+  us: {gap: "no population-weighted degree-day normals of the national weather service", substitute: "compute: degree days from weather.history over the same window of the past 10 years at the largest cities of the region, weighted by population, labelled computed, N years"}
+  other: {gap: "no degree-day normals", substitute: "compute: degree days from weather.history over the same window of the past 10 years at the named points, labelled computed, N years"}
+weather.model_run:
+  other: {gap: "no operation names the model run (00, 06, 12, 18 UTC) or keeps earlier runs: the forecast is a blend without a cycle, and past_days adds past days, not past forecasts", substitute: "the time of the call, said as such; a forecast change only from two own calls at stated times, or against the user's earlier figure with its time"}
+weather.area_rainfall:
+  other: {gap: "no precipitation averaged over a state, district or basin; only point values", substitute: "weather.history or weather.forecast at several named points of the area (weather.growing_regions), said to be points, not an area average"}
+weather.growing_regions:
+  us:
+    op: v2_weather_history
+    params: {city: "<city>", country: US, start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "one call per point. Corn and soybeans: Des Moines IA, Peoria IL, Lincoln NE, Indianapolis IN; winter wheat: Wichita KS, Oklahoma City OK; spring wheat: Fargo ND. The days ahead: weather_forecast at the same points, days 16. Range up to 3 days, as in weather.history; a longer daily window: weather_history with the same city and country. Points, not an area average"
+  other:
+    op: v2_weather_history
+    params: {city: "<city>", country: "<ISO2>", start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "one call per point of the region the question names (Brazil soybeans: Sorriso and Rondonopolis, Mato Grosso; Cascavel, Parana); the days ahead: weather_forecast at the same points, days 16. Range up to 3 days, as in weather.history; a longer daily window: weather_history with the same city and country. Points, not an area average"
+weather.water_balance:
+  other: {compute: "from weather.history at the points: sum of daily precipitation minus sum of reference evapotranspiration over the window, against the same sum in each of the past 10 years (one call per year, the window only, range as in weather.history), mm, labelled computed"}

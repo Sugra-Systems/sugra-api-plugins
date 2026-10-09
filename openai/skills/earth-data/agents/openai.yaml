@@ -1,0 +1,5 @@
+interface:
+  display_name: "Earth data"
+  short_description: "Weather, climate, hazards, water, grids, crops"
+  brand_color: "#F5A623"
+  default_prompt: "Use $earth-data to read weather, climate, hazards, water levels, power grids, crops and transport disruption at a place from the Sugra API."

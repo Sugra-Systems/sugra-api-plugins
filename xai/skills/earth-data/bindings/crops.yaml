@@ -1,0 +1,31 @@
+# Crops bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# FAOSTAT codes: area in M49 (840 United States, 156 China, 76 Brazil, 356 India), item from faostat_codes_dimension_domain.
+crops.condition:
+  us: {gap: "no weekly crop condition and progress ratings", substitute: "the published share with its week, by link or from the user, named as theirs; meanwhile weather.water_balance and weather.growing_regions over the critical window"}
+  other: {gap: "no crop condition ratings", substitute: "weather.water_balance and weather.growing_regions over the critical window, labelled computed"}
+crops.supply_demand:
+  us: {gap: "no official supply and demand balances (WASDE, Crop Production, Grain Stocks, Acreage)", substitute: "crops.production_annual for past years and the report by link with its date; never a balance from memory"}
+  other: {gap: "no official supply and demand balances", substitute: "crops.production_annual for past years and the publisher's report by link"}
+crops.export_sales:
+  us:
+    gap: "no weekly export sales"
+    substitute: "monthly US exports by HS code from census_trade_flows (commodity 1005 corn, 1201 soybeans, 1001 wheat): value in USD, not tonnes sold, a month behind; named as a substitute"
+crops.yield_annual:
+  other:
+    op: faostat_data_domain
+    params: {domain: QCL, element: "5419", area: "<M49 code>", item: "<item code>", year: "<from:to>"}
+    unit: other
+    note: "annual yield by country; the unit is not named in the description: read it in the response before converting; a trend, not a weekly rating and not a state yield"
+crops.production_annual:
+  other:
+    op: faostat_production
+    params: {area: "<M49 code>", item: "<item code, 15 wheat, 27 rice, 56 maize>", year: "<year>"}
+    unit: other
+    note: "annual production in tonnes by country; the last year lags by about two years"
+    fallback:
+      op: faostat_data_domain
+      params: {domain: QCL, element: "5510", area: "<M49 code>", item: "<item code>"}
+crops.soil_moisture:
+  other: {gap: "no observed soil moisture", substitute: "weather.water_balance against past years, labelled computed; never the soil moisture of weather_climate, a projection"}
+crops.vegetation_index:
+  other: {gap: "no vegetation index values; environment_nasa_gibs_layers lists imagery layers only", substitute: "weather.water_balance against past years and the imagery layer by link"}
