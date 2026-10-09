@@ -1,0 +1,102 @@
+# Prices bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+prices.cpi:
+  us:
+    op: macro_country_section
+    key: us/cpi
+    transforms: [mom_pct, yoy_pct]
+    unit: index
+    fallback: {op: fred_series_series_id, series_id: CPIAUCSL}
+  ez: {op: macro_country_section, key: eu/cpi, transforms: [mom_pct, yoy_pct], unit: index, note: "HICP, NSA: read yoy_pct; base 2025=100 from Feb 2026, never splice across it"}
+  gb:
+    op: ons_cpi
+    unit: index
+    note: "CPI index D7BT, annual rate D7G7 in pct; CPIH L522 is the lead UK measure and is not CPI; a small limit is enough (a large one returns 40k+ characters); for a 3-month mean take the matching months of the annual rate D7G7"
+    params: {limit: 4}
+    fallback: {op: macro_country_section, key: gb/cpi, note: "year-on-year pct only"}
+  jp:
+    op: estat_table_key
+    params: {table_key: cpi-yoy, limit: 14}
+    unit: pct
+    note: "all items, all Japan, dated monthly, newest first, 12-month change to one decimal; jp/cpi is annual and the OECD has none for Japan"
+    fallback:
+      op: macro_country_profile
+      params: {country: JP}
+      note: "undated fraction, x100 for pct; leave latest as it is"
+  cn:
+    op: bis_cpi
+    params: {country: cn, last_n: 14}
+    unit: pct
+    note: "rows come in two kinds, the index and the year-on-year change in pct (UNIT_MEASURE_name says which); read the latter"
+    fallback:
+      op: macro_country_profile
+      params: {country: CN}
+      note: "undated fraction, x100 for pct; leave latest as it is"
+  ca: {op: statcan_cpi, unit: index}
+  de: {op: macro_country_section, key: de/cpi, transforms: [mom_pp, yoy_pp], unit: pct, note: "already year-on-year pct"}
+  au: {op: rba_cpi, unit: index, note: "quarterly; year-ended change and core measures in the same call"}
+  br:
+    op: statistical_agencies_ibge_aggregates_aggregate_id_data
+    params: {aggregate_id: 1737, variables: "63|2265", periods: "-4", locations: "N1[all]"}
+    unit: pct
+    note: "IPCA, national; variable 63 is the monthly change, 2265 the 12-month rate (use it, no compounding); periods -N is the last N months, one row per variable and month; period is YYYYMM"
+    fallback: {op: bcb_ipca, note: "last_n 13; monthly change only; the 12-month rate is the compounded product of 12 monthly rates, labelled computed"}
+  ar: {op: central_banks_bcra_inflation, unit: pct, note: "month-on-month and year-on-year series"}
+  other:
+    op: macro_country_profile
+    params: {country: "<ISO2>"}
+    unit: ratio
+    note: "CPI year-on-year as a fraction, x100 for pct, undated; leave latest as it is; dated: bis_cpi with country <iso2> and last_n, rows named year-on-year changes in pct"
+prices.cpi_nsa:
+  us: {op: macro_country_section, key: us/cpiaucns, transforms: [yoy_pct], unit: index}
+prices.cpi_core:
+  us: {op: macro_country_section, key: us/core-cpi, transforms: [mom_pct, yoy_pct], unit: index}
+  ca: {op: boc_cpi, unit: pct, note: "year-on-year; core measures CPI_TRIM, CPI_MEDIAN, CPI_COMMON"}
+prices.pce:
+  us: {op: fred_series_series_id, series_id: PCEPI, transforms: [pch, pc1], unit: index, note: "never us/pce, which returns nominal spending"}
+prices.pce_core:
+  us: {op: macro_country_section, key: us/core-pce, transforms: [mom_pct, yoy_pct], unit: index}
+prices.cpi_median:
+  us: {op: macro_country_section, key: us/medcpim158sfrbcle, transforms: [mom_pp, yoy_pp], unit: pct, note: "monthly change at an annual rate"}
+  ca: {op: boc_cpi, unit: pct, note: "series CPI_MEDIAN, year-on-year"}
+prices.cpi_trimmed_mean:
+  us:
+    op: fred_series_series_id
+    series_id: TRMMEANCPIM158SFRBCLE
+    unit: pct
+    note: "1-month change at an annual rate; published by the Federal Reserve Bank of Cleveland under its own terms: cite the publisher, never present it as computed here"
+    fallback: {op: macro_country_section, key: us/pcetrim12m159sfrbdal, transforms: [mom_pp, yoy_pp], note: "trimmed-mean PCE, year-on-year, a different measure: name it so"}
+  ca: {op: boc_cpi, unit: pct, note: "series CPI_TRIM drops 20 pct from each tail, year-on-year"}
+  au: {op: rba_cpi, unit: pct, note: "year-ended trimmed mean, quarterly"}
+prices.cpi_sticky:
+  us: {op: macro_country_section, key: us/corestickm159sfrbatl, transforms: [mom_pp, yoy_pp], unit: pct, note: "core sticky-price CPI, year-on-year"}
+prices.cpi_food:
+  us: {op: macro_country_section, key: us/cusr0000saf11, transforms: [mom_pct, yoy_pct], unit: index, note: "food at home only"}
+  ca: {op: statcan_cpi, unit: index, note: "food row"}
+prices.cpi_energy:
+  us: {op: fred_series_series_id, series_id: CPIENGSL, transforms: [pch, pc1], unit: index, note: "seasonally adjusted; gasoline only: us/cusr0000setb01"}
+  ca: {op: statcan_cpi, unit: index, note: "energy row"}
+prices.cpi_goods:
+  us: {op: fred_series_series_id, series_id: CUSR0000SACL1E, transforms: [pch, pc1], unit: index, note: "commodities less food and energy; durables only: us/cusr0000sad"}
+prices.cpi_services:
+  us: {op: fred_series_series_id, series_id: CUSR0000SASLE, transforms: [pch, pc1], unit: index, note: "services less energy services"}
+prices.cpi_shelter:
+  us: {op: macro_country_section, key: us/cusr0000sah1, transforms: [mom_pct, yoy_pct], unit: index}
+  ca: {op: statcan_cpi, unit: index, note: "shelter row"}
+prices.cpi_rent:
+  us: {op: macro_country_section, key: us/cusr0000seha, transforms: [mom_pct, yoy_pct], unit: index}
+prices.cpi_oer:
+  us: {op: macro_country_section, key: us/cusr0000sehc, transforms: [mom_pct, yoy_pct], unit: index}
+prices.cpi_ex_shelter:
+  us: {op: macro_country_section, key: us/cuur0000sa0l2, transforms: [yoy_pct], unit: index, note: "NSA: year-on-year only"}
+prices.ppi:
+  us: {op: macro_country_section, key: us/ppifis, transforms: [mom_pct, yoy_pct], unit: index, note: "final demand; all commodities: us/ppi"}
+  gb: {op: ons_ppi, unit: index, note: "output and input prices, 2015=100"}
+  jp: {op: boj_prices, unit: index, note: "corporate goods price index"}
+prices.import_prices:
+  us: {op: macro_country_section, key: us/ir, transforms: [mom_pct, yoy_pct], unit: index}
+prices.crude_oil:
+  us: {op: macro_country_section, key: us/dcoilwtico, transforms: [mom_pct, yoy_pct], unit: usd, note: "USD per barrel, daily"}
+prices.gasoline:
+  us: {op: macro_country_section, key: us/gasregw, transforms: [mom_pct, yoy_pct], unit: usd, note: "USD per gallon, weekly"}
+prices.unit_labour_costs:
+  us: {op: macro_country_section, key: us/ulcnfb, transforms: [mom_pct, yoy_pct], unit: index, note: "nonfarm business; mom_pct is the quarter change"}

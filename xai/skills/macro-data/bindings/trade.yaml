@@ -1,0 +1,76 @@
+# Trade bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+trade.trade_balance:
+  us:
+    op: macro_country_section
+    key: us/trade-balance
+    unit: usd_mn
+    note: "goods and services, balance of payments basis; negative is a deficit; take changes from levels"
+    fallback: {op: census_trade_balance, note: "goods only, customs basis, USD"}
+  ez:
+    op: ecb_balance_of_payments
+    params: {report_type: main}
+    unit: lcu_bn
+    note: "EUR bn; goods and services balances in the balance of payments, monthly"
+  gb: {op: ons_trade_balance, unit: lcu_mn, note: "GBP mn; goods balance BOKI only, IKBI is total imports"}
+  jp: {op: boj_bop, unit: lcu, note: "JPY; trade and services lines of the balance of payments"}
+  cn:
+    op: comtrade_trade
+    params: {reporter: cn}
+    unit: usd
+    note: "annual goods trade; year defaults to 2023, pass the latest; balance = exports minus imports"
+  ca:
+    op: comtrade_trade
+    params: {reporter: ca}
+    unit: usd
+    note: "annual goods trade; year defaults to 2023, pass the latest; balance = exports minus imports"
+  de:
+    op: comtrade_trade
+    params: {reporter: de}
+    unit: usd
+    note: "annual goods trade; year defaults to 2023, pass the latest; balance = exports minus imports"
+trade.exports:
+  us:
+    op: census_trade_flows
+    params: {flow: exports}
+    unit: usd
+    note: "goods only, customs basis; services are not in the catalog"
+trade.imports:
+  us:
+    op: census_trade_flows
+    params: {flow: imports}
+    unit: usd
+    note: "goods only, customs basis; services are not in the catalog"
+  gb: {op: ons_trade_balance, unit: lcu_mn, note: "GBP mn, goods and services imports, series IKBI"}
+trade.bilateral_flows:
+  us: {op: census_trade_by_partner, unit: usd, note: "one month across partners; one partner over time: census_trade_flows with partner"}
+  other:
+    op: comtrade_trade
+    params: {reporter: "<iso2>"}
+    unit: usd
+    note: "annual, pass the latest year; imports are CIF, so balances run a few percent low"
+trade.tariff_rates:
+  us:
+    op: wits_tariffs_hs6
+    params: {reporter: USA, year: "<year>"}
+    unit: pct
+    note: "applied rates, lag 1-2 years; pass product for one HS 6-digit line"
+  other:
+    op: wits_tariffs_hs6
+    params: {reporter: "<ISO3>", year: "<year>"}
+    unit: pct
+trade.trade_measures:
+  us:
+    op: gta_interventions
+    params: {jurisdiction_implementing: USA}
+    unit: count
+    note: "a register: count the measures, never sum values"
+  other:
+    op: gta_interventions
+    params: {jurisdiction_implementing: "<ISO3>"}
+    unit: count
+trade.strait_transits:
+  other:
+    op: maritime_chokepoints_activity
+    params: {chokepoint_id: chokepoint1}
+    unit: count
+    note: "daily transits; chokepoint1 is the Suez Canal, other ids for other straits"

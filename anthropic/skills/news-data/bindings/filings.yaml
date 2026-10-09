@@ -1,0 +1,65 @@
+# Filings bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# us = the US filing system; jp = the Japanese one; other = any other country.
+filings.material_events:
+  us:
+    op: sec_edgar_8_k_cik_material_events
+    params: {cik: "<cik, digits>", from_date: "<YYYY-MM-DD>", to_date: "<YYYY-MM-DD>", items: all}
+    unit: other
+    note: "items all is passed on purpose: without it the default filter keeps only filings that declare 1.01, 2.01, 5.02 or 8.01 and hides results (2.02), bankruptcy (1.03), cybersecurity incidents (1.05) and filings with no item code; an explicit list of codes narrows it; amendments (8-K/A) come back too; retention 730 days, an earlier from_date returns 422; the CIK of a ticker: sec_edgar_ticker_or_cik_name_history"
+    fallback:
+      op: fundamentals_ticker_filings
+      params: {ticker: "<ticker>", form: 8-K}
+      note: "the filing list by date with links, no item codes: read the filing for its items"
+  jp:
+    op: edinet_ticker_extraordinary
+    params: {ticker: "<securities code>"}
+    unit: other
+    note: "extraordinary reports (document type 180): deals, management changes, restructuring; days sets the look-back (365 by default); dates in JST"
+  other: {gap: "no current-report filings for companies outside the US and Japan in the catalog", substitute: "the company's own release by link and news.company_coverage, named as coverage"}
+filings.press_releases:
+  us:
+    op: quotes_symbol_press_releases
+    params: {symbol: "<ticker>"}
+    unit: other
+    note: "press releases filed as exhibits 99.x of current reports; days sets the look-back (180 by default), limit the count; include_content returns the text of the 5 latest; the company's own words, not a check of them"
+  other: {gap: "no press-release feed for companies outside the US in the catalog", substitute: "news.company_coverage with tab press, and the company's site by link"}
+filings.filing_history:
+  us:
+    op: fundamentals_ticker_filings
+    params: {ticker: "<ticker>"}
+    unit: other
+    note: "filings by form and date with document links; form narrows it (10-K, 10-Q, 8-K); start_date and end_date bound it; a source holds a limited history: an older filing not returned is not absent"
+    fallback:
+      op: quotes_symbol_sec_filings
+      params: {symbol: "<ticker>"}
+      note: "days 0 returns all it holds"
+  jp:
+    op: edinet_ticker_filings
+    params: {ticker: "<securities code>"}
+    unit: other
+    note: "days sets the look-back (90 by default), doc_type the document type (codes from edinet_doc_types); company search by name: edinet_search; dates in JST"
+  other: {gap: "no statutory filing list for companies outside the US and Japan in the catalog", substitute: "the national register by link; say the filing list was not checked"}
+filings.filing_search:
+  us:
+    op: fundamentals_search
+    params: {q: "<words; a quoted phrase for a literal match>"}
+    unit: other
+    note: "full-text search across US filings; forms narrows it (comma list such as 8-K,10-K), start_date and end_date bound it, limit sets the count; a hit is a word match: read the passage, boilerplate and exhibit lists are not events"
+filings.disclosure_change:
+  us:
+    op: sec_edgar_ticker_or_cik_10_k_similarity
+    params: {ticker_or_cik: "<ticker or cik>"}
+    unit: ratio
+    note: "cosine and Jaccard similarity of the risk-factor (1A) and management discussion (7) sections, latest annual report against the prior year; low similarity flags rewritten text, not its direction; a company with a single annual report on file has no prior year to compare (the call returns 404); the section text itself: sec_edgar_ticker_or_cik_10_k_items_item with item 1A or 7"
+filings.earnings_transcript:
+  us: {gap: "no call transcript can be reached: the transcript route needs an event id that only the earnings-events route gives, and that route answers no events for every ticker tried", substitute: "filings.press_releases for the results release (exhibit 99.1 of the 2.02 report), named as the release, not the call; the call date from quotes_symbol_calendar"}
+filings.japan_filings:
+  jp:
+    op: edinet_filings
+    params: {date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "every filing submitted on one date; doc_type filters the document type, listed (on by default) keeps listed companies; one company: edinet_ticker_filings; tender offers: edinet_ticker_tender_offers; dates in JST, convert to UTC"
+    fallback:
+      op: edinet_ticker_filings
+      params: {ticker: "<securities code>"}
+  other: {gap: "Japanese statutory filings only: the entry is jp", substitute: "for a US company filings.filing_history; elsewhere the national register by link"}

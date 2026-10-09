@@ -24,7 +24,7 @@ MARKETPLACE = "sugra-api-plugins"
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.0", "openai": "1.2.0", "xai": "1.2.0"}
+VERSIONS = {"anthropic": "1.3.0", "openai": "1.3.0", "xai": "1.3.0"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -76,6 +76,11 @@ TIER_C = (
     "cboe",
 )
 BANS = ("real-time", "realtime", "financial intelligence", "blackbox")
+# The name and phrase bans are copy rules: they govern prose, not the machine identifiers a
+# binding has to spell to call the API. An operation id (cboe_volatility), a lookup key
+# (us/sahmrealtime) and a series code (SAHMREALTIME) are stripped before the scan: a token
+# joined by underscores or slashes, or an all-capitals code of four or more letters and digits.
+IDENTIFIER = re.compile(r"\b[A-Za-z0-9]+(?:[_/][A-Za-z0-9]+)+\b|\b[A-Z][A-Z0-9]{3,}\b")
 # The copy rules ban the em dash (a hyphen is the only dash) and emoji, not Unicode as such.
 # Written as code points so this file stays plain ASCII. Banned: the dashes other than the
 # hyphen and the keycap; IGNORABLE_RANGES; and EMOJI_RANGES. A character outside them that
@@ -161,7 +166,7 @@ def copy_lint(text: str, label: str) -> None:
         found = FORBIDDEN.search(view)
         if found:
             fail(f"{label}: U+{ord(found.group()):04X} is a banned dash, emoji or invisible character")
-        lowered = view.lower()
+        lowered = IDENTIFIER.sub(" ", view).lower()
         for ban in BANS:
             if ban in lowered:
                 fail(f"{label}: banned phrase {ban}")

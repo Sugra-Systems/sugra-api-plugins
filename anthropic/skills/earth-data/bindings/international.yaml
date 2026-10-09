@@ -1,0 +1,105 @@
+# International bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# Compare from one source: OECD members together; with China or a non-member, imf_country_indicator for all.
+# A country listed in a concept always takes its own entry; `other` is only for a country not listed in it.
+international.gdp_growth:
+  us:
+    op: oecd_country_indicator
+    params: {country: USA, indicator: gdp_growth}
+    unit: pct
+  ez: {op: macro_country_section, key: eu/gdp, transforms: [yoy_pct], unit: lcu_mn, note: "EUR mn level; growth is yoy_pct"}
+  gb:
+    op: oecd_country_indicator
+    params: {country: GBR, indicator: gdp_growth}
+    unit: pct
+  jp:
+    op: oecd_country_indicator
+    params: {country: JPN, indicator: gdp_growth}
+    unit: pct
+  cn:
+    op: imf_country_indicator
+    params: {country: CHN, indicator: gdp_growth}
+    unit: pct
+    note: "annual; rows flagged is_forecast are projections"
+  ca:
+    op: oecd_country_indicator
+    params: {country: CAN, indicator: gdp_growth}
+    unit: pct
+  de:
+    op: oecd_country_indicator
+    params: {country: DEU, indicator: gdp_growth}
+    unit: pct
+  other:
+    op: oecd_country_indicator
+    params: {country: "<ISO3>", indicator: gdp_growth}
+    unit: pct
+    note: "a country not listed above; OECD members, others: imf_country_indicator, annual"
+international.country_panel:
+  us:
+    op: macro_country_profile
+    params: {country: "united_states,germany,japan"}
+    unit: ratio
+    note: "country names, comma list, any number; see other; keep latest at its default (latest false asks for every indicator's whole history, more than one response holds); dated series come from each concept's own binding"
+  other:
+    op: macro_country_profile
+    params: {country: "united_states,germany,japan"}
+    unit: ratio
+    note: "country names, comma list, any number; fractions (x100 for pct) with growth, consumer prices, jobless rate, policy rate, 10-year yield, debt and current account, no reference date; a null is not published"
+international.harmonised_inflation:
+  us:
+    op: oecd_country_indicator
+    params: {country: USA, indicator: cpi}
+    unit: pct
+  ez: {op: macro_country_section, key: eu/cpi, transforms: [yoy_pct], unit: index, note: "HICP level; inflation is yoy_pct"}
+  jp:
+    op: estat_table_key
+    params: {table_key: cpi-yoy, limit: 14}
+    unit: pct
+    note: "dated monthly, newest first, one decimal as Japan publishes it; the OECD has no consumer prices for Japan: never call it for Japan; the same rate undated is in the country panel"
+    fallback:
+      op: macro_country_profile
+      params: {country: japan}
+      note: "undated fraction, x100 for pct"
+  cn:
+    op: bis_cpi
+    params: {country: cn, last_n: 14}
+    unit: pct
+    note: "China is not an OECD member; rows come in two kinds, the index and the year-on-year change in pct (UNIT_MEASURE_name says which); read the latter"
+    fallback:
+      op: macro_country_profile
+      params: {country: china}
+      note: "undated fraction, x100 for pct"
+  other:
+    op: oecd_country_indicator
+    params: {country: "<ISO3>", indicator: cpi}
+    unit: pct
+    note: "only a country not listed above (never Japan or China)"
+    fallback:
+      op: bis_cpi
+      params: {country: "<iso2>", last_n: 14}
+      note: "63 countries; the rows named year-on-year changes are in pct"
+international.harmonised_unemployment:
+  us:
+    op: macro_country_section
+    key: us/unrate
+    transforms: [mom_pp, yoy_pp]
+    unit: pct
+    note: "the national rate, same ILO measure; the harmonised route runs a month behind it"
+    fallback:
+      op: oecd_country_indicator
+      params: {country: USA, indicator: unemployment}
+  ez: {op: macro_country_section, key: eu/unrate, transforms: [mom_pp, yoy_pp], unit: pct}
+  other:
+    op: oecd_country_indicator
+    params: {country: "<ISO3>", indicator: unemployment}
+    unit: pct
+    note: "only a country not listed above"
+international.official_forecasts:
+  us:
+    op: imf_country_indicator
+    params: {country: USA, indicator: gdp_growth}
+    unit: pct
+    note: "rows flagged is_forecast; no vintage means the latest edition: use that. The one earlier edition kept is named in expectations.data_vintages"
+  other:
+    op: imf_country_indicator
+    params: {country: "<ISO3>", indicator: gdp_growth}
+    unit: pct

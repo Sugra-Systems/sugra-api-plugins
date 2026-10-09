@@ -1,0 +1,78 @@
+# Water bindings: concept id -> place -> call spec, gap or compute. Read mechanics.md first.
+# other = any place on Earth; us = the US gauge and tide networks, which need a site or station number.
+water.river_forecast:
+  other:
+    op: weather_flood
+    params: {latitude: "<lat>", longitude: "<lon>", forecast_days: 30}
+    unit: other
+    note: "GloFAS modelled daily discharge in m3/s at the nearest grid cell, not a gauge; river by name instead of the point for curated rivers; past_days up to 92 for the recent past; daily adds the mean, median, p25 and p75 bands"
+water.river_ensemble:
+  other:
+    op: weather_flood_ensemble
+    params: {latitude: "<lat>", longitude: "<lon>", forecast_days: 210}
+    unit: other
+    note: "50 members in m3/s up to 210 days with p0, p25, p50, p75 and p100 bands; the chance of passing a threshold = members above it out of 50, labelled computed"
+water.gauge_observed:
+  us:
+    op: environment_usgs_water_iv
+    params: {site: "<USGS site number>", parameter: "00060,00065,00010"}
+    unit: other
+    note: "15-minute USGS values: 00060 discharge ft3/s, 00065 stage ft, 00010 water temperature degC; qualifier P is provisional; the site number comes from the question, the user or an earlier answer; one day by default, period or start_date and end_date for more; daily means: environment_usgs_water_dv"
+    fallback:
+      op: environment_usgs_water_latest
+      params: {site: "<USGS site number>", parameter: "00060,00065"}
+  other: {gap: "no gauge readings outside the US (no Rhine gauges, no Gatun Lake level, no canal draught limits)", substitute: "water.river_forecast, a modelled discharge named as a model; for the Panama Canal the operator's transit record maritime_chokepoints_panama_transits"}
+water.flow_percentile:
+  us:
+    op: environment_usgs_water_stat
+    params: {site: "<USGS site number>", parameter: "00060", type: all, freq: daily, start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "percentiles of discharge in ft3/s for each day of the year over the gauge record; below the 10th much below normal, below the 25th below normal; name the record length; all 366 days exceed the response cap, so start_date and end_date bound it to the days asked, a week or so; freq monthly gives monthly means per year without percentiles, so it is no substitute"
+  other: {gap: "no flow statistics outside the US", substitute: "water.river_forecast with past_days, a model, and say there is no climatology of the river here"}
+water.annual_peaks:
+  us:
+    op: environment_usgs_water_peak
+    params: {site: "<USGS site number>"}
+    unit: other
+    note: "one peak per water year (October to September) in ft3/s over the full record; return period T = (years + 1) / rank, labelled computed; under 30 years gives a rough T"
+  other: {gap: "no annual peak series outside the US", substitute: "water.river_forecast against its own bands, named as a model, without a return period"}
+water.coastal_level_observed:
+  us:
+    op: environment_noaa_tides_station_id_water_level
+    params: {id: "<7-digit CO-OPS station>", date: today}
+    unit: other
+    note: "6-minute observed level in m above MLLW since midnight UTC; field q p preliminary, v verified; the rows come at 6 minutes, so one call covers one day (date recent is larger than one response holds): a past window is begin_date and end_date YYYYMMDD on two consecutive dates, one call per day, and hourly values are read off the 6-minute rows; station ids by state from environment_noaa_tides_stations; keep one datum"
+    fallback:
+      op: environment_noaa_tides_latest
+      params: {station: "<7-digit CO-OPS station>"}
+  other: {gap: "no tide gauge readings outside the US", substitute: "water.sea_level_model, a model without wind setup"}
+water.tide_predicted:
+  us:
+    op: environment_noaa_tides_station_id_predictions
+    params: {id: "<7-digit CO-OPS station>", date: recent, interval: h}
+    unit: other
+    note: "astronomical tide in m above MLLW by default, no weather; interval hilo for high and low waters"
+    fallback:
+      op: transport_tides
+      params: {lat: "<lat>", lon: "<lon>", interval: hourly}
+      note: "the nearest prediction station to the point"
+  other: {gap: "no tide predictions outside the US", substitute: "water.sea_level_model, a model"}
+water.surge_observed:
+  us: {compute: "water.coastal_level_observed minus water.tide_predicted at one station, over one window, in one datum and one unit; the peak surge timed against high water; labelled computed"}
+  other: {gap: "no observed surge outside the US", substitute: "the pressure part of water.sea_level_model, which leaves out wind setup: say so"}
+water.sea_level_model:
+  other:
+    op: weather_marine_sea_level
+    params: {latitude: "<lat>", longitude: "<lon>", forecast_days: 2}
+    unit: other
+    note: "hourly modelled sea level in m above mean sea level and its inverted-barometer part; wind setup is not included, so it is no surge forecast; past_days up to 92"
+water.waves:
+  other:
+    op: weather_marine_forecast
+    params: {latitude: "<lat>", longitude: "<lon>", days: 7}
+    unit: other
+    note: "daily wave height (m), direction, period (s), swell and sea temperature up to 8 days; a model forecast"
+    fallback:
+      op: transport_marine
+      params: {lat: "<lat>", lon: "<lon>"}
+      note: "the current analysis of the wave model at the nearest node, not a forecast"

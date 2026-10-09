@@ -1,0 +1,68 @@
+# Volatility bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# us = a US-listed underlier (options snapshots cover US underliers only) or a US market index.
+volatility.option_chain:
+  us:
+    op: options_symbol_snapshot
+    params: {symbol: "<ticker>", expiry: "<YYYY-MM-DD, an expiration_date from options_symbol_iv_surface>"}
+    unit: other
+    note: "contracts of one expiry by strike with bid, ask, volume, open interest, implied volatility and greeks, prices in USD; latest snapshot cycle unless date is set; call options_symbol_iv_surface first and take expiry from the expiries it lists: the snapshot holds only those expiries (the nearest few), any other date returns 404; always set expiry: the whole chain of a large underlier exceeds the response cap; a later expiry than the snapshot holds: the fallback"
+    fallback:
+      op: cboe_options_symbol
+      params: {symbol: "<ticker>", expiry: "<YYYY-MM-DD>"}
+      note: "15-minute delayed chain of one expiration with greeks; the expirations list comes back in every response, so a call with an unlisted expiry still shows the valid dates; always set expiry"
+volatility.iv_surface:
+  us:
+    op: options_symbol_iv_surface
+    params: {symbol: "<ticker>"}
+    unit: pct
+    note: "implied volatility by strike and expiry with the at-the-money term structure, annualised, as of the snapshot date"
+volatility.iv_rank:
+  us:
+    op: options_symbol_iv_rank
+    params: {symbol: "<ticker>", window: 252}
+    unit: pct
+    note: "rank and percentile of the current at-the-money implied volatility in its own snapshot history; window counts observations, and snapshots are kept about 90 days, so quote the observations-found count and call a short history short"
+volatility.skew:
+  us:
+    op: options_symbol_skew
+    params: {symbol: "<ticker>"}
+    unit: pp
+    note: "25-delta put implied volatility minus 25-delta call, in volatility points; positive means downside protection is priced over upside"
+volatility.implied_move:
+  us:
+    op: options_symbol_implied_move
+    params: {symbol: "<ticker>"}
+    unit: usd
+    note: "one-sigma move to the chosen expiry from at-the-money implied volatility, USD and percent of spot; a one-sigma range, not the straddle price"
+volatility.put_call:
+  us:
+    op: options_symbol_put_call_ratio_history
+    params: {symbol: "<ticker>", days: 30}
+    unit: ratio
+    note: "daily put volume over call volume and the same by open interest, days 1 to 90; days without a snapshot are absent; exchange-wide ratios come from cboe_put_call_ratio"
+    fallback:
+      op: cboe_put_call_ratio
+      note: "exchange-wide ratios for the latest session, total, index and equity"
+volatility.unusual_volume:
+  us:
+    op: options_symbol_unusual_volume
+    params: {symbol: "<ticker>"}
+    unit: ratio
+    note: "contracts whose volume is threshold times or more their own average over baseline_window_days snapshots; a flag on volume, not on direction"
+volatility.market_implied:
+  us:
+    op: macro_country_section
+    key: us/vix
+    unit: index
+    note: "the US large-cap 30-day implied volatility index, daily close in volatility points; read the level with no transform; the other tracked indices (small caps, gold, oil, volatility of volatility) come from cboe_volatility"
+    fallback:
+      op: cboe_volatility
+      note: "latest values of all tracked volatility indices"
+volatility.term_structure:
+  us:
+    op: cboe_vix_term_structure
+    unit: index
+    note: "the large-cap implied volatility index from 1 day to 1 year; long above short is contango, the normal shape; short above long is backwardation, a stress sign"
+    fallback:
+      op: cboe_volatility
+      note: "the term variants (9 day, 3 month, 6 month, 1 year) among the tracked indices"

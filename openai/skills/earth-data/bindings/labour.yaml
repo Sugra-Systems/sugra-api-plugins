@@ -1,0 +1,115 @@
+# Labour bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+labour.unemployment_rate:
+  us:
+    op: macro_country_section
+    key: us/unrate
+    transforms: [mom_pp, yoy_pp]
+    unit: pct
+    note: "noise about 0.2 pp a month"
+    fallback: {op: fred_series_series_id, series_id: UNRATE}
+  ez: {op: macro_country_section, key: eu/unrate, transforms: [mom_pp, yoy_pp], unit: pct}
+  gb:
+    op: ons_labour_market
+    unit: pct
+    note: "series MGSX, aged 16 and over, rolling 3 months"
+    fallback: {op: macro_country_section, key: gb/unrate}
+  jp:
+    op: macro_country_section
+    key: jp/unrate
+    transforms: [mom_pp, yoy_pp]
+    unit: pct
+    note: "can be a month behind the OECD and the agency"
+    fallback:
+      op: estat_table_key
+      params: {table_key: unemployment, limit: 12}
+      note: "the agency's monthly jobless rate, ILO definition; its table keys are listed by estat_catalog, a key not listed is a guess"
+  cn:
+    op: macro_country_profile
+    params: {country: CN}
+    unit: ratio
+    note: "jobless rate as a fraction, x100 for pct"
+  ca: {op: statcan_labour, unit: pct}
+  de:
+    op: oecd_country_indicator
+    params: {country: DEU, indicator: unemployment}
+    unit: pct
+  au: {op: abs_labour, unit: pct}
+  se: {op: scb_unemployment, unit: pct, note: "read the percent rows; thousands also returned"}
+labour.payrolls:
+  us:
+    op: macro_country_section
+    key: us/payrolls
+    transforms: [mom_abs, yoy_abs]
+    unit: thousands
+    note: "noise about 122k a month; revised in the next two releases"
+    fallback: {op: fred_series_series_id, series_id: PAYEMS}
+  gb: {gap: "payrolled employees are not in the catalog", substitute: "employment level, series MGRZ in ons_labour_market, a household survey"}
+  ca: {gap: "establishment payrolls are not in the catalog", substitute: "employment in statcan_labour, a household survey"}
+labour.participation_rate:
+  us: {op: macro_country_section, key: us/lfpr, transforms: [mom_pp, yoy_pp], unit: pct}
+  ca: {op: statcan_labour, unit: pct}
+  au: {op: abs_labour, unit: pct}
+labour.participation_prime_age:
+  us: {op: macro_country_section, key: us/lns11300060, transforms: [mom_pp, yoy_pp], unit: pct}
+labour.employment_population_prime_age:
+  us: {op: fred_series_series_id, series_id: LNS12300060, transforms: [chg, ch1], unit: pct, note: "ages 25-54, seasonally adjusted; chg is the change in pp"}
+labour.underemployment_rate:
+  us: {op: macro_country_section, key: us/u6rate, transforms: [mom_pp, yoy_pp], unit: pct}
+labour.unemployed_level:
+  us: {op: macro_country_section, key: us/unemploy, transforms: [mom_abs, yoy_abs], unit: thousands}
+labour.unemployed_job_losers:
+  us: {op: fred_series_series_id, series_id: LNS13023621, transforms: [chg, ch1], unit: thousands, note: "job losers including temporary layoffs; layoffs and discharges from the employer survey: us/jtsldl"}
+labour.unemployed_entrants:
+  us: {op: fred_series_series_id, series_id: LNS13023557, transforms: [chg, ch1], unit: thousands, note: "re-entrants; new entrants are series LNS13023569 in the same op, add both"}
+labour.average_pay:
+  us: {op: macro_country_section, key: us/avg-hourly-earnings, transforms: [mom_pct, yoy_pct], unit: usd, note: "USD per hour, private payrolls"}
+  gb:
+    op: ons_earnings
+    params: {limit: 4}
+    unit: lcu
+    note: "GBP per week, total pay KAB9 (includes bonuses); KAC3 is total pay growth in pct, not regular pay"
+labour.wage_growth_regular:
+  us: {gap: "the regular-pay split is a UK measure", substitute: "average hourly pay of labour.average_pay, named as a substitute"}
+  gb:
+    op: ons_earnings
+    params: {limit: 15}
+    unit: lcu
+    note: "regular pay level in GBP per week, the regular-pay field of the response; growth is computed: mean of the latest 3 months over the mean of the same 3 months a year earlier, minus 1, which needs 15 months; label computed. The growth field in the response is total pay"
+labour.payrolls_first_print:
+  us: {gap: "first prints and vintages of a release are not in the catalog", substitute: "the current revised series of labour.payrolls; the statistical agency's release archive by link; say that the first print is not available"}
+  other: {gap: "first prints and vintages of a release are not in the catalog", substitute: "the current revised series (labour.payrolls); the statistical agency's release archive by link; say that the first print is not available"}
+labour.employment_cost_index:
+  us: {op: macro_country_section, key: us/eciallciv, transforms: [mom_pct, yoy_pct], unit: index, note: "total compensation, civilian; mom_pct is the quarter change; wages only: us/eciwag"}
+labour.wage_growth_tracker:
+  us: {op: fred_series_series_id, series_id: FRBATLWGT3MMAUMHWGO, unit: pct, note: "3-month moving average, the headline; published by the Federal Reserve Bank of Atlanta under its own terms: cite the publisher, never present it as computed here"}
+labour.initial_claims:
+  us: {op: macro_country_section, key: us/initial-claims, transforms: [mom_abs, yoy_abs], unit: count, note: "4-week average: us/ic4wsa"}
+  ez: {gap: "no weekly jobless claims in the catalog", substitute: "labour.unemployment_rate"}
+  gb: {gap: "no weekly jobless claims in the catalog", substitute: "claimant count rate, series BCJE in ons_labour_market, monthly"}
+  jp: {gap: "no weekly jobless claims in the catalog", substitute: "labour.unemployment_rate"}
+  cn: {gap: "no weekly jobless claims in the catalog", substitute: "labour.unemployment_rate"}
+  ca: {gap: "no insurance claims in the catalog", substitute: "labour.unemployment_rate"}
+  de: {gap: "no weekly jobless claims in the catalog", substitute: "labour.unemployment_rate"}
+labour.continuing_claims:
+  us: {op: macro_country_section, key: us/continued-claims, transforms: [mom_abs, yoy_abs], unit: count, note: "4-week average: us/cc4wsa"}
+labour.job_openings:
+  us: {op: macro_country_section, key: us/jtsjol, transforms: [mom_abs, yoy_abs], unit: thousands}
+  gb: {op: ons_labour_market, unit: thousands, note: "vacancies, series AP2Y, rolling 3 months"}
+labour.quits_rate:
+  us: {op: macro_country_section, key: us/jtsqur, unit: pct, note: "typed level: take the pp change from levels, never mom_pct"}
+labour.conditions_index:
+  us: {op: fred_series_series_id, series_id: FRBKCLMCILA, unit: index, note: "level; momentum: series FRBKCLMCIM; published by the Federal Reserve Bank of Kansas City under its own terms: cite the publisher, never present it as computed here"}
+labour.sahm_rule:
+  us:
+    op: macro_country_section
+    key: us/sahmrealtime
+    transforms: [mom_pp]
+    unit: pp
+    note: "first-release version; the revised version is us/sahmcurrent"
+    fallback: {op: fred_series_series_id, series_id: SAHMREALTIME}
+  ez: {compute: "Sahm definition in labour.md on labour.unemployment_rate"}
+  gb: {compute: "Sahm definition in labour.md on labour.unemployment_rate"}
+  jp: {compute: "Sahm definition in labour.md on labour.unemployment_rate"}
+  cn: {compute: "Sahm definition in labour.md on labour.unemployment_rate"}
+  ca: {compute: "Sahm definition in labour.md on labour.unemployment_rate"}
+  de: {compute: "Sahm definition in labour.md on labour.unemployment_rate"}
