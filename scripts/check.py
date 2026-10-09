@@ -56,7 +56,7 @@ ANTHROPIC_LINKS = {
     "icon": "./assets/logo.png",
 }
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
-CHATGPT_LISTING = "chatgpt.com/plugins/plugins_6aa4f7db79848191a81e4048990545ef"
+CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
 # No package holds an MCP configuration: the MCP server is listed on its own.
