@@ -13,7 +13,10 @@ mode and host, so one commit gives one ZIP, byte for byte.
 
 The skills join the existing Sugra API listing in the directory, so the ZIP's
 plugin.json carries that listing's name and listing fields; the directory refuses
-an update whose name differs from the listing's.
+an update whose name differs from the listing's. The listing also holds the
+hosted MCP server, and the directory refuses a package that omits it, so the
+builder writes the listing's mcp.json into the ZIP. openai/ itself holds no MCP
+configuration: a Codex marketplace install stays skills only.
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ import zipfile
 from pathlib import Path
 
 import sync
-from check import LISTING_LIMITS, MANIFEST_LIMITS
+from check import AGENT_PLUGINS, LISTING_LIMITS, MANIFEST_LIMITS
 
 ROOT = sync.ROOT
 PACKAGE = "openai"
@@ -47,6 +50,13 @@ LISTING_INTERFACE = {
         "Documentation: https://docs.sugra.ai."
     ),
     "category": "Developer Tools",
+}
+# the listing's MCP server, declared at the ZIP root; the directory supports neither
+# removing it nor changing its URL
+LISTING_MCP_FILE = "mcp.json"
+LISTING_MCP = {
+    "$schema": AGENT_PLUGINS + "mcp.schema.json",
+    "mcpServers": {"sugra-api": {"type": "streamable-http", "url": "https://app.sugra.ai/mcp"}},
 }
 # the directory names a skill plugin-name:skill-name, at most 64 characters
 SKILL_IDENTITY_LIMIT = 64
@@ -121,7 +131,10 @@ def main(argv: list[str]) -> int:
             print(f"FAIL plugin.json {field} is {len(value)} chars; the directory allows {limit}", file=sys.stderr)
             return 1
 
-    names = sorted(rel for rel in package if rel != "README.md")
+    if LISTING_MCP_FILE in package:
+        print(f"FAIL {PACKAGE}/{LISTING_MCP_FILE}: the builder writes it into the ZIP; {PACKAGE}/ stays skills only", file=sys.stderr)
+        return 1
+    names = sorted([*(rel for rel in package if rel != "README.md"), LISTING_MCP_FILE])
     # dist/ is ignored, so nothing reviewed it: refuse a link or a path that leaves the repository
     sync.guard(DIST)
     DIST.mkdir(exist_ok=True)
@@ -144,6 +157,8 @@ def main(argv: list[str]) -> int:
                 info.compress_type = zipfile.ZIP_STORED
                 if rel == "plugin.json":
                     data = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode()
+                elif rel == LISTING_MCP_FILE:
+                    data = (json.dumps(LISTING_MCP, indent=2, ensure_ascii=False) + "\n").encode()
                 else:
                     data = git("cat-file", "blob", package[rel])
                 archive.writestr(info, data)

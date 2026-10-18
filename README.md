@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex and Grok, one folder per vendor. Each plugin carries only the Sugra API skills; the MCP server is a separate product.
+[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex and Grok, one folder per vendor. Each plugin carries only the Sugra API skills; the MCP server is a separate product, which the ChatGPT listing holds beside the skills.
 
 | Repository | What |
 |---|---|
@@ -68,6 +68,7 @@ Each package holds only its own vendor's files and versions on its own. The skil
 ```
 python scripts/sync.py --source <clone of sugra-api-skills> --commit <commit on its main>
 python scripts/check.py --source <clone of sugra-api-skills>
+SKILLS_SOURCE=<clone of sugra-api-skills> python -m unittest discover -s scripts -p "test_*.py"
 ```
 
 Documentation: [https://docs.sugra.ai](https://docs.sugra.ai)

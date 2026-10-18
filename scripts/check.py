@@ -20,11 +20,12 @@ import sync
 ROOT = sync.ROOT
 REPOSITORY = "https://github.com/Sugra-Systems/sugra-api-plugins"
 MARKETPLACE = "sugra-api-plugins"
-# the plugin carries skills only and is named for them; the MCP server is a separate product, "Sugra API"
+# the marketplace plugin carries skills only and is named for them; the MCP server is a separate
+# product, "Sugra API", whose Plugins Directory listing the openai ZIP joins (scripts/build_openai_zip.py)
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.0", "openai": "1.2.0", "xai": "1.2.0"}
+VERSIONS = {"anthropic": "1.2.0", "openai": "1.2.1", "xai": "1.2.0"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -59,7 +60,9 @@ AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
-# No package holds an MCP configuration: the MCP server is listed on its own.
+# No package folder holds an MCP configuration, so a marketplace install is skills only.
+# The Plugins Directory ZIP declares the Sugra API listing's MCP server: the builder writes
+# its mcp.json into the ZIP, never into openai/.
 LAYOUT = {
     "anthropic": {".claude-plugin", "README.md", "assets", "skills"},
     "openai": {"README.md", "assets", "plugin.json", "skills"},

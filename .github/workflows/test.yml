@@ -29,3 +29,7 @@ jobs:
           persist-credentials: false
       - name: Check packages
         run: python scripts/check.py --source .skills-source
+      - name: Test the Plugins Directory ZIP
+        env:
+          SKILLS_SOURCE: .skills-source
+        run: python -m unittest discover -s scripts -p "test_*.py" -v
