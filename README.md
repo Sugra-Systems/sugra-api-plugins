@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex and Grok, one folder per vendor. Each plugin carries only the Sugra API skills; the MCP server is a separate product, which the ChatGPT listing holds beside the skills.
+[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex and Grok, one folder per vendor. Each plugin carries the Sugra API skills. The Claude plugin also connects the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex and Grok plugins carry the skills only.
 
 | Repository | What |
 |---|---|
@@ -27,6 +27,8 @@ Get a key at [app.sugra.ai/register](https://app.sugra.ai/register) (Free: 50 re
 /plugin marketplace add Sugra-Systems/sugra-api-plugins
 /plugin install sugra-api-skills@sugra-api-plugins
 ```
+
+The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: run `/mcp` and sign in with your Sugra account.
 
 ### Codex
 
