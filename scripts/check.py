@@ -26,7 +26,7 @@ MARKETPLACE = "sugra-api-plugins"
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.1", "xai": "1.2.0"}
+VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.1", "xai": "1.2.0", "google": "1.2.1"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -61,17 +61,31 @@ ANTHROPIC_LINKS = {
 # https://claude.ai/directory/sugra-api. The same URL lets the two listings be paired and lets
 # Claude Code count them as one server. A URL only: no headers, no credentials.
 ANTHROPIC_MCP = {"mcpServers": {"sugra-api": {"type": "http", "url": "https://mcp.sugra.ai/mcp"}}}
+# google/gemini-extension.json, written whole: Gemini CLI reads name, version, description, the MCP
+# server and the context file, and loads skills/ beside it. The same server URL as ANTHROPIC_MCP;
+# oauth.enabled makes Gemini CLI offer /mcp auth sugra-api, because the server answers a connect
+# without a sign-in and asks for one only on a tool call. A URL only: no headers, no credentials.
+GOOGLE_EXTENSION = {
+    "name": PLUGIN,
+    "version": VERSIONS["google"],
+    "description": DESCRIPTION,
+    "mcpServers": {"sugra-api": {**ANTHROPIC_MCP["mcpServers"]["sugra-api"], "oauth": {"enabled": True}}},
+    "contextFileName": "GEMINI.md",
+}
+GEMINI_INSTALL = "gemini extensions install https://github.com/Sugra-Systems/sugra-api-plugins"
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
-# anthropic/.mcp.json declares the Sugra API connector's server, so a Claude install connects it.
+# anthropic/.mcp.json declares the Sugra API connector's server, so a Claude install connects it;
+# google/gemini-extension.json declares the same server for Gemini CLI.
 # openai/ and xai/ hold no MCP configuration, so those marketplace installs are skills only; the
 # Plugins Directory ZIP gets its mcp.json from the builder, never from openai/.
 LAYOUT = {
     "anthropic": {".claude-plugin", ".mcp.json", "README.md", "assets", "skills"},
     "openai": {"README.md", "assets", "plugin.json", "skills"},
     "xai": {".grok-plugin", "README.md", "skills"},
+    "google": {"GEMINI.md", "README.md", "gemini-extension.json", "skills"},
 }
 TIER_C = (
     "yahoo",
@@ -138,7 +152,7 @@ FORBIDDEN = re.compile(
 # Every other file a vendor or a reader sees is UTF-8 text and passes copy_lint.
 BINARY = {".png": b"\x89PNG\r\n\x1a\n"}
 PUBLIC_FILES = ("README.md", "SECURITY.md", "LICENSE")
-PUBLIC = ("anthropic", "openai", "xai", ".claude-plugin", ".grok-plugin", ".agents", *PUBLIC_FILES)
+PUBLIC = ("anthropic", "openai", "xai", "google", ".claude-plugin", ".grok-plugin", ".agents", *PUBLIC_FILES)
 # Final Plugins Directory submission limits, from developers.openai.com/plugins/deploy/submission-errors.
 MANIFEST_LIMITS = {"name": 64, "description": 1024}
 LISTING_LIMITS = {"displayName": 30, "shortDescription": 30, "longDescription": 4000, "developerName": 80}
@@ -219,13 +233,19 @@ def check_manifest(manifest: dict, package: str) -> None:
     if not isinstance(author, dict) or author.get("name") != "Sugra Systems, Inc.":
         fail(f"{package} manifest: author.name must be Sugra Systems, Inc.")
     if declares_mcp(manifest):
-        fail(f"{package} manifest: must declare no mcpServers; anthropic/.mcp.json is the one MCP declaration")
+        fail(f"{package} manifest: must declare no mcpServers; anthropic/.mcp.json and google/gemini-extension.json declare the server")
 
 
 def check_anthropic_mcp(declared: dict) -> None:
     """anthropic/.mcp.json holds exactly ANTHROPIC_MCP: one server, its URL and type, nothing else."""
     if declared != ANTHROPIC_MCP:
         fail(f"anthropic/.mcp.json must be exactly {json.dumps(ANTHROPIC_MCP)}")
+
+
+def check_google_extension(declared: dict) -> None:
+    """google/gemini-extension.json holds exactly GOOGLE_EXTENSION."""
+    if declared != GOOGLE_EXTENSION:
+        fail(f"google/gemini-extension.json must be exactly {json.dumps(GOOGLE_EXTENSION)}")
 
 
 def check_layout() -> None:
@@ -314,6 +334,12 @@ def check_packages() -> None:
     if sorted(p.name for p in (xai / ".grok-plugin").iterdir()) != ["plugin.json"]:
         fail("xai/.grok-plugin must hold only plugin.json")
 
+    google = ROOT / "google"
+    check_google_extension(load_json(google / "gemini-extension.json"))
+    context = (google / "GEMINI.md").read_text(encoding="utf-8")
+    if "/mcp auth sugra-api" not in context or "https://docs.sugra.ai" not in context:
+        fail("google/GEMINI.md must name /mcp auth sugra-api and https://docs.sugra.ai")
+
 
 def parse_openai_yaml(text: str, label: str) -> dict[str, str]:
     """Read openai.yaml in the one shape this repository writes; anything else fails."""
@@ -364,7 +390,7 @@ def check_marketplaces() -> None:
         if market.get("name") != MARKETPLACE or not isinstance(plugins, list) or [p.get("name") for p in plugins] != [PLUGIN]:
             fail(f"{label} marketplace must be {MARKETPLACE} listing only {PLUGIN}")
         if declares_mcp(market):
-            fail(f"{label} marketplace: must declare no mcpServers; anthropic/.mcp.json is the one MCP declaration")
+            fail(f"{label} marketplace: must declare no mcpServers; the package files declare the server")
     for label, market in (("claude", claude), ("grok", grok)):
         entry = market["plugins"][0]
         if entry.get("description") != DESCRIPTION or entry.get("keywords") != KEYWORDS or entry.get("homepage") != HOMEPAGE:
@@ -390,6 +416,7 @@ def check_docs() -> None:
     for needle in (
         f"{PLUGIN}@{MARKETPLACE}",
         "Sugra-Systems/sugra-api-plugins#xai",
+        GEMINI_INSTALL,
         "Sugra-Systems/sugra-api-skills",
         "docs.sugra.ai",
         CHATGPT_LISTING,
