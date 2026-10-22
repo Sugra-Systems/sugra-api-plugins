@@ -21,12 +21,12 @@ ROOT = sync.ROOT
 REPOSITORY = "https://github.com/Sugra-Systems/sugra-api-plugins"
 MARKETPLACE = "sugra-api-plugins"
 # the plugin is named for its skills; the MCP server is the "Sugra API" product, which the anthropic
-# package declares (ANTHROPIC_MCP) and whose Plugins Directory listing the openai ZIP joins
+# and xai packages declare (ANTHROPIC_MCP) and whose Plugins Directory listing the openai ZIP joins
 # (scripts/build_openai_zip.py)
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.1", "xai": "1.2.0", "google": "1.2.1"}
+VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.1", "xai": "1.2.1", "google": "1.2.1"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -57,9 +57,10 @@ ANTHROPIC_LINKS = {
     "termsOfServiceUrl": "https://sugra.systems/terms-of-service",
     "icon": "./assets/logo.png",
 }
-# anthropic/.mcp.json: the server of the Sugra API connector in Anthropic's directory,
-# https://claude.ai/directory/sugra-api. The same URL lets the two listings be paired and lets
-# Claude Code count them as one server. A URL only: no headers, no credentials.
+# <package>/.mcp.json of every MCP_PACKAGES package: the hosted Sugra API MCP server, the server of
+# the Sugra API connector in Anthropic's directory, https://claude.ai/directory/sugra-api. The same
+# URL lets the two listings be paired and lets Claude Code count them as one server; Grok reads the
+# same file from the xai package. A URL only: no headers, no credentials.
 ANTHROPIC_MCP = {"mcpServers": {"sugra-api": {"type": "http", "url": "https://mcp.sugra.ai/mcp"}}}
 # google/gemini-extension.json, written whole: Gemini CLI reads name, version, description, the MCP
 # server and the context file, and loads skills/ beside it. The same server URL as ANTHROPIC_MCP;
@@ -73,18 +74,19 @@ GOOGLE_EXTENSION = {
     "contextFileName": "GEMINI.md",
 }
 GEMINI_INSTALL = "gemini extensions install https://github.com/Sugra-Systems/sugra-api-plugins"
+MCP_PACKAGES = ("anthropic", "xai")
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
-# anthropic/.mcp.json declares the Sugra API connector's server, so a Claude install connects it;
-# google/gemini-extension.json declares the same server for Gemini CLI.
-# openai/ and xai/ hold no MCP configuration, so those marketplace installs are skills only; the
-# Plugins Directory ZIP gets its mcp.json from the builder, never from openai/.
+# anthropic/.mcp.json and xai/.mcp.json declare the Sugra API server, so a Claude or Grok install
+# connects it; google/gemini-extension.json declares the same server for Gemini CLI.
+# openai/ holds no MCP configuration, so a Codex marketplace install is skills only; the Plugins
+# Directory ZIP gets its mcp.json from the builder, never from openai/.
 LAYOUT = {
     "anthropic": {".claude-plugin", ".mcp.json", "README.md", "assets", "skills"},
     "openai": {"README.md", "assets", "plugin.json", "skills"},
-    "xai": {".grok-plugin", "README.md", "skills"},
+    "xai": {".grok-plugin", ".mcp.json", "README.md", "skills"},
     "google": {"GEMINI.md", "README.md", "gemini-extension.json", "skills"},
 }
 TIER_C = (
@@ -233,13 +235,15 @@ def check_manifest(manifest: dict, package: str) -> None:
     if not isinstance(author, dict) or author.get("name") != "Sugra Systems, Inc.":
         fail(f"{package} manifest: author.name must be Sugra Systems, Inc.")
     if declares_mcp(manifest):
-        fail(f"{package} manifest: must declare no mcpServers; anthropic/.mcp.json and google/gemini-extension.json declare the server")
+        fail(f"{package} manifest: must declare no mcpServers; a package's .mcp.json or gemini-extension.json is its one MCP declaration")
 
 
-def check_anthropic_mcp(declared: dict) -> None:
-    """anthropic/.mcp.json holds exactly ANTHROPIC_MCP: one server, its URL and type, nothing else."""
+def check_package_mcp(declared: dict, package: str) -> None:
+    """<package>/.mcp.json holds exactly ANTHROPIC_MCP: one server, its URL and type, nothing else."""
+    if package not in MCP_PACKAGES:
+        fail(f"{package}/ must hold no MCP configuration")
     if declared != ANTHROPIC_MCP:
-        fail(f"anthropic/.mcp.json must be exactly {json.dumps(ANTHROPIC_MCP)}")
+        fail(f"{package}/.mcp.json must be exactly {json.dumps(ANTHROPIC_MCP)}")
 
 
 def check_google_extension(declared: dict) -> None:
@@ -290,7 +294,7 @@ def check_packages() -> None:
         fail("anthropic manifest: skills must be ./skills")
     if sorted(p.name for p in (anthropic / ".claude-plugin").iterdir()) != ["plugin.json"]:
         fail("anthropic/.claude-plugin must hold only plugin.json")
-    check_anthropic_mcp(load_json(anthropic / ".mcp.json"))
+    check_package_mcp(load_json(anthropic / ".mcp.json"), "anthropic")
     if sorted(p.name for p in (anthropic / "assets").iterdir()) != ["logo.png"]:
         fail("anthropic/assets must hold only logo.png")
     logo = anthropic / "assets" / "logo.png"
@@ -333,6 +337,7 @@ def check_packages() -> None:
     check_manifest(grok_plugin, "xai")
     if sorted(p.name for p in (xai / ".grok-plugin").iterdir()) != ["plugin.json"]:
         fail("xai/.grok-plugin must hold only plugin.json")
+    check_package_mcp(load_json(xai / ".mcp.json"), "xai")
 
     google = ROOT / "google"
     check_google_extension(load_json(google / "gemini-extension.json"))
