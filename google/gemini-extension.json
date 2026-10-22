@@ -1,0 +1,15 @@
+{
+  "name": "sugra-api-skills",
+  "version": "1.2.1",
+  "description": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure.",
+  "mcpServers": {
+    "sugra-api": {
+      "type": "http",
+      "url": "https://mcp.sugra.ai/mcp",
+      "oauth": {
+        "enabled": true
+      }
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}
