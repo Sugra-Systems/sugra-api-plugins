@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, Grok and Gemini CLI, one folder per vendor. Each plugin carries the Sugra API skills. The Claude plugin and the Gemini CLI extension also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex and Grok plugins carry the skills only.
+[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, Grok and Gemini CLI, one folder per vendor. Each plugin carries the Sugra API skills. The Claude and Grok plugins and the Gemini CLI extension also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
 
 | Repository | What |
 |---|---|
@@ -50,6 +50,8 @@ https://chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91
 ```
 grok plugin install Sugra-Systems/sugra-api-plugins#xai
 ```
+
+The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: Grok asks you to sign in with your Sugra account the first time it uses it, or run `/mcps`, select the server and press `i`.
 
 ### Gemini CLI
 
