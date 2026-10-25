@@ -62,6 +62,13 @@ class DirectoryZip(unittest.TestCase):
         self.assertNotIn("README.md", names)
         self.assertEqual(names, sorted(names))
 
+    def test_zip_carries_the_listing_starter_prompts(self) -> None:
+        with zipfile.ZipFile(io.BytesIO(self.build())) as archive:
+            manifest = json.loads(archive.read("plugin.json"))
+        prompts = manifest["extensions"]["com.openai"]["interface"]["defaultPrompt"]
+        self.assertEqual(prompts, build_openai_zip.LISTING_INTERFACE["defaultPrompt"])
+        self.assertEqual(build_openai_zip.prompt_errors(prompts), [])
+
     def test_marketplace_folder_stays_skills_only(self) -> None:
         self.assertFalse((sync.ROOT / build_openai_zip.PACKAGE / "mcp.json").exists())
         self.assertNotIn("mcp.json", build_openai_zip.tree(build_openai_zip.PACKAGE))
@@ -69,6 +76,16 @@ class DirectoryZip(unittest.TestCase):
     def test_zip_is_byte_reproducible(self) -> None:
         first = self.build()
         self.assertEqual(self.build(), first)
+
+
+class StarterPrompts(unittest.TestCase):
+    def test_limits(self) -> None:
+        self.assertEqual(build_openai_zip.prompt_errors(["a", "b", "c"]), [])
+        self.assertTrue(build_openai_zip.prompt_errors(["a", "b", "c", "d"]))
+        self.assertTrue(build_openai_zip.prompt_errors(["a" * 129]))
+        self.assertTrue(build_openai_zip.prompt_errors(["a", "a"]))
+        self.assertTrue(build_openai_zip.prompt_errors(["", "b"]))
+        self.assertTrue(build_openai_zip.prompt_errors([]))
 
 
 if __name__ == "__main__":

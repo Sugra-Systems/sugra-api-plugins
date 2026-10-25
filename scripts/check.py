@@ -26,7 +26,7 @@ MARKETPLACE = "sugra-api-plugins"
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.1", "xai": "1.2.1", "google": "1.2.1"}
+VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "google": "1.2.1"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -158,6 +158,10 @@ PUBLIC = ("anthropic", "openai", "xai", "google", ".claude-plugin", ".grok-plugi
 # Final Plugins Directory submission limits, from developers.openai.com/plugins/deploy/submission-errors.
 MANIFEST_LIMITS = {"name": 64, "description": 1024}
 LISTING_LIMITS = {"displayName": 30, "shortDescription": 30, "longDescription": 4000, "developerName": 80}
+# interface.defaultPrompt, from developers.openai.com/plugins/deploy/submission: up to three
+# starter prompts, at most 128 characters each, unique
+PROMPT_COUNT = 3
+PROMPT_LIMIT = 128
 # openai.yaml is written in one shape: "interface:" then two-space fields holding a quoted string.
 YAML_KEYS = ("display_name", "short_description", "icon_small", "icon_large", "brand_color", "default_prompt")
 YAML_FIELD = re.compile(r'  ([a-z_]+): "([^"\\]*)"')
@@ -166,6 +170,23 @@ YAML_FIELD = re.compile(r'  ([a-z_]+): "([^"\\]*)"')
 def fail(msg: str) -> None:
     print(f"FAIL {msg}", file=sys.stderr)
     raise SystemExit(1)
+
+
+def prompt_errors(prompts: object) -> list[str]:
+    """What breaks the directory's limits on interface.defaultPrompt; empty when it passes."""
+    if not isinstance(prompts, list) or not prompts:
+        return ["must be a non-empty list of strings"]
+    errors = []
+    if len(prompts) > PROMPT_COUNT:
+        errors.append(f"holds {len(prompts)} prompts; the directory allows {PROMPT_COUNT}")
+    for prompt in prompts:
+        if not isinstance(prompt, str) or not prompt.strip():
+            errors.append("holds an empty or non-string prompt")
+        elif len(prompt) > PROMPT_LIMIT:
+            errors.append(f"prompt is {len(prompt)} chars; the directory allows {PROMPT_LIMIT}: {prompt}")
+    if len(set(map(str, prompts))) != len(prompts):
+        errors.append("holds a repeated prompt")
+    return errors
 
 
 def views(text: str) -> tuple[str, str, str]:
@@ -323,6 +344,8 @@ def check_packages() -> None:
     for field, limit in LISTING_LIMITS.items():
         if len(interface[field]) > limit:
             fail(f"openai/plugin.json: interface.{field} is over the {limit} characters the directory allows")
+    for error in prompt_errors(interface.get("defaultPrompt")):
+        fail(f"openai/plugin.json: interface.defaultPrompt {error}")
     if sorted(p.name for p in (openai / "assets").iterdir()) != ["logo.png"]:
         fail("openai/assets must hold only logo.png")
     for skill in sorted(p for p in (openai / "skills").iterdir() if p.is_dir()):

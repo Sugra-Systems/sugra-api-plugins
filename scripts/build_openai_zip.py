@@ -31,7 +31,7 @@ import zipfile
 from pathlib import Path
 
 import sync
-from check import AGENT_PLUGINS, LISTING_LIMITS, MANIFEST_LIMITS
+from check import AGENT_PLUGINS, LISTING_LIMITS, MANIFEST_LIMITS, prompt_errors
 
 ROOT = sync.ROOT
 PACKAGE = "openai"
@@ -50,6 +50,12 @@ LISTING_INTERFACE = {
         "Documentation: https://docs.sugra.ai."
     ),
     "category": "Developer Tools",
+    # the starter prompts shown on the listing page: data questions the hosted MCP server answers
+    "defaultPrompt": [
+        "Compare Apple and Microsoft over the past year: price change and latest quarterly revenue, with source and date",
+        "Show US inflation and the Fed policy rate for the last 24 months and explain what changed",
+        "Check [company name] against sanctions lists and show its legal entity record and parent company",
+    ],
 }
 # the listing's MCP server, declared at the ZIP root; the directory supports neither
 # removing it nor changing its URL
@@ -130,6 +136,9 @@ def main(argv: list[str]) -> int:
         if len(value) > limit:
             print(f"FAIL plugin.json {field} is {len(value)} chars; the directory allows {limit}", file=sys.stderr)
             return 1
+    for error in prompt_errors(interface.get("defaultPrompt")):
+        print(f"FAIL plugin.json interface.defaultPrompt {error}", file=sys.stderr)
+        return 1
 
     if LISTING_MCP_FILE in package:
         print(f"FAIL {PACKAGE}/{LISTING_MCP_FILE}: the builder writes it into the ZIP; {PACKAGE}/ stays skills only", file=sys.stderr)
