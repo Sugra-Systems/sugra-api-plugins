@@ -26,7 +26,7 @@ MARKETPLACE = "sugra-api-plugins"
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "google": "1.2.1"}
+VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "google": "1.2.1", "cursor": "1.2.1"}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -74,6 +74,11 @@ GOOGLE_EXTENSION = {
     "contextFileName": "GEMINI.md",
 }
 GEMINI_INSTALL = "gemini extensions install https://github.com/Sugra-Systems/sugra-api-plugins"
+# cursor/mcp.json: the same server as ANTHROPIC_MCP in the Cursor plugin shape, which names no
+# transport and lets Cursor infer it from the URL. A URL only: no headers, no credentials, and no
+# ${VAR} placeholder, so the manifest declares no variables.
+CURSOR_MCP = {"mcpServers": {"sugra-api": {"url": ANTHROPIC_MCP["mcpServers"]["sugra-api"]["url"]}}}
+CURSOR_LOGO = "assets/logo.png"
 MCP_PACKAGES = ("anthropic", "xai")
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"
@@ -82,12 +87,14 @@ CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247a
 # anthropic/.mcp.json and xai/.mcp.json declare the Sugra API server, so a Claude or Grok install
 # connects it; google/gemini-extension.json declares the same server for Gemini CLI.
 # openai/ holds no MCP configuration, so a Codex marketplace install is skills only; the Plugins
-# Directory ZIP gets its mcp.json from the builder, never from openai/.
+# Directory ZIP gets its mcp.json from the builder, never from openai/. cursor/mcp.json declares the
+# server for Cursor, which reads mcp.json, not .mcp.json.
 LAYOUT = {
     "anthropic": {".claude-plugin", ".mcp.json", "README.md", "assets", "skills"},
     "openai": {"README.md", "assets", "plugin.json", "skills"},
     "xai": {".grok-plugin", ".mcp.json", "README.md", "skills"},
     "google": {"GEMINI.md", "README.md", "gemini-extension.json", "skills"},
+    "cursor": {".cursor-plugin", "README.md", "assets", "mcp.json", "skills"},
 }
 TIER_C = (
     "yahoo",
@@ -154,7 +161,9 @@ FORBIDDEN = re.compile(
 # Every other file a vendor or a reader sees is UTF-8 text and passes copy_lint.
 BINARY = {".png": b"\x89PNG\r\n\x1a\n"}
 PUBLIC_FILES = ("README.md", "SECURITY.md", "LICENSE")
-PUBLIC = ("anthropic", "openai", "xai", "google", ".claude-plugin", ".grok-plugin", ".agents", *PUBLIC_FILES)
+PUBLIC = (
+    "anthropic", "openai", "xai", "google", "cursor", ".claude-plugin", ".grok-plugin", ".cursor-plugin", ".agents", *PUBLIC_FILES
+)
 # Final Plugins Directory submission limits, from developers.openai.com/plugins/deploy/submission-errors.
 MANIFEST_LIMITS = {"name": 64, "description": 1024}
 LISTING_LIMITS = {"displayName": 30, "shortDescription": 30, "longDescription": 4000, "developerName": 80}
@@ -256,7 +265,7 @@ def check_manifest(manifest: dict, package: str) -> None:
     if not isinstance(author, dict) or author.get("name") != "Sugra Systems, Inc.":
         fail(f"{package} manifest: author.name must be Sugra Systems, Inc.")
     if declares_mcp(manifest):
-        fail(f"{package} manifest: must declare no mcpServers; a package's .mcp.json or gemini-extension.json is its one MCP declaration")
+        fail(f"{package} manifest: must declare no mcpServers; a package's .mcp.json, mcp.json or gemini-extension.json is its one MCP declaration")
 
 
 def check_package_mcp(declared: dict, package: str) -> None:
@@ -271,6 +280,25 @@ def check_google_extension(declared: dict) -> None:
     """google/gemini-extension.json holds exactly GOOGLE_EXTENSION."""
     if declared != GOOGLE_EXTENSION:
         fail(f"google/gemini-extension.json must be exactly {json.dumps(GOOGLE_EXTENSION)}")
+
+
+def check_cursor_mcp(declared: dict) -> None:
+    """cursor/mcp.json holds exactly CURSOR_MCP."""
+    if declared != CURSOR_MCP:
+        fail(f"cursor/mcp.json must be exactly {json.dumps(CURSOR_MCP)}")
+
+
+def check_cursor_manifest(manifest: dict) -> None:
+    """cursor/.cursor-plugin/plugin.json: the shared fields, the display name and the logo; skills/
+    and mcp.json are discovered, and a variables schema would ask the user for a value, a key."""
+    check_manifest(manifest, "cursor")
+    if manifest.get("displayName") != DISPLAY_NAME:
+        fail(f"cursor manifest: displayName must be {DISPLAY_NAME}")
+    if manifest.get("logo") != CURSOR_LOGO:
+        fail(f"cursor manifest: logo must be {CURSOR_LOGO}")
+    for field in ("skills", "variables"):
+        if field in manifest:
+            fail(f"cursor manifest: must not declare {field}")
 
 
 def check_layout() -> None:
@@ -368,6 +396,16 @@ def check_packages() -> None:
     if "/mcp auth sugra-api" not in context or "https://docs.sugra.ai" not in context:
         fail("google/GEMINI.md must name /mcp auth sugra-api and https://docs.sugra.ai")
 
+    cursor = ROOT / "cursor"
+    check_cursor_manifest(load_json(cursor / ".cursor-plugin" / "plugin.json"))
+    if sorted(p.name for p in (cursor / ".cursor-plugin").iterdir()) != ["plugin.json"]:
+        fail("cursor/.cursor-plugin must hold only plugin.json")
+    check_cursor_mcp(load_json(cursor / "mcp.json"))
+    if sorted(p.name for p in (cursor / "assets").iterdir()) != ["logo.png"]:
+        fail("cursor/assets must hold only logo.png")
+    if (cursor / CURSOR_LOGO).read_bytes() != (ROOT / "openai" / "assets" / "logo.png").read_bytes():
+        fail(f"cursor/{CURSOR_LOGO} must be identical to openai/assets/logo.png")
+
 
 def parse_openai_yaml(text: str, label: str) -> dict[str, str]:
     """Read openai.yaml in the one shape this repository writes; anything else fails."""
@@ -413,13 +451,14 @@ def check_marketplaces() -> None:
     claude = load_json(ROOT / ".claude-plugin" / "marketplace.json")
     grok = load_json(ROOT / ".grok-plugin" / "marketplace.json")
     codex = load_json(ROOT / ".agents" / "plugins" / "marketplace.json")
-    for label, market in (("claude", claude), ("grok", grok), ("codex", codex)):
+    cursor = load_json(ROOT / ".cursor-plugin" / "marketplace.json")
+    for label, market in (("claude", claude), ("grok", grok), ("codex", codex), ("cursor", cursor)):
         plugins = market.get("plugins")
         if market.get("name") != MARKETPLACE or not isinstance(plugins, list) or [p.get("name") for p in plugins] != [PLUGIN]:
             fail(f"{label} marketplace must be {MARKETPLACE} listing only {PLUGIN}")
         if declares_mcp(market):
             fail(f"{label} marketplace: must declare no mcpServers; the package files declare the server")
-    for label, market in (("claude", claude), ("grok", grok)):
+    for label, market in (("claude", claude), ("grok", grok), ("cursor", cursor)):
         entry = market["plugins"][0]
         if entry.get("description") != DESCRIPTION or entry.get("keywords") != KEYWORDS or entry.get("homepage") != HOMEPAGE:
             fail(f"{label} marketplace entry must carry the shared DESCRIPTION, KEYWORDS and {HOMEPAGE}")
@@ -427,6 +466,12 @@ def check_marketplaces() -> None:
         fail("claude marketplace must point at ./anthropic with its version")
     if grok["plugins"][0].get("source") != {"type": "local", "path": "./xai"} or grok["plugins"][0].get("version") != VERSIONS["xai"]:
         fail("grok marketplace must point at ./xai with its version")
+    if cursor["plugins"][0].get("source") != "./cursor" or cursor["plugins"][0].get("version") != VERSIONS["cursor"]:
+        fail("cursor marketplace must point at ./cursor with its version")
+    # a Cursor marketplace entry is merged with the package manifest, so it may not declare what the
+    # manifest refuses
+    if "variables" in cursor["plugins"][0] or (cursor.get("owner") or {}).get("name") != "Sugra Systems, Inc.":
+        fail("cursor marketplace: owner.name must be Sugra Systems, Inc. and the entry must declare no variables")
     if codex["plugins"][0].get("source") != {"source": "local", "path": "./openai"}:
         fail("codex marketplace must point at ./openai")
     policy = codex["plugins"][0].get("policy") or {}
@@ -445,6 +490,7 @@ def check_docs() -> None:
         f"{PLUGIN}@{MARKETPLACE}",
         "Sugra-Systems/sugra-api-plugins#xai",
         GEMINI_INSTALL,
+        f"~/.cursor/plugins/local/{PLUGIN}",
         "Sugra-Systems/sugra-api-skills",
         "docs.sugra.ai",
         CHATGPT_LISTING,
@@ -468,6 +514,7 @@ def main(argv: list[str]) -> int:
         *(ROOT / package for package in LAYOUT),
         ROOT / ".claude-plugin",
         ROOT / ".grok-plugin",
+        ROOT / ".cursor-plugin",
         ROOT / ".agents",
         ROOT / "README.md",
         ROOT / "SECURITY.md",
