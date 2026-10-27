@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "sugra-api": {
+      "serverUrl": "https://mcp.sugra.ai/mcp"
+    }
+  }
+}

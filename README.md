@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, Grok, Gemini CLI and Cursor, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, Grok and Cursor plugins and the Gemini CLI extension also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
+[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, Grok, Gemini CLI, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, Grok, Cursor and Antigravity plugins and the Gemini CLI extension also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
 
 | Repository | What |
 |---|---|
@@ -70,6 +70,15 @@ cp -R sugra-api-plugins/cursor ~/.cursor/plugins/local/sugra-api-skills
 
 Then reload the window (Developer: Reload Window). On a Teams or Enterprise plan, an admin can import this repository as a team marketplace instead (Import from Repo): it reads `.cursor-plugin/marketplace.json`. The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: in Cursor Settings, Tools & MCPs, select Connect next to `sugra-api` and sign in with your Sugra account.
 
+### Antigravity
+
+```
+git clone https://github.com/Sugra-Systems/sugra-api-plugins
+agy plugin install ./sugra-api-plugins/antigravity
+```
+
+The CLI, the Antigravity app and the IDE share the plugin. It connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: sign in with your Sugra account when Antigravity opens the sign-in page.
+
 ### Other agents
 
 Any client that reads Agent Skills: copy the skills from [sugra-api-skills](https://github.com/Sugra-Systems/sugra-api-skills) and connect the hosted MCP server, `https://mcp.sugra.ai/mcp`.
@@ -83,6 +92,7 @@ Any client that reads Agent Skills: copy the skills from [sugra-api-skills](http
 | `xai/` | Grok | `.grok-plugin/marketplace.json` |
 | `google/` | Gemini CLI | `google/gemini-extension.json`, released as an archive |
 | `cursor/` | Cursor | `.cursor-plugin/marketplace.json` |
+| `antigravity/` | Antigravity CLI, app and IDE | `antigravity/plugin.json`, installed from a clone |
 
 Each package holds only its own vendor's files and versions on its own. Gemini CLI installs from the latest release of this repository: a release is made by the Release Gemini extension workflow, which attaches `google/` as one archive and marks the release latest, so any other release here is made with `--latest=false`. The skills in `*/skills/` are copies of one commit of sugra-api-skills, named in `skills-source.json`; edit them there, never here.
 
