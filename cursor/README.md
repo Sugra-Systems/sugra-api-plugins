@@ -20,7 +20,7 @@ cp -R sugra-api-plugins/cursor ~/.cursor/plugins/local/sugra-api-skills
 
 ## Sign in
 
-The server asks you to sign in with your Sugra account, in a browser window. Cursor lists it as plugin-sugra-api-skills-sugra-api: open Customize, find the server and select Connect. Cursor keeps the sign-in, not this plugin.
+The server asks you to sign in with your Sugra account, in a browser window. Open Cursor Settings (Command Palette, Cursor Settings), select Tools & MCPs, find sugra-api, marked Needs authentication, and select Connect. Cursor keeps the sign-in, not this plugin.
 
 ## Try it
 
