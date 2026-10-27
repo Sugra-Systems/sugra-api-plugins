@@ -68,7 +68,7 @@ git clone https://github.com/Sugra-Systems/sugra-api-plugins
 cp -R sugra-api-plugins/cursor ~/.cursor/plugins/local/sugra-api-skills
 ```
 
-Then reload the window (Developer: Reload Window). On a Teams or Enterprise plan, an admin can import this repository as a team marketplace instead (Import from Repo): it reads `.cursor-plugin/marketplace.json`. The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: open Customize, find the server, select Connect and sign in with your Sugra account.
+Then reload the window (Developer: Reload Window). On a Teams or Enterprise plan, an admin can import this repository as a team marketplace instead (Import from Repo): it reads `.cursor-plugin/marketplace.json`. The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: in Cursor Settings, Tools & MCPs, select Connect next to `sugra-api` and sign in with your Sugra account.
 
 ### Other agents
 
