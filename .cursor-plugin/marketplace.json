@@ -1,0 +1,41 @@
+{
+  "name": "sugra-api-plugins",
+  "owner": {
+    "name": "Sugra Systems, Inc.",
+    "email": "support@sugra.systems"
+  },
+  "metadata": {
+    "description": "Sugra API plugins: the Sugra API skills, one package per vendor."
+  },
+  "plugins": [
+    {
+      "name": "sugra-api-skills",
+      "source": "./cursor",
+      "description": "Skills for the Sugra API: find the right endpoint, call it with the right parameters over HTTPS or MCP, and cite the source and date of every figure.",
+      "version": "1.2.1",
+      "author": {
+        "name": "Sugra Systems, Inc.",
+        "email": "support@sugra.systems"
+      },
+      "homepage": "https://sugra.ai",
+      "repository": "https://github.com/Sugra-Systems/sugra-api-plugins",
+      "license": "MIT",
+      "keywords": [
+        "economic data",
+        "macroeconomics",
+        "economic indicators",
+        "central banks",
+        "government statistics",
+        "market data",
+        "company filings",
+        "news",
+        "weather",
+        "climate",
+        "internet infrastructure",
+        "research papers",
+        "sanctions screening",
+        "public data"
+      ]
+    }
+  ]
+}

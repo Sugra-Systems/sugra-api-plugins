@@ -33,6 +33,7 @@ PACKAGES = {
     "openai": ("agents/openai.yaml",),
     "xai": (),
     "google": (),
+    "cursor": (),
 }
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 # A copied source path is an allow list, not a list of bad spellings: lower-case ASCII letters,
