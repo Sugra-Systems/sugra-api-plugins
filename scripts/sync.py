@@ -32,7 +32,6 @@ PACKAGES = {
     "anthropic": (),
     "openai": ("agents/openai.yaml",),
     "xai": (),
-    "google": (),
     "cursor": (),
     "antigravity": (),
 }

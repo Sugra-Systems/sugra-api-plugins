@@ -27,7 +27,7 @@ PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
 VERSIONS = {
-    "anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "google": "1.2.1", "cursor": "1.2.1", "antigravity": "1.0.0"
+    "anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "cursor": "1.2.1", "antigravity": "1.0.0"
 }
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
@@ -64,18 +64,6 @@ ANTHROPIC_LINKS = {
 # URL lets the two listings be paired and lets Claude Code count them as one server; Grok reads the
 # same file from the xai package. A URL only: no headers, no credentials.
 ANTHROPIC_MCP = {"mcpServers": {"sugra-api": {"type": "http", "url": "https://mcp.sugra.ai/mcp"}}}
-# google/gemini-extension.json, written whole: Gemini CLI reads name, version, description, the MCP
-# server and the context file, and loads skills/ beside it. The same server URL as ANTHROPIC_MCP;
-# oauth.enabled makes Gemini CLI offer /mcp auth sugra-api, because the server answers a connect
-# without a sign-in and asks for one only on a tool call. A URL only: no headers, no credentials.
-GOOGLE_EXTENSION = {
-    "name": PLUGIN,
-    "version": VERSIONS["google"],
-    "description": DESCRIPTION,
-    "mcpServers": {"sugra-api": {**ANTHROPIC_MCP["mcpServers"]["sugra-api"], "oauth": {"enabled": True}}},
-    "contextFileName": "GEMINI.md",
-}
-GEMINI_INSTALL = "gemini extensions install https://github.com/Sugra-Systems/sugra-api-plugins"
 # cursor/mcp.json: the same server as ANTHROPIC_MCP in the Cursor plugin shape, which names no
 # transport and lets Cursor infer it from the URL. A URL only: no headers, no credentials, and no
 # ${VAR} placeholder, so the manifest declares no variables.
@@ -92,8 +80,7 @@ CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247a
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
 # anthropic/.mcp.json and xai/.mcp.json declare the Sugra API server, so a Claude or Grok install
-# connects it; google/gemini-extension.json declares the same server for Gemini CLI and
-# antigravity/mcp_config.json for Antigravity.
+# connects it; antigravity/mcp_config.json declares the same server for Antigravity.
 # openai/ holds no MCP configuration, so a Codex marketplace install is skills only; the Plugins
 # Directory ZIP gets its mcp.json from the builder, never from openai/. cursor/mcp.json declares the
 # server for Cursor, which reads mcp.json, not .mcp.json.
@@ -101,7 +88,6 @@ LAYOUT = {
     "anthropic": {".claude-plugin", ".mcp.json", "README.md", "assets", "skills"},
     "openai": {"README.md", "assets", "plugin.json", "skills"},
     "xai": {".grok-plugin", ".mcp.json", "README.md", "skills"},
-    "google": {"GEMINI.md", "README.md", "gemini-extension.json", "skills"},
     "cursor": {".cursor-plugin", "README.md", "assets", "mcp.json", "skills"},
     "antigravity": {"README.md", "assets", "mcp_config.json", "plugin.json", "skills"},
 }
@@ -171,7 +157,7 @@ FORBIDDEN = re.compile(
 BINARY = {".png": b"\x89PNG\r\n\x1a\n"}
 PUBLIC_FILES = ("README.md", "SECURITY.md", "LICENSE")
 PUBLIC = (
-    "anthropic", "openai", "xai", "google", "cursor", "antigravity",
+    "anthropic", "openai", "xai", "cursor", "antigravity",
     ".claude-plugin", ".grok-plugin", ".cursor-plugin", ".agents", *PUBLIC_FILES
 )
 # Final Plugins Directory submission limits, from developers.openai.com/plugins/deploy/submission-errors.
@@ -275,7 +261,7 @@ def check_manifest(manifest: dict, package: str) -> None:
     if not isinstance(author, dict) or author.get("name") != "Sugra Systems, Inc.":
         fail(f"{package} manifest: author.name must be Sugra Systems, Inc.")
     if declares_mcp(manifest):
-        fail(f"{package} manifest: must declare no mcpServers; a package's .mcp.json, mcp.json or gemini-extension.json is its one MCP declaration")
+        fail(f"{package} manifest: must declare no mcpServers; a package's .mcp.json, mcp.json or mcp_config.json is its one MCP declaration")
 
 
 def check_package_mcp(declared: dict, package: str) -> None:
@@ -284,12 +270,6 @@ def check_package_mcp(declared: dict, package: str) -> None:
         fail(f"{package}/ must hold no MCP configuration")
     if declared != ANTHROPIC_MCP:
         fail(f"{package}/.mcp.json must be exactly {json.dumps(ANTHROPIC_MCP)}")
-
-
-def check_google_extension(declared: dict) -> None:
-    """google/gemini-extension.json holds exactly GOOGLE_EXTENSION."""
-    if declared != GOOGLE_EXTENSION:
-        fail(f"google/gemini-extension.json must be exactly {json.dumps(GOOGLE_EXTENSION)}")
 
 
 def check_cursor_mcp(declared: dict) -> None:
@@ -406,12 +386,6 @@ def check_packages() -> None:
         fail("xai/.grok-plugin must hold only plugin.json")
     check_package_mcp(load_json(xai / ".mcp.json"), "xai")
 
-    google = ROOT / "google"
-    check_google_extension(load_json(google / "gemini-extension.json"))
-    context = (google / "GEMINI.md").read_text(encoding="utf-8")
-    if "/mcp auth sugra-api" not in context or "https://docs.sugra.ai" not in context:
-        fail("google/GEMINI.md must name /mcp auth sugra-api and https://docs.sugra.ai")
-
     cursor = ROOT / "cursor"
     check_cursor_manifest(load_json(cursor / ".cursor-plugin" / "plugin.json"))
     if sorted(p.name for p in (cursor / ".cursor-plugin").iterdir()) != ["plugin.json"]:
@@ -523,7 +497,6 @@ def check_docs() -> None:
     for needle in (
         f"{PLUGIN}@{MARKETPLACE}",
         "Sugra-Systems/sugra-api-plugins#xai",
-        GEMINI_INSTALL,
         f"~/.cursor/plugins/local/{PLUGIN}",
         ANTIGRAVITY_INSTALL,
         "Sugra-Systems/sugra-api-skills",

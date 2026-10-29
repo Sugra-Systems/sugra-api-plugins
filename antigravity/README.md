@@ -19,6 +19,8 @@ agy plugin install ./sugra-api-plugins/antigravity
 
 The server asks you to sign in with your Sugra account. Antigravity registers itself with the server and opens the sign-in page in your browser the first time the agent uses it.
 
+The Antigravity CLI 1.4.9 does not start an MCP server that a plugin declares yet. There the skills still work: they show the direct HTTPS request to https://sugra.ai, which you run with your own Sugra key in the x-api-key header.
+
 ## Try it
 
 - "Find the Sugra endpoint for US CPI inflation and show the last two months."
