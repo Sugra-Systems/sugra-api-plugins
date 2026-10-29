@@ -26,7 +26,9 @@ MARKETPLACE = "sugra-api-plugins"
 PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
-VERSIONS = {"anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "google": "1.2.1", "cursor": "1.2.1"}
+VERSIONS = {
+    "anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "google": "1.2.1", "cursor": "1.2.1", "antigravity": "1.0.0"
+}
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
 DESCRIPTION = (
@@ -79,13 +81,19 @@ GEMINI_INSTALL = "gemini extensions install https://github.com/Sugra-Systems/sug
 # ${VAR} placeholder, so the manifest declares no variables.
 CURSOR_MCP = {"mcpServers": {"sugra-api": {"url": ANTHROPIC_MCP["mcpServers"]["sugra-api"]["url"]}}}
 CURSOR_LOGO = "assets/logo.png"
+# antigravity/mcp_config.json: the same server for Antigravity, which names a remote server's URL
+# serverUrl and signs in through dynamic client registration on its own. A URL only.
+ANTIGRAVITY_MCP = {"mcpServers": {"sugra-api": {"serverUrl": ANTHROPIC_MCP["mcpServers"]["sugra-api"]["url"]}}}
+ANTIGRAVITY_SCHEMA = "https://antigravity.google/schemas/v1/plugin.json"
+ANTIGRAVITY_INSTALL = "agy plugin install ./sugra-api-plugins/antigravity"
 MCP_PACKAGES = ("anthropic", "xai")
 AGENT_PLUGINS = "https://agent-plugins.org/schemas/1.0.0/"
 CHATGPT_LISTING = "chatgpt.com/plugins/plugin_asdk_app_6a33ce728e488191a82df247ab605e91"
 # Everything a package may hold at its top level. A vendor reads the first
 # manifest it knows, so another vendor's file in a package is an error.
 # anthropic/.mcp.json and xai/.mcp.json declare the Sugra API server, so a Claude or Grok install
-# connects it; google/gemini-extension.json declares the same server for Gemini CLI.
+# connects it; google/gemini-extension.json declares the same server for Gemini CLI and
+# antigravity/mcp_config.json for Antigravity.
 # openai/ holds no MCP configuration, so a Codex marketplace install is skills only; the Plugins
 # Directory ZIP gets its mcp.json from the builder, never from openai/. cursor/mcp.json declares the
 # server for Cursor, which reads mcp.json, not .mcp.json.
@@ -95,6 +103,7 @@ LAYOUT = {
     "xai": {".grok-plugin", ".mcp.json", "README.md", "skills"},
     "google": {"GEMINI.md", "README.md", "gemini-extension.json", "skills"},
     "cursor": {".cursor-plugin", "README.md", "assets", "mcp.json", "skills"},
+    "antigravity": {"README.md", "assets", "mcp_config.json", "plugin.json", "skills"},
 }
 TIER_C = (
     "yahoo",
@@ -162,7 +171,8 @@ FORBIDDEN = re.compile(
 BINARY = {".png": b"\x89PNG\r\n\x1a\n"}
 PUBLIC_FILES = ("README.md", "SECURITY.md", "LICENSE")
 PUBLIC = (
-    "anthropic", "openai", "xai", "google", "cursor", ".claude-plugin", ".grok-plugin", ".cursor-plugin", ".agents", *PUBLIC_FILES
+    "anthropic", "openai", "xai", "google", "cursor", "antigravity",
+    ".claude-plugin", ".grok-plugin", ".cursor-plugin", ".agents", *PUBLIC_FILES
 )
 # Final Plugins Directory submission limits, from developers.openai.com/plugins/deploy/submission-errors.
 MANIFEST_LIMITS = {"name": 64, "description": 1024}
@@ -301,6 +311,12 @@ def check_cursor_manifest(manifest: dict) -> None:
             fail(f"cursor manifest: must not declare {field}")
 
 
+def check_antigravity_mcp(declared: dict) -> None:
+    """antigravity/mcp_config.json holds exactly ANTIGRAVITY_MCP."""
+    if declared != ANTIGRAVITY_MCP:
+        fail(f"antigravity/mcp_config.json must be exactly {json.dumps(ANTIGRAVITY_MCP)}")
+
+
 def check_layout() -> None:
     for package, allowed in LAYOUT.items():
         base = ROOT / package
@@ -406,6 +422,24 @@ def check_packages() -> None:
     if (cursor / CURSOR_LOGO).read_bytes() != (ROOT / "openai" / "assets" / "logo.png").read_bytes():
         fail(f"cursor/{CURSOR_LOGO} must be identical to openai/assets/logo.png")
 
+    antigravity = ROOT / "antigravity"
+    native = load_json(antigravity / "plugin.json")
+    check_manifest(native, "antigravity")
+    if native.get("$schema") != ANTIGRAVITY_SCHEMA:
+        fail(f"antigravity/plugin.json must declare the {ANTIGRAVITY_SCHEMA} schema")
+    if native.get("displayName") != DISPLAY_NAME or native.get("logo") != "./assets/logo.png":
+        fail(f"antigravity/plugin.json: displayName must be {DISPLAY_NAME} and logo ./assets/logo.png")
+    # skills/ is loaded on its own; the skills key names extra folders only
+    if "skills" in native:
+        fail("antigravity/plugin.json must not declare skills; skills/ is discovered")
+    for error in prompt_errors(native.get("suggestedPrompts")):
+        fail(f"antigravity/plugin.json: suggestedPrompts {error}")
+    check_antigravity_mcp(load_json(antigravity / "mcp_config.json"))
+    if sorted(p.name for p in (antigravity / "assets").iterdir()) != ["logo.png"]:
+        fail("antigravity/assets must hold only logo.png")
+    if (antigravity / "assets" / "logo.png").read_bytes() != (ROOT / "openai" / "assets" / "logo.png").read_bytes():
+        fail("antigravity/assets/logo.png must be identical to openai/assets/logo.png")
+
 
 def parse_openai_yaml(text: str, label: str) -> dict[str, str]:
     """Read openai.yaml in the one shape this repository writes; anything else fails."""
@@ -491,6 +525,7 @@ def check_docs() -> None:
         "Sugra-Systems/sugra-api-plugins#xai",
         GEMINI_INSTALL,
         f"~/.cursor/plugins/local/{PLUGIN}",
+        ANTIGRAVITY_INSTALL,
         "Sugra-Systems/sugra-api-skills",
         "docs.sugra.ai",
         CHATGPT_LISTING,
