@@ -32,7 +32,7 @@ class AntigravityPlugin(unittest.TestCase):
         others = {
             "another url": {"mcpServers": {"sugra-api": {"serverUrl": "https://app.sugra.ai/mcp"}}},
             "a header": {"mcpServers": {"sugra-api": {**server, "headers": {"Authorization": "Bearer $SUGRA_API_KEY"}}}},
-            "the gemini key": {"mcpServers": {"sugra-api": {"httpUrl": server["serverUrl"]}}},
+            "an httpUrl key": {"mcpServers": {"sugra-api": {"httpUrl": server["serverUrl"]}}},
             "a second server": {"mcpServers": {"sugra-api": server, "other": server}},
         }
         for name, declared in others.items():
