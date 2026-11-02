@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, Grok, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, Grok, Cursor and Antigravity plugins also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
+[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, GitHub Copilot, Grok, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, GitHub Copilot, Grok, Cursor and Antigravity plugins also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
 
 | Repository | What |
 |---|---|
@@ -35,6 +35,21 @@ The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: run `/mcp
 ```
 codex plugin marketplace add Sugra-Systems/sugra-api-plugins
 codex plugin add sugra-api-skills@sugra-api-plugins
+```
+
+### GitHub Copilot
+
+Copilot CLI installs the same package as Claude Code:
+
+```
+copilot plugin marketplace add Sugra-Systems/sugra-api-plugins
+copilot plugin install sugra-api-skills@sugra-api-plugins
+```
+
+The plugin connects the hosted MCP server, `https://mcp.sugra.ai/mcp`: Copilot CLI opens the Sugra sign-in page in your browser the first time it connects to the server. To connect the server without the skills:
+
+```
+copilot mcp add --transport http sugra-api https://mcp.sugra.ai/mcp
 ```
 
 ### ChatGPT
@@ -79,7 +94,7 @@ Any client that reads Agent Skills: copy the skills from [sugra-api-skills](http
 
 | Folder | Vendor | Marketplace file |
 |---|---|---|
-| `anthropic/` | Claude Code, Anthropic plugin directory | `.claude-plugin/marketplace.json` |
+| `anthropic/` | Claude Code, Anthropic plugin directory, GitHub Copilot CLI | `.claude-plugin/marketplace.json` |
 | `openai/` | Codex, ChatGPT Plugins Directory | `.agents/plugins/marketplace.json` |
 | `xai/` | Grok | `.grok-plugin/marketplace.json` |
 | `cursor/` | Cursor | `.cursor-plugin/marketplace.json` |
