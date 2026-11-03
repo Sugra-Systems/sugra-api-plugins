@@ -103,8 +103,8 @@ TIER_C = (
 )
 BANS = ("real-time", "realtime", "financial intelligence", "blackbox")
 # The bans are copy rules: they govern prose, not the machine identifiers a binding has to spell
-# to call the API (owner ruling 2026-10-08: an operation id, a router prefix or a path is not a
-# copy-rule violation). An operation id (cboe_volatility) or a lookup key (us/sahmrealtime), a
+# to call the API (an operation id, a router prefix or a path is not a copy-rule violation). An
+# operation id (cboe_volatility) or a lookup key (us/sahmrealtime), a
 # token joined by underscores or slashes, is stripped before both scans; an all-capitals series
 # code of four or more letters and digits (SAHMREALTIME) is stripped before the phrase scan only,
 # so a commercial name written as a bare word is still caught.
