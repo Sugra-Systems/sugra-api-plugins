@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-[Sugra API](https://sugra.ai) plugins for Claude, ChatGPT, Codex, GitHub Copilot, Grok, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, GitHub Copilot, Grok, Cursor and Antigravity plugins also connect the hosted MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
+Plugins for [Sugra API](https://sugra.ai) and Sugra MCP, for Claude, ChatGPT, Codex, GitHub Copilot, Grok, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, GitHub Copilot, Grok, Cursor and Antigravity plugins also connect the hosted Sugra MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
 
 | Repository | What |
 |---|---|

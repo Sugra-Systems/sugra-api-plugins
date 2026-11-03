@@ -1,0 +1,76 @@
+# Markets bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any listed instrument (stock, fund, index, future); us = a route of the US market only.
+markets.price:
+  other:
+    op: quotes_symbol_price
+    params: {symbol: "<ticker>"}
+    unit: other
+    note: "last price in the quote currency of the listing; name the currency and the time of the quote"
+markets.price_history:
+  other:
+    op: quotes_symbol_historical
+    params: {symbol: "<ticker>", period: 1y, interval: 1d}
+    unit: other
+    note: "daily bars in the quote currency; use period or a start and end date, never both; adjusted close for returns, close for levels"
+markets.returns:
+  other:
+    op: quotes_symbol_recent_performance
+    params: {symbol: "<ticker>"}
+    unit: pct
+    note: "trailing total returns in percent over fixed windows, from the adjusted close; a window longer than the history is absent, not zero"
+    fallback:
+      op: quotes_symbol_historical
+      params: {symbol: "<ticker>", period: 5y, interval: 1d}
+      note: "compute the return from the adjusted close over the asked window, labelled computed"
+markets.relative_volume:
+  other:
+    op: indicators_rvol
+    params: {symbol: "<ticker>", time_period: "20"}
+    unit: ratio
+    note: "volume of the last session over its average of the trailing time_period sessions; 1 is ordinary"
+markets.realized_vol:
+  other:
+    op: indicators_annvol
+    params: {symbol: "<ticker>"}
+    unit: pct
+    note: "annualised volatility of daily returns over vol_window sessions, with its rank over rank_window; realized, never implied"
+markets.beta:
+  other:
+    op: indicators_beta
+    params: {symbol: "<ticker>", time_period: "240"}
+    unit: ratio
+    note: "beta against the benchmark fund named in the response, broad US large caps by default; name the benchmark and the window of time_period sessions; time_period 240, just under a year: the default one-year range holds about 251 bars and the window needs one bar more than time_period"
+markets.indices:
+  other:
+    op: market_summary
+    unit: index
+    note: "levels and daily changes of the major indices; price return unless named"
+    fallback:
+      op: macro_country_section
+      key: us/sp500
+      transforms: [mom_pct, yoy_pct]
+      note: "US large-cap index, daily close"
+markets.corporate_actions:
+  other:
+    op: quotes_symbol_actions
+    params: {symbol: "<ticker>", days: 365}
+    unit: other
+    note: "dividends per share in the quote currency and split ratios, by date; days 0 returns the whole history"
+markets.trading_calendar:
+  us:
+    op: market_exchange_code_holidays
+    params: {code: nyse}
+    unit: other
+    note: "full closures and early closes of the exchange for the year asked; another exchange takes its code from market_exchanges; whether a market is open now comes from market_status"
+    fallback:
+      op: market_exchange_code_schedule
+      params: {code: nyse}
+  other:
+    op: market_exchange_code_schedule
+    params: {code: "<exchange code from market_exchanges>"}
+    unit: other
+    note: "session hours in local time and the holiday list of that exchange"
+markets.breadth:
+  other:
+    gap: "advance-decline counts, new highs and lows and the share of members above an average are not in the catalog"
+    substitute: "markets.price_history of an equal-weight fund against its cap-weighted twin over one window, labelled a proxy; or markets.returns of the sector funds through equities.sector_strength"

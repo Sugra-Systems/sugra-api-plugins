@@ -1,0 +1,1594 @@
+# Concept registry of the knowledge files, every area of the four domain skills: one item per concept.
+# Fields: id, name, unit, freq; lag, sa and note only where useful.
+# Money levels carry the US unit; other countries report in national currency.
+
+# labour
+- id: labour.unemployment_rate
+  name: "Unemployment rate"
+  unit: pct
+  freq: monthly
+  lag: "about 1 week after the month (US, Canada) to 6 weeks"
+  sa: "SA"
+- id: labour.payrolls
+  name: "Payroll employment, establishment survey"
+  unit: thousands
+  freq: monthly
+  lag: "about 1 week after the month (US)"
+  sa: "SA"
+  note: "revised in the next two releases and once a year"
+- id: labour.participation_rate
+  name: "Labour force participation rate"
+  unit: pct
+  freq: monthly
+  lag: "with the unemployment rate"
+- id: labour.participation_prime_age
+  name: "Participation rate, ages 25-54"
+  unit: pct
+  freq: monthly
+  lag: "with the unemployment rate"
+- id: labour.employment_population_prime_age
+  name: "Employment-population ratio, ages 25-54"
+  unit: pct
+  freq: monthly
+  lag: "with the unemployment rate"
+- id: labour.underemployment_rate
+  name: "Broad unemployment rate, with involuntary part-time and marginally attached"
+  unit: pct
+  freq: monthly
+  lag: "with the unemployment rate"
+- id: labour.unemployed_level
+  name: "Number of unemployed persons"
+  unit: thousands
+  freq: monthly
+- id: labour.unemployed_job_losers
+  name: "Unemployed job losers, including temporary layoffs"
+  unit: thousands
+  freq: monthly
+- id: labour.unemployed_entrants
+  name: "Unemployed new entrants and re-entrants"
+  unit: thousands
+  freq: monthly
+- id: labour.average_pay
+  name: "Average pay, hourly (US payroll survey) or weekly (UK)"
+  unit: usd
+  freq: monthly
+  lag: "with payrolls (US)"
+  note: "read as change from a year ago; the UK figure is in pounds a week"
+- id: labour.wage_growth_regular
+  name: "Regular pay growth, excluding bonuses (UK)"
+  unit: pct
+  freq: monthly
+  lag: "about 6 weeks; a 3-month average"
+  note: "total pay includes bonuses and is not regular pay"
+- id: labour.payrolls_first_print
+  name: "First published payroll change and its later revisions"
+  unit: thousands
+  freq: monthly
+  note: "needs vintage history of the release"
+- id: labour.employment_cost_index
+  name: "Employment cost index, wages and benefits"
+  unit: index
+  freq: quarterly
+  lag: "about 1 month after the quarter"
+  note: "fixed job mix"
+- id: labour.wage_growth_tracker
+  name: "Median wage growth of the same individuals (Atlanta Fed tracker)"
+  unit: pct
+  freq: monthly
+  note: "headline is a 3-month moving average"
+- id: labour.initial_claims
+  name: "Initial jobless claims"
+  unit: count
+  freq: weekly
+  lag: "the Thursday after the week (US)"
+  sa: "SA and NSA"
+- id: labour.continuing_claims
+  name: "Continuing claims, insured unemployment"
+  unit: count
+  freq: weekly
+  lag: "one week behind initial claims"
+- id: labour.job_openings
+  name: "Job openings"
+  unit: thousands
+  freq: monthly
+  lag: "about 5 weeks after the month"
+  note: "a stock on the last business day of the month"
+- id: labour.quits_rate
+  name: "Quits rate"
+  unit: pct
+  freq: monthly
+  lag: "with job openings"
+  note: "a flow over the month"
+- id: labour.conditions_index
+  name: "Labour market conditions index, level and momentum (Kansas City Fed)"
+  unit: index
+  freq: monthly
+- id: labour.sahm_rule
+  name: "Sahm rule recession indicator"
+  unit: pp
+  freq: monthly
+  lag: "with the unemployment rate"
+  note: "first-release and revised versions differ"
+
+# prices
+- id: prices.cpi
+  name: "Consumer price index, headline"
+  unit: index
+  freq: monthly
+  lag: "about 2 weeks after the month (US); flash at month end (euro area)"
+  sa: "SA for change from the previous month, NSA for change from a year ago"
+  note: "published to one decimal"
+- id: prices.cpi_nsa
+  name: "Consumer price index, not seasonally adjusted"
+  unit: index
+  freq: monthly
+  sa: "NSA"
+  note: "for indexation and contracts"
+- id: prices.cpi_core
+  name: "Core consumer price index, national definition"
+  unit: index
+  freq: monthly
+  lag: "with the headline index"
+- id: prices.pce
+  name: "PCE price index"
+  unit: index
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+  note: "the Federal Reserve's target measure"
+- id: prices.pce_core
+  name: "Core PCE price index, excluding food and energy"
+  unit: index
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+- id: prices.cpi_median
+  name: "Median CPI"
+  unit: pct
+  freq: monthly
+- id: prices.cpi_trimmed_mean
+  name: "Trimmed-mean inflation"
+  unit: pct
+  freq: monthly
+- id: prices.cpi_sticky
+  name: "Sticky-price CPI"
+  unit: pct
+  freq: monthly
+- id: prices.cpi_food
+  name: "CPI food"
+  unit: index
+  freq: monthly
+- id: prices.cpi_energy
+  name: "CPI energy"
+  unit: index
+  freq: monthly
+- id: prices.cpi_goods
+  name: "CPI core goods"
+  unit: index
+  freq: monthly
+- id: prices.cpi_services
+  name: "CPI services"
+  unit: index
+  freq: monthly
+- id: prices.cpi_shelter
+  name: "CPI shelter"
+  unit: index
+  freq: monthly
+- id: prices.cpi_rent
+  name: "CPI rent of primary residence"
+  unit: index
+  freq: monthly
+- id: prices.cpi_oer
+  name: "CPI owners' equivalent rent"
+  unit: index
+  freq: monthly
+- id: prices.cpi_ex_shelter
+  name: "CPI excluding shelter"
+  unit: index
+  freq: monthly
+- id: prices.ppi
+  name: "Producer price index"
+  unit: index
+  freq: monthly
+  lag: "about 2 weeks after the month (US)"
+- id: prices.import_prices
+  name: "Import price index"
+  unit: index
+  freq: monthly
+  lag: "about 2 weeks after the month (US)"
+- id: prices.crude_oil
+  name: "Crude oil price"
+  unit: usd
+  freq: daily
+- id: prices.gasoline
+  name: "Retail gasoline price"
+  unit: usd
+  freq: weekly
+- id: prices.unit_labour_costs
+  name: "Unit labour costs"
+  unit: index
+  freq: quarterly
+
+# growth
+- id: growth.real_gdp
+  name: "Real GDP"
+  unit: usd_bn
+  freq: quarterly
+  lag: "about 4 weeks after the quarter (US advance, euro area flash) to 9 weeks"
+  sa: "SA; US growth published annualised, euro area and UK growth not"
+- id: growth.gdi
+  name: "Real gross domestic income"
+  unit: usd_bn
+  freq: quarterly
+  lag: "with the second US estimate (fourth quarter with the third)"
+- id: growth.gdp_contributions
+  name: "Contributions to real GDP growth"
+  unit: pp
+  freq: quarterly
+  lag: "with GDP"
+- id: growth.final_sales_private
+  name: "Real final sales to private domestic purchasers"
+  unit: usd_bn
+  freq: quarterly
+  lag: "with GDP"
+- id: growth.gdp_nowcast
+  name: "Current-quarter GDP nowcast, model"
+  unit: pct
+  freq: irregular
+  note: "updated after major releases; a model, not data"
+- id: growth.manufacturing_pmi
+  name: "Manufacturing purchasing managers' index, diffusion index"
+  unit: index
+  freq: monthly
+  note: "50 is the no-change line"
+- id: growth.manufacturing_output
+  name: "Manufacturing output, industrial production"
+  unit: index
+  freq: monthly
+  lag: "about 2 weeks after the month (US)"
+- id: growth.industrial_production
+  name: "Industrial production"
+  unit: index
+  freq: monthly
+  lag: "about 2 weeks after the month (US)"
+- id: growth.capacity_utilisation
+  name: "Capacity utilisation"
+  unit: pct
+  freq: monthly
+  lag: "with industrial production"
+- id: growth.retail_sales
+  name: "Retail sales, nominal"
+  unit: usd_mn
+  freq: monthly
+  lag: "about 2 weeks after the month (US)"
+- id: growth.real_consumption
+  name: "Real personal consumption"
+  unit: usd_bn
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+- id: growth.real_disposable_income
+  name: "Real disposable personal income"
+  unit: usd_bn
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+- id: growth.saving_rate
+  name: "Personal saving rate"
+  unit: pct
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+- id: growth.durable_goods_orders
+  name: "Durable goods orders"
+  unit: usd_mn
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+- id: growth.inventories_to_sales
+  name: "Business inventories to sales"
+  unit: ratio
+  freq: monthly
+- id: growth.consumer_sentiment
+  name: "Consumer sentiment survey"
+  unit: index
+  freq: monthly
+- id: growth.business_survey
+  name: "Business survey, diffusion index or balance"
+  unit: index
+  freq: monthly
+  note: "changes in points"
+- id: growth.leading_index
+  name: "Composite leading indicator, 100 = trend"
+  unit: index
+  freq: monthly
+- id: growth.activity_index
+  name: "Chicago Fed national activity index"
+  unit: index
+  freq: monthly
+  note: "0 = trend growth; read the 3-month average"
+- id: growth.recession_signals
+  name: "Recession signals firing, out of those checked"
+  unit: count
+  freq: monthly
+  note: "computed from the signals in the growth file"
+- id: growth.recession_probability
+  name: "Smoothed recession probability, dynamic-factor model"
+  unit: pct
+  freq: monthly
+  lag: "about 2 months"
+- id: growth.curve_recession_probability
+  name: "Recession probability 12 months ahead from the yield curve (New York Fed)"
+  unit: pct
+  freq: monthly
+- id: growth.gdp_recession_index
+  name: "GDP-based recession indicator index"
+  unit: pct
+  freq: quarterly
+  lag: "one quarter behind the latest GDP"
+  note: "not revised"
+- id: growth.recession_dates
+  name: "Business cycle peaks and troughs (NBER)"
+  unit: other
+  freq: irregular
+  note: "announced months after the turning point"
+
+# rates
+- id: rates.policy_rate
+  name: "Central bank policy rate or target range"
+  unit: pct
+  freq: irregular
+  note: "changes at meetings"
+- id: rates.effective_rate
+  name: "Effective overnight policy rate"
+  unit: pct
+  freq: daily
+- id: rates.reserve_rate
+  name: "Rate paid on reserves or deposit facility"
+  unit: pct
+  freq: irregular
+- id: rates.money_market_rate
+  name: "Overnight money market rate, secured or unsecured"
+  unit: pct
+  freq: daily
+- id: rates.treasury_3m
+  name: "3-month government bill yield"
+  unit: pct
+  freq: daily
+- id: rates.treasury_2y
+  name: "2-year government bond yield"
+  unit: pct
+  freq: daily
+- id: rates.treasury_10y
+  name: "10-year government bond yield"
+  unit: pct
+  freq: daily
+- id: rates.spread_10y_2y
+  name: "10-year minus 2-year yield"
+  unit: pp
+  freq: daily
+  note: "changes in bp"
+- id: rates.spread_10y_3m
+  name: "10-year minus 3-month yield"
+  unit: pp
+  freq: daily
+  note: "changes in bp"
+- id: rates.real_yield_10y
+  name: "10-year inflation-indexed (real) yield"
+  unit: pct
+  freq: daily
+- id: rates.futures_path
+  name: "Policy rate path implied by futures"
+  unit: pct
+  freq: daily
+  note: "100 minus the futures price"
+- id: rates.decision_odds
+  name: "Prediction-market probability of a policy decision"
+  unit: pct
+  freq: daily
+
+# housing
+- id: housing.permits
+  name: "Building permits"
+  unit: thousands
+  freq: monthly
+  lag: "about 2.5 weeks after the month (US)"
+  sa: "SAAR"
+- id: housing.starts
+  name: "Housing starts"
+  unit: thousands
+  freq: monthly
+  lag: "about 2.5 weeks after the month (US)"
+  sa: "SAAR"
+- id: housing.existing_sales
+  name: "Existing-home sales"
+  unit: count
+  freq: monthly
+  lag: "about 3 weeks after the month (US)"
+  sa: "SAAR"
+  note: "number of homes, at an annual rate"
+- id: housing.months_supply
+  name: "Months' supply of homes for sale, existing or new"
+  unit: months
+  freq: monthly
+- id: housing.median_price
+  name: "Median sales price of homes"
+  unit: usd
+  freq: monthly
+- id: housing.repeat_sales_index
+  name: "Repeat-sales house price index"
+  unit: index
+  freq: monthly
+  lag: "about 2 months after the month"
+- id: housing.affordability
+  name: "Housing affordability index"
+  unit: index
+  freq: monthly
+  note: "100 = a median income just qualifies for a median-priced home"
+- id: housing.mortgage_rate
+  name: "30-year fixed mortgage rate"
+  unit: pct
+  freq: weekly
+- id: housing.market_rent
+  name: "Market (new-lease) rent"
+  unit: usd
+  freq: monthly
+  note: "a rent level in dollars a month (US); a publisher's index is named so"
+- id: housing.property_prices_intl
+  name: "Residential property prices by country, harmonised"
+  unit: index
+  freq: quarterly
+
+# liquidity
+- id: liquidity.cb_balance_sheet
+  name: "Central bank total assets"
+  unit: usd_mn
+  freq: weekly
+  lag: "Thursday, Wednesday data (US)"
+  note: "US in millions of dollars; other central banks report in local currency"
+- id: liquidity.treasury_account
+  name: "Treasury general account at the central bank"
+  unit: usd_bn
+  freq: daily
+- id: liquidity.reverse_repo
+  name: "Overnight reverse repo facility usage"
+  unit: usd_bn
+  freq: daily
+- id: liquidity.net_liquidity
+  name: "Net liquidity, central bank assets minus Treasury account minus reverse repo"
+  unit: usd_bn
+  freq: weekly
+  note: "computed; a market heuristic, not an official measure"
+- id: liquidity.regime
+  name: "Overall liquidity direction from liquidity, credit and policy votes"
+  unit: other
+  freq: weekly
+  note: "expanding, neutral or contracting; a heuristic, not an official measure"
+- id: liquidity.money_supply
+  name: "Broad money supply"
+  unit: usd_bn
+  freq: monthly
+  lag: "about 4 weeks after the month (US)"
+- id: liquidity.money_market_funds
+  name: "Money market fund assets"
+  unit: usd_bn
+  freq: weekly
+- id: liquidity.bank_credit
+  name: "Bank credit, loans and securities"
+  unit: usd_bn
+  freq: weekly
+- id: liquidity.consumer_credit
+  name: "Consumer credit outstanding"
+  unit: usd_bn
+  freq: monthly
+  lag: "about the 5th business day of the second month after (estimated)"
+  sa: "SA, growth annualised"
+- id: liquidity.consumer_credit_revolving
+  name: "Revolving consumer credit"
+  unit: usd_bn
+  freq: monthly
+  lag: "with consumer credit"
+- id: liquidity.financial_conditions
+  name: "Financial conditions index"
+  unit: index
+  freq: weekly
+  note: "0 = average; above 0 = tighter than average"
+- id: liquidity.financial_stress
+  name: "Financial stress index"
+  unit: index
+  freq: weekly
+  note: "0 = normal; above 0 = more stress than average"
+- id: liquidity.credit_spread_hy
+  name: "High-yield corporate bond spread, option-adjusted"
+  unit: pp
+  freq: daily
+  note: "changes in bp"
+- id: liquidity.credit_spread_ig
+  name: "Investment-grade corporate bond spread, option-adjusted"
+  unit: pp
+  freq: daily
+  note: "changes in bp"
+- id: liquidity.credit_gap
+  name: "Credit-to-GDP gap"
+  unit: pp
+  freq: quarterly
+
+# trade
+- id: trade.trade_balance
+  name: "Trade balance, goods and services"
+  unit: usd_bn
+  freq: monthly
+  lag: "about 5 weeks after the month (US)"
+- id: trade.exports
+  name: "Exports, goods and services"
+  unit: usd_bn
+  freq: monthly
+  lag: "with the trade balance"
+- id: trade.imports
+  name: "Imports, goods and services"
+  unit: usd_bn
+  freq: monthly
+  lag: "with the trade balance"
+- id: trade.bilateral_flows
+  name: "Trade by partner and product"
+  unit: usd_mn
+  freq: monthly
+- id: trade.tariff_rates
+  name: "Applied tariff rates by product line"
+  unit: pct
+  freq: irregular
+- id: trade.trade_measures
+  name: "Register of trade measures in force"
+  unit: count
+  freq: irregular
+- id: trade.strait_transits
+  name: "Ship transits through straits and canals"
+  unit: count
+  freq: daily
+
+# fiscal
+- id: fiscal.budget_balance
+  name: "Government budget balance, month and fiscal year to date"
+  unit: usd_bn
+  freq: monthly
+  lag: "8th business day of the next month (US)"
+  sa: "NSA"
+- id: fiscal.debt
+  name: "Government debt, gross or held by the public"
+  unit: usd_bn
+  freq: daily
+  note: "US daily; most countries quarterly"
+- id: fiscal.debt_to_gdp
+  name: "Government debt to GDP"
+  unit: pct
+  freq: quarterly
+- id: fiscal.deficit_to_gdp
+  name: "Budget deficit to GDP"
+  unit: pct
+  freq: annual
+- id: fiscal.interest_outlays
+  name: "Interest outlays, net or gross, named"
+  unit: usd_bn
+  freq: monthly
+  note: "the monthly statement gives gross interest, net interest comes as an annual series; the answer names which it uses"
+- id: fiscal.auction_results
+  name: "Government securities auction results"
+  unit: other
+  freq: irregular
+  note: "bid-to-cover, accepted yields, bidder shares"
+
+# international
+- id: international.gdp_growth
+  name: "Real GDP growth, comparable across countries"
+  unit: pct
+  freq: quarterly
+- id: international.harmonised_inflation
+  name: "Harmonised consumer price inflation"
+  unit: pct
+  freq: monthly
+- id: international.harmonised_unemployment
+  name: "Harmonised unemployment rate, ILO definition"
+  unit: pct
+  freq: monthly
+- id: international.official_forecasts
+  name: "Official forecasts by edition (IMF, OECD, central banks)"
+  unit: pct
+  freq: irregular
+
+- id: international.country_panel
+  name: "Latest headline indicators of several countries in one panel"
+  unit: ratio
+  freq: irregular
+  note: "values carry no reference date; the freshest figure and its date come from the per-country concept"
+
+# calendar
+- id: calendar.release_dates
+  name: "Release calendar, next release date and time"
+  unit: other
+  freq: irregular
+- id: calendar.cb_meetings
+  name: "Central bank meeting dates"
+  unit: other
+  freq: irregular
+
+# expectations
+- id: expectations.release_consensus
+  name: "Analyst consensus for a release"
+  unit: other
+  freq: irregular
+  note: "same unit as the release"
+- id: expectations.professional_survey
+  name: "Survey of professional forecasters, median"
+  unit: pct
+  freq: irregular
+- id: expectations.inflation_household
+  name: "Household survey inflation expectations, 1 year ahead"
+  unit: pct
+  freq: monthly
+- id: expectations.inflation_market_5y
+  name: "Market-implied inflation, 5 years (breakeven)"
+  unit: pct
+  freq: daily
+- id: expectations.inflation_model
+  name: "Model-based inflation expectations"
+  unit: pct
+  freq: monthly
+- id: expectations.cb_projections
+  name: "Central bank projections, median"
+  unit: pct
+  freq: irregular
+- id: expectations.data_vintages
+  name: "Data vintages, first release and revisions"
+  unit: other
+  freq: irregular
+
+# ======== markets-data skill
+# markets
+- id: markets.price
+  name: "Latest price of a listed instrument, with its time and delay"
+  unit: usd
+  freq: daily
+  note: "outside the session it is the last close"
+- id: markets.price_history
+  name: "Price bars: open, high, low, close, volume, adjusted close where given"
+  unit: usd
+  freq: daily
+  note: "daily or intraday; a long window may come at a coarser step"
+- id: markets.returns
+  name: "Trailing returns over standard windows, total return basis"
+  unit: pct
+  freq: daily
+- id: markets.relative_volume
+  name: "Volume against its 20-day average"
+  unit: ratio
+  freq: daily
+  note: "1.0 is the average"
+- id: markets.realized_vol
+  name: "Annualised realized volatility of daily returns, with its percentile"
+  unit: pct
+  freq: daily
+- id: markets.beta
+  name: "Beta and correlation against a broad market index"
+  unit: ratio
+  freq: daily
+- id: markets.indices
+  name: "Major stock index levels and daily changes"
+  unit: index
+  freq: daily
+  note: "price return unless named"
+- id: markets.corporate_actions
+  name: "Dividends and splits with their ex-dates"
+  unit: other
+  freq: irregular
+- id: markets.trading_calendar
+  name: "Exchange sessions, holidays, early closes and whether a market is open"
+  unit: other
+  freq: irregular
+- id: markets.breadth
+  name: "Market breadth: share of index members rising, new highs and lows"
+  unit: pct
+  freq: daily
+
+# equities
+- id: equities.earnings_calendar
+  name: "Earnings report dates, before or after the session"
+  unit: other
+  freq: irregular
+- id: equities.earnings_surprise
+  name: "Reported EPS against the analyst estimate, with past surprises"
+  unit: usd
+  freq: quarterly
+- id: equities.estimates
+  name: "Analyst estimates of EPS and revenue for coming periods, with revisions"
+  unit: usd
+  freq: irregular
+  note: "whose estimate is named"
+- id: equities.model_estimate
+  name: "Model estimate of EPS from the company's own history, with an error band"
+  unit: usd
+  freq: quarterly
+  note: "a model, not analysts"
+- id: equities.income_statement
+  name: "Income statement lines, quarterly and annual"
+  unit: usd_mn
+  freq: quarterly
+  lag: "with the quarterly or annual report"
+- id: equities.ratios
+  name: "Company valuation and financial ratios"
+  unit: ratio
+  freq: quarterly
+- id: equities.sector_percentile
+  name: "A company's ratios as percentiles within its sector"
+  unit: pct
+  freq: quarterly
+- id: equities.earnings_quality
+  name: "Earnings quality scores from published accounting models"
+  unit: index
+  freq: annual
+- id: equities.earnings_event_study
+  name: "Cumulative abnormal return around past earnings dates, market model"
+  unit: pct
+  freq: quarterly
+  note: "state N and the window"
+- id: equities.earnings_drift
+  name: "Post-earnings drift by sign of the surprise"
+  unit: pct
+  freq: quarterly
+  note: "historical, not a signal"
+- id: equities.analyst_actions
+  name: "Analyst upgrades, downgrades and price-target changes reported in news"
+  unit: other
+  freq: irregular
+  note: "facts of actions, not a consensus"
+- id: equities.sector_strength
+  name: "Sector fund returns ranked over one window"
+  unit: pct
+  freq: daily
+- id: equities.valuation_multiples
+  name: "Stock index valuation: P/E, cyclically adjusted P/E, earnings and dividend yield"
+  unit: ratio
+  freq: monthly
+- id: equities.factor_returns
+  name: "Factor returns: market, size, value, profitability, investment, momentum"
+  unit: pct
+  freq: daily
+  lag: "monthly updates of the academic library"
+- id: equities.float_shares
+  name: "Public float value and shares outstanding, from the annual report cover"
+  unit: usd
+  freq: annual
+  note: "float in shares = float value / price on the cover date, approximate"
+
+# positioning
+- id: positioning.insider_transactions
+  name: "Insider trades from ownership filings, by transaction code"
+  unit: other
+  freq: irregular
+  lag: "2 business days (US)"
+- id: positioning.insider_net_buying
+  name: "Net insider buying share of open-market trades"
+  unit: pct
+  freq: irregular
+  note: "100 x (buys - sells) / (buys + sells)"
+- id: positioning.insider_history_3y
+  name: "Insider trades over three or more years, to tell routine from opportunistic"
+  unit: other
+  freq: irregular
+- id: positioning.blockholders
+  name: "Holders above 5 percent, activist (13D) or passive (13G)"
+  unit: pct
+  freq: irregular
+  lag: "5 business days; institutions 45 days after the quarter"
+- id: positioning.institutional_holdings
+  name: "Institutional holdings from quarterly 13F filings and their change"
+  unit: count
+  freq: quarterly
+  lag: "45 days after the quarter"
+  note: "long positions only, quarter-end book"
+- id: positioning.holders_summary
+  name: "Shares held by insiders and institutions, percent of shares"
+  unit: pct
+  freq: quarterly
+- id: positioning.congress_trades
+  name: "Securities trades disclosed by members of Congress"
+  unit: other
+  freq: irregular
+  lag: "weeks after the trade"
+- id: positioning.short_interest
+  name: "Short interest, shares sold short and not covered"
+  unit: count
+  freq: irregular
+  lag: "settlement mid-month and month end; published about 7 business days later"
+- id: positioning.days_to_cover
+  name: "Days to cover: short interest / average daily volume"
+  unit: ratio
+  freq: irregular
+  note: "computed; read as a rank"
+- id: positioning.short_pct_float
+  name: "Short interest as a share of float"
+  unit: pct
+  freq: irregular
+  note: "computed"
+- id: positioning.short_volume
+  name: "Daily short sale volume on off-exchange venues"
+  unit: count
+  freq: daily
+  lag: "same evening"
+  note: "a flow, not short interest"
+- id: positioning.fails_to_deliver
+  name: "Fails to deliver by security and settlement date"
+  unit: count
+  freq: daily
+  lag: "published twice a month"
+- id: positioning.uk_short_disclosures
+  name: "Disclosed net short positions in UK shares, by holder and in total"
+  unit: pct
+  freq: daily
+- id: positioning.borrow_fee
+  name: "Stock borrow cost and availability"
+  unit: pct
+  freq: daily
+- id: positioning.etf_flows
+  name: "Estimated fund flow: change in shares outstanding x net asset value"
+  unit: usd_mn
+  freq: irregular
+  note: "an estimate between filings"
+- id: positioning.market_fund_flows
+  name: "Weekly flows into fund categories, industry estimate"
+  unit: usd_mn
+  freq: weekly
+- id: positioning.etf_holdings
+  name: "Fund holdings and their changes, from filings"
+  unit: other
+  freq: quarterly
+  lag: "up to 60 days after the quarter"
+- id: positioning.futures_positions
+  name: "Futures positions by trader category (commitments of traders)"
+  unit: count
+  freq: weekly
+  lag: "Tuesday positions, released Friday 15:30 US Eastern"
+  note: "not revised"
+- id: positioning.futures_percentile
+  name: "Speculators' net futures position as a 5-year percentile"
+  unit: pct
+  freq: weekly
+  note: "50 = median; a description, not a reversal signal"
+
+# volatility
+- id: volatility.option_chain
+  name: "Option chain: strikes, expiries, bid, ask, volume, open interest, IV"
+  unit: other
+  freq: daily
+- id: volatility.iv_surface
+  name: "Implied volatility by strike and expiry"
+  unit: pct
+  freq: daily
+  note: "annualised"
+- id: volatility.iv_rank
+  name: "Rank and percentile of current IV in its stored history"
+  unit: pct
+  freq: daily
+  note: "the number of observations is part of the figure"
+- id: volatility.skew
+  name: "25-delta put IV minus 25-delta call IV"
+  unit: pp
+  freq: daily
+- id: volatility.implied_move
+  name: "One-sigma move implied by at-the-money IV to an expiry"
+  unit: pct
+  freq: daily
+  note: "price x IV x sqrt(T); not the straddle price"
+- id: volatility.put_call
+  name: "Put/call ratio by volume or open interest"
+  unit: ratio
+  freq: daily
+- id: volatility.unusual_volume
+  name: "Option contracts trading far above their open interest"
+  unit: count
+  freq: daily
+  note: "does not say who bought or sold"
+- id: volatility.market_implied
+  name: "30-day implied volatility index of the large-cap US stock index, with peers"
+  unit: index
+  freq: daily
+  note: "points of annualised percent; changes in points"
+- id: volatility.term_structure
+  name: "Implied volatility index across horizons, 9 days to 1 year"
+  unit: index
+  freq: daily
+
+# bonds
+- id: bonds.term_premium_10y
+  name: "10-year term premium, model estimate"
+  unit: pct
+  freq: daily
+  note: "a model, not a quote"
+- id: bonds.real_curve
+  name: "Inflation-indexed government yield curve"
+  unit: pct
+  freq: weekly
+- id: bonds.corporate_curve
+  name: "High-quality corporate bond yield curve"
+  unit: pct
+  freq: monthly
+- id: bonds.credit_spread_bbb
+  name: "BBB corporate bond spread, option-adjusted"
+  unit: pp
+  freq: daily
+  note: "changes in bp"
+- id: bonds.credit_spread_baa
+  name: "Baa corporate yield minus 10-year government yield"
+  unit: pp
+  freq: daily
+  note: "changes in bp"
+
+# fx
+- id: fx.spot
+  name: "Market exchange rate of a currency pair"
+  unit: ratio
+  freq: daily
+  note: "quote currency per unit of base currency"
+- id: fx.reference_rate
+  name: "Central bank reference rates, fixed once a business day"
+  unit: ratio
+  freq: daily
+  note: "a fixing, not a close"
+- id: fx.effective
+  name: "Effective exchange rate, nominal and real, trade-weighted"
+  unit: index
+  freq: monthly
+- id: fx.rate_differential
+  name: "2-year yield difference between two economies"
+  unit: pp
+  freq: daily
+  note: "computed from the two 2-year yields"
+- id: fx.implied_vol
+  name: "Implied volatility of a currency pair"
+  unit: pct
+  freq: daily
+
+# commodities
+- id: commodities.crude_stocks
+  name: "US commercial crude oil stocks"
+  unit: thousands
+  freq: weekly
+  lag: "Wednesday, for the week to the previous Friday"
+  note: "thousand barrels; NSA, compare with the same week"
+- id: commodities.futures_curve
+  name: "Futures prices across delivery months"
+  unit: usd
+  freq: daily
+- id: commodities.futures_history
+  name: "Price history of a futures contract or continuous front contract"
+  unit: usd
+  freq: daily
+  note: "name the contract month and roll"
+- id: commodities.natgas_price
+  name: "Natural gas spot price at the main US hub"
+  unit: usd
+  freq: daily
+  note: "dollars per million British thermal units"
+- id: commodities.natgas_storage
+  name: "US natural gas in underground storage"
+  unit: other
+  freq: weekly
+  note: "billion cubic feet"
+- id: commodities.product_stocks
+  name: "US gasoline and distillate stocks"
+  unit: thousands
+  freq: weekly
+  note: "thousand barrels"
+- id: commodities.crack_spread
+  name: "3-2-1 refining margin"
+  unit: usd
+  freq: daily
+  note: "computed, dollars a barrel"
+- id: commodities.energy_outlook
+  name: "Official short-term energy outlook by month"
+  unit: other
+  freq: monthly
+  note: "a forecast, with its edition date"
+- id: commodities.monthly_prices
+  name: "Monthly average world prices of energy, metals and farm goods"
+  unit: usd
+  freq: monthly
+  note: "an average, not a market quote"
+- id: commodities.farm_prices_annual
+  name: "Prices received by US farmers, annual average"
+  unit: usd
+  freq: annual
+- id: commodities.gold
+  name: "Gold price"
+  unit: usd
+  freq: daily
+  note: "dollars a troy ounce"
+
+# crypto
+- id: crypto.price
+  name: "Latest coin price, market capitalisation and 24-hour volume"
+  unit: usd
+  freq: daily
+  note: "trades every day; times in UTC"
+- id: crypto.price_history
+  name: "Coin price, capitalisation and volume history"
+  unit: usd
+  freq: daily
+- id: crypto.market
+  name: "Total crypto market capitalisation and bitcoin's share"
+  unit: usd_bn
+  freq: daily
+- id: crypto.stablecoin_supply
+  name: "Stablecoin supply outstanding"
+  unit: usd_bn
+  freq: daily
+- id: crypto.exchange_flows
+  name: "Net on-chain flows into and out of exchanges"
+  unit: other
+  freq: daily
+  note: "coin units; a description, no tested link to price"
+- id: crypto.hashrate
+  name: "Bitcoin network hashrate"
+  unit: other
+  freq: daily
+- id: crypto.sentiment_index
+  name: "Crypto sentiment composite index, 0-100"
+  unit: index
+  freq: daily
+  note: "a third-party composite; context only"
+- id: crypto.derivatives
+  name: "Perpetual funding rates, open interest and liquidations"
+  unit: other
+  freq: daily
+
+# predictions
+- id: predictions.contract_price
+  name: "Prediction-market events and contract prices as probabilities"
+  unit: pct
+  freq: irregular
+- id: predictions.price_history
+  name: "Price history of a prediction-market contract"
+  unit: pct
+  freq: daily
+- id: predictions.open_interest
+  name: "Open interest and volume of a prediction-market contract"
+  unit: usd
+  freq: daily
+- id: predictions.orderbook
+  name: "Order book of a prediction-market contract: bids, asks, depth"
+  unit: other
+  freq: irregular
+
+# ======== news-data skill
+# news
+- id: news.articles
+  name: "Articles in the global press matching a query"
+  unit: other
+  freq: irregular
+  note: "a list; the publication country is not the event country"
+- id: news.feed_items
+  name: "Latest items of monitored news feeds, by category or region"
+  unit: other
+  freq: irregular
+  note: "a rolling window of what feeds publish now, not an archive"
+- id: news.feed_search
+  name: "Feed items whose headline or description holds all query words"
+  unit: other
+  freq: irregular
+- id: news.coverage_volume
+  name: "Share of monitored coverage mentioning a topic, over time"
+  unit: pct
+  freq: irregular
+  note: "editorial attention, not a count of events"
+- id: news.coverage_tone
+  name: "Average tone of coverage of a topic, over time"
+  unit: index
+  freq: irregular
+- id: news.quotes_context
+  name: "Sentences or quotes holding all query words"
+  unit: other
+  freq: irregular
+- id: news.events_by_country
+  name: "Machine-coded events with a country as participant or place"
+  unit: count
+  freq: irregular
+- id: news.company_coverage
+  name: "News items linked to a company"
+  unit: other
+  freq: irregular
+- id: news.company_sentiment
+  name: "News tone and attention for a company, linked by legal and former names"
+  unit: index
+  freq: daily
+  note: "editorial news flow, not crowd mood"
+- id: news.adverse_media
+  name: "News linking a company or person to financial crime or sanctions terms"
+  unit: other
+  freq: irregular
+- id: news.trending_topics
+  name: "Entities, themes and events gaining media attention"
+  unit: other
+  freq: irregular
+- id: news.public_attention
+  name: "Encyclopedia pageviews, per article or most read on a date"
+  unit: count
+  freq: daily
+  lag: "about 1 day"
+- id: news.search_volume
+  name: "Search query volume for a term or ticker"
+  unit: index
+  freq: weekly
+  note: "retail attention; not coverage, not pageviews"
+- id: news.story_clusters
+  name: "Articles grouped into one story, with first report and reprints"
+  unit: other
+  freq: irregular
+- id: news.entity_tags
+  name: "Companies and countries tagged on each news item"
+  unit: other
+  freq: irregular
+- id: news.event_type
+  name: "Event type of a news item (results, deal, disaster, policy)"
+  unit: other
+  freq: irregular
+- id: news.archive
+  name: "Article search beyond the last month"
+  unit: other
+  freq: irregular
+- id: news.abnormal_return
+  name: "Asset return beyond the market-model expectation in an event window"
+  unit: pct
+  freq: daily
+
+# filings
+- id: filings.material_events
+  name: "Current-report material events by item number"
+  unit: other
+  freq: irregular
+  lag: "up to 4 business days after the event (US)"
+- id: filings.press_releases
+  name: "Company press releases filed as report exhibits"
+  unit: other
+  freq: irregular
+- id: filings.filing_history
+  name: "A company's filings by form and date"
+  unit: other
+  freq: irregular
+- id: filings.filing_search
+  name: "Full-text search across filings"
+  unit: other
+  freq: irregular
+- id: filings.disclosure_change
+  name: "Year-over-year similarity of annual-report sections"
+  unit: ratio
+  freq: annual
+  note: "low similarity flags rewritten text, not its direction"
+- id: filings.earnings_transcript
+  name: "Earnings call transcript"
+  unit: other
+  freq: quarterly
+- id: filings.japan_filings
+  name: "Japanese statutory filings by date or company, tender offers included"
+  unit: other
+  freq: irregular
+  note: "dates in JST"
+
+# official
+- id: official.sanctions_match
+  name: "Screening of a name or identifier against sanctions and PEP lists"
+  unit: other
+  freq: irregular
+  note: "a candidate match, confirmed only by a second identifier"
+- id: official.sanctions_sources
+  name: "Sanctions and PEP lists loaded, with freshness and regimes covered"
+  unit: other
+  freq: irregular
+- id: official.watchlist_match
+  name: "Screening against national regulatory watchlists"
+  unit: other
+  freq: irregular
+- id: official.bill_status
+  name: "Bills before the legislature, with latest action and date"
+  unit: other
+  freq: irregular
+- id: official.enacted_laws
+  name: "Enacted laws"
+  unit: other
+  freq: irregular
+- id: official.hearings
+  name: "Committee hearings and reports"
+  unit: other
+  freq: irregular
+- id: official.legislative_record
+  name: "Record of proceedings, nominations and treaties"
+  unit: other
+  freq: daily
+- id: official.regulatory_notices
+  name: "Agency rules and notices, proposed and final, with effective dates"
+  unit: other
+  freq: daily
+
+# ======== earth-data skill
+# Units outside the vocabulary are `other`, the real unit in note.
+# Sub-daily data (hourly, 15-minute) carry freq daily with the step in note.
+
+# weather
+- id: weather.forecast
+  name: "Model weather forecast by point, hourly and daily steps"
+  unit: other
+  freq: daily
+  note: "degC, mm, km/h; issued several times a day; a grid value, not a station"
+- id: weather.official_forecast
+  name: "Official forecast of the national weather service, by area"
+  unit: other
+  freq: daily
+  note: "degF and mph in US texts"
+- id: weather.observation
+  name: "Latest station observation"
+  unit: other
+  freq: daily
+  note: "hourly or sub-hourly reports; degC or degF, hPa, kt or km/h"
+- id: weather.history
+  name: "Daily weather history by point, gridded, back to the 1940s"
+  unit: other
+  freq: daily
+  note: "degC, mm; a reanalysis, not a station record; includes reference evapotranspiration"
+- id: weather.degree_days
+  name: "Heating or cooling degree days"
+  unit: other
+  freq: daily
+  note: "degree-days against a named base, 18 degC or 65 degF"
+- id: weather.degree_day_normals
+  name: "Population-weighted degree-day normals by region"
+  unit: other
+  freq: weekly
+  note: "degree-days; national weather service product"
+- id: weather.model_run
+  name: "Model run time and earlier versions of a forecast"
+  unit: other
+  freq: irregular
+  note: "runs at 00, 06, 12 and 18 UTC"
+- id: weather.area_rainfall
+  name: "Precipitation averaged over a state, district or basin"
+  unit: other
+  freq: daily
+  note: "mm"
+- id: weather.growing_regions
+  name: "Weather at named points of a crop-growing region"
+  unit: other
+  freq: daily
+  note: "points, not an area average"
+- id: weather.water_balance
+  name: "Moisture balance, precipitation minus reference evapotranspiration over a window"
+  unit: other
+  freq: daily
+  note: "mm; computed, against the same window of past years"
+
+# climate
+- id: climate.annual_series
+  name: "Annual climate series by place since 1950"
+  unit: other
+  freq: annual
+  note: "degC, mm; the last full year only"
+- id: climate.projection_annual
+  name: "Annual climate projection by place to mid-century"
+  unit: other
+  freq: annual
+  note: "degC, mm; a projection, not a forecast"
+- id: climate.projection_daily
+  name: "Daily multi-model climate projection by place"
+  unit: other
+  freq: daily
+  note: "one run per model; past and current dates are not the weather that happened"
+- id: climate.enso_state
+  name: "Official El Nino / La Nina status, index and phase probabilities"
+  unit: other
+  freq: monthly
+  note: "degC anomaly and pct probabilities, monthly discussion with a dated next issue"
+- id: climate.transition_scenarios
+  name: "Climate transition scenarios, carbon price and sector paths"
+  unit: other
+  freq: irregular
+
+# hazards
+- id: hazards.official_warnings
+  name: "Official warnings, watches and advisories in force"
+  unit: other
+  freq: irregular
+  note: "severity, urgency, certainty and validity as issued"
+- id: hazards.impact_alerts
+  name: "Automatic multi-hazard impact alerts, green, orange or red, with population in the zone"
+  unit: other
+  freq: irregular
+  note: "automatic, no human check"
+- id: hazards.tropical_cyclones
+  name: "Active tropical cyclones: centre, maximum wind, pressure, motion, category"
+  unit: other
+  freq: irregular
+  note: "kt, hPa; updated every 6 hours, 3 near land"
+- id: hazards.cyclone_forecast_track
+  name: "Cyclone forecast track, cone, wind radii and wind probabilities"
+  unit: other
+  freq: irregular
+- id: hazards.earthquakes
+  name: "Earthquake events: magnitude, depth, location, time"
+  unit: other
+  freq: irregular
+  note: "moment magnitude; km depth; UTC"
+- id: hazards.earthquake_losses
+  name: "Earthquake loss alert level, fatalities and economic loss bands"
+  unit: other
+  freq: irregular
+  note: "green, yellow, orange, red; reissued as data arrive"
+- id: hazards.shaking_at_point
+  name: "Shaking intensity at a point"
+  unit: other
+  freq: irregular
+  note: "Modified Mercalli intensity I-X, or peak ground acceleration in g"
+- id: hazards.tsunami
+  name: "Tsunami messages of the warning centres"
+  unit: other
+  freq: irregular
+- id: hazards.volcanoes
+  name: "Volcanic eruptions: explosivity index, deaths, damage"
+  unit: other
+  freq: irregular
+  note: "VEI 0-8; damage in usd_mn where given"
+- id: hazards.volcanic_ash
+  name: "Volcanic ash advisories for aviation"
+  unit: other
+  freq: irregular
+  note: "ash top in flight levels"
+- id: hazards.volcano_alert_level
+  name: "Volcano ground alert level and aviation colour code"
+  unit: other
+  freq: irregular
+- id: hazards.wildfires
+  name: "Satellite fire detections and their radiative power"
+  unit: count
+  freq: daily
+  note: "detections per overpass; power in MW"
+- id: hazards.wildfire_perimeters
+  name: "Fire perimeters and containment"
+  unit: pct
+  freq: daily
+- id: hazards.lightning
+  name: "Lightning detections"
+  unit: count
+  freq: daily
+  note: "one geostationary field of view"
+- id: hazards.drought_category
+  name: "Drought category D0-D4 of the official weekly monitor"
+  unit: other
+  freq: weekly
+  lag: "Thursday, data to Tuesday (US)"
+- id: hazards.disaster_costs
+  name: "Economic damage of a disaster in money"
+  unit: usd_bn
+  freq: irregular
+- id: hazards.insured_losses
+  name: "Insured catastrophe losses"
+  unit: usd_bn
+  freq: irregular
+- id: hazards.space_weather_scales
+  name: "Space weather levels: geomagnetic storm G, solar radiation S, radio blackout R"
+  unit: other
+  freq: daily
+  note: "levels 1-5"
+- id: hazards.kp_index
+  name: "Planetary K index"
+  unit: index
+  freq: daily
+  note: "0-9, 3-hour values"
+- id: hazards.flare_probabilities
+  name: "Solar flare and storm probabilities, next 1-3 days"
+  unit: pct
+  freq: daily
+- id: hazards.air_quality
+  name: "Surface air quality: PM2.5, PM10, NO2, O3 and air quality indexes"
+  unit: other
+  freq: daily
+  note: "ug/m3 and index points; hourly"
+- id: hazards.air_quality_forecast
+  name: "Surface air quality forecast, up to 5 days"
+  unit: other
+  freq: daily
+  note: "ug/m3 and index points; hourly"
+- id: hazards.air_columns_satellite
+  name: "Satellite column amounts of trace gases"
+  unit: other
+  freq: daily
+  note: "mol/m2; a whole column, not air at the surface"
+
+# water
+- id: water.river_forecast
+  name: "Modelled river discharge, past and forecast"
+  unit: other
+  freq: daily
+  note: "m3/s; a grid cell, not a gauge"
+- id: water.river_ensemble
+  name: "Ensemble river discharge forecast, many members"
+  unit: other
+  freq: daily
+  note: "m3/s per member"
+- id: water.gauge_observed
+  name: "Observed river discharge, stage and water temperature at a gauge"
+  unit: other
+  freq: daily
+  note: "ft3/s, ft, degC; 15-minute values, provisional until approved"
+- id: water.flow_percentile
+  name: "Daily flow percentiles of a gauge for each day of the year"
+  unit: other
+  freq: daily
+  note: "ft3/s at each percentile over the gauge record"
+- id: water.annual_peaks
+  name: "Annual peak discharge series of a gauge"
+  unit: other
+  freq: annual
+  note: "ft3/s"
+- id: water.coastal_level_observed
+  name: "Observed water level at a tide station"
+  unit: other
+  freq: daily
+  note: "m or ft above a named datum; 6-minute values, preliminary or verified"
+- id: water.tide_predicted
+  name: "Predicted astronomical tide at a station"
+  unit: other
+  freq: daily
+  note: "m or ft above a named datum; no weather"
+- id: water.surge_observed
+  name: "Observed surge, water level minus predicted tide"
+  unit: other
+  freq: daily
+  note: "m or ft; computed at one station, one datum"
+- id: water.sea_level_model
+  name: "Modelled sea level with its pressure component"
+  unit: other
+  freq: daily
+  note: "m; wind setup not included"
+- id: water.waves
+  name: "Marine forecast: wave height, period, wind"
+  unit: other
+  freq: daily
+  note: "m, s, kt"
+
+# power
+- id: power.load
+  name: "Electricity demand (load), actual"
+  unit: other
+  freq: daily
+  note: "MW, hourly; preliminary"
+- id: power.load_forecast
+  name: "Day-ahead load forecast of the operator"
+  unit: other
+  freq: daily
+  note: "MW, hourly"
+- id: power.fuel_mix
+  name: "Generation by fuel"
+  unit: other
+  freq: daily
+  note: "MW, hourly"
+- id: power.interchange
+  name: "Power flows between a region and its neighbours"
+  unit: other
+  freq: daily
+  note: "MW, hourly; sign convention differs by publisher"
+- id: power.wholesale_price
+  name: "Wholesale (day-ahead) electricity price"
+  unit: other
+  freq: daily
+  note: "local currency per MWh, hourly"
+- id: power.solar_observed
+  name: "Observed solar irradiance from satellite"
+  unit: other
+  freq: daily
+  note: "W/m2; lag of a few days"
+- id: power.plants
+  name: "Power plants near a point or by fuel, with capacity"
+  unit: other
+  freq: irregular
+  note: "MW"
+- id: power.grid_assets
+  name: "Transmission lines and substations in an area"
+  unit: other
+  freq: irregular
+- id: power.outages
+  name: "Customers without power"
+  unit: count
+  freq: daily
+- id: power.generator_outages
+  name: "Unplanned generator outages by cause"
+  unit: other
+  freq: irregular
+  note: "MW"
+- id: power.scarcity_notices
+  name: "Operator emergency and capacity-scarcity notices"
+  unit: other
+  freq: irregular
+
+# industry
+- id: industry.refineries
+  name: "Large refineries by location and annual emissions"
+  unit: other
+  freq: annual
+  note: "an exposure list, not an operating status"
+- id: industry.offshore_shut_in
+  name: "Offshore oil and gas production shut in, and platforms evacuated"
+  unit: pct
+  freq: daily
+  note: "share of the area's output; volumes in barrels and cubic feet a day"
+- id: industry.refinery_status
+  name: "Operating status of refineries and export terminals"
+  unit: other
+  freq: irregular
+
+# crops
+- id: crops.condition
+  name: "Weekly crop condition and progress ratings"
+  unit: pct
+  freq: weekly
+  lag: "Monday 16:00 ET for the week to Sunday (US)"
+  note: "shares rated very poor to excellent"
+- id: crops.supply_demand
+  name: "Official crop supply and demand balances"
+  unit: other
+  freq: monthly
+  note: "million bushels or tonnes; stocks-to-use in pct"
+- id: crops.export_sales
+  name: "Weekly export sales"
+  unit: other
+  freq: weekly
+  note: "tonnes"
+- id: crops.yield_annual
+  name: "Annual crop yield by country"
+  unit: other
+  freq: annual
+  note: "check the unit in the response before converting"
+- id: crops.production_annual
+  name: "Annual crop production by country"
+  unit: other
+  freq: annual
+  note: "tonnes"
+- id: crops.soil_moisture
+  name: "Observed soil moisture"
+  unit: other
+  freq: daily
+  note: "m3/m3 or percentile"
+- id: crops.vegetation_index
+  name: "Satellite vegetation index"
+  unit: index
+  freq: weekly
+
+# logistics
+- id: logistics.airport_weather
+  name: "Airport observation and aerodrome forecast"
+  unit: other
+  freq: daily
+  note: "visibility in m or statute miles, cloud base in ft, wind in kt; UTC"
+- id: logistics.aviation_advisories
+  name: "Aviation hazard advisories: ash, convection, turbulence, icing"
+  unit: other
+  freq: irregular
+- id: logistics.aviation_delays
+  name: "Airport delay programmes and ground stops"
+  unit: other
+  freq: daily
+- id: logistics.disruption_risk
+  name: "Computed weather disruption risk for an airport, point or route"
+  unit: index
+  freq: daily
+  note: "a computed index, not an official notice"
+- id: logistics.port_calls_deviation
+  name: "Port calls against the port's own normal"
+  unit: other
+  freq: weekly
+  note: "deviation in standard deviations"
+- id: logistics.port_activity
+  name: "Port calls and cargo volume by port"
+  unit: count
+  freq: daily
+- id: logistics.port_disruptions
+  name: "Reported port disruption events"
+  unit: other
+  freq: irregular
+- id: logistics.road_events
+  name: "Road closures and incidents"
+  unit: other
+  freq: irregular
+- id: logistics.freight_rates
+  name: "Freight rates: container, dry bulk, tanker"
+  unit: usd
+  freq: daily

@@ -1,0 +1,5 @@
+interface:
+  display_name: "News data"
+  short_description: "News, filings, press releases, sanctions, laws"
+  brand_color: "#F5A623"
+  default_prompt: "Use $news-data to read news coverage, filings, press releases, sanctions screens and legislation for a company, person, country or topic from the Sugra API."

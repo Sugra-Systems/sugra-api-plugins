@@ -1,0 +1,35 @@
+# Bonds bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# us = the US Treasury and US corporate markets; other markets have no route here.
+bonds.term_premium_10y:
+  us:
+    op: fred_series_series_id
+    series_id: THREEFYTP10
+    unit: pct
+    note: "model estimate of the 10-year term premium from the Federal Reserve Board staff model, percent; a model, never a quote; label it an estimate and name the model's publisher"
+bonds.real_curve:
+  us:
+    op: fixed_income_treasury_tips_curve
+    unit: pct
+    note: "inflation-indexed Treasury yields by maturity, percent, latest weekly curve unless date is set; nominal minus real at one maturity is the breakeven, labelled computed"
+    fallback:
+      op: macro_country_section
+      key: us/tips10y
+      transforms: [dod_bps, wow_bps]
+      note: "the 10-year point only, daily"
+bonds.corporate_curve:
+  us:
+    op: fred_corporate_hqm
+    params: {yield_curve: spot}
+    unit: ratio
+    note: "high-quality corporate bond spot or par yields by maturity, monthly average; values are decimal fractions, multiply by 100 for percent"
+bonds.credit_spread_bbb:
+  us:
+    op: macro_country_section
+    key: us/bamlc0a4cbbb
+    transforms: [dod_bps, wow_bps]
+    unit: pp
+    note: "option-adjusted spread of BBB-rated US corporate bonds over Treasuries, percentage points, daily; licensed: attribute to the rights holder named in the response, link, never reprint tables"
+bonds.credit_spread_baa:
+  us:
+    gap: "the daily Baa corporate yield minus the 10-year Treasury yield is not in the catalog"
+    substitute: "bonds.credit_spread_bbb, the nearest daily spread, named as option-adjusted BBB; or us/baa-spread through macro_country_section, the Baa yield minus the federal funds rate, monthly, named as that spread and never as the spread over the 10-year"

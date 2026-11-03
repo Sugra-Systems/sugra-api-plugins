@@ -1,0 +1,59 @@
+# Housing bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+housing.permits:
+  us: {op: macro_country_section, key: us/building-permits, transforms: [mom_abs, yoy_abs], unit: thousands, note: "SAAR"}
+housing.starts:
+  us:
+    op: macro_country_section
+    key: us/housing-starts
+    transforms: [mom_abs, yoy_abs]
+    unit: thousands
+    note: "SAAR; sampling errors: census_indicators_program_snapshot, program resconst, include_errors true"
+  ez: {gap: "no housing starts for the euro area in the catalog", substitute: "housing.property_prices_intl"}
+  gb: {gap: "no housing starts for the UK in the catalog", substitute: "housing.property_prices_intl"}
+  jp: {gap: "no housing starts for Japan in the catalog", substitute: "housing.property_prices_intl"}
+  cn: {gap: "no housing starts for China in the catalog", substitute: "housing.property_prices_intl"}
+  ca: {gap: "no housing starts for Canada in the catalog", substitute: "housing.property_prices_intl"}
+  de: {gap: "no housing starts for Germany in the catalog", substitute: "housing.property_prices_intl"}
+housing.existing_sales:
+  us: {op: macro_country_section, key: us/exhoslusm495s, transforms: [mom_abs, yoy_abs], unit: count, note: "homes at an annual rate, in units, not millions"}
+housing.months_supply:
+  us: {op: macro_country_section, key: us/msacsr, unit: months, note: "new homes; take changes from levels"}
+housing.median_price:
+  us: {op: macro_country_section, key: us/hosmedusm052n, transforms: [yoy_pct], unit: usd, note: "existing homes, NSA: year-on-year only; new homes: us/mspnhsus"}
+housing.repeat_sales_index:
+  us:
+    op: macro_country_section
+    key: us/csushpisa
+    transforms: [mom_pct, yoy_pct]
+    unit: index
+    note: "licensed: attribute to the rights holder named in the response, link, never reprint tables"
+    fallback: {op: macro_country_section, key: us/ussthpi, note: "all-transactions index, quarterly"}
+  ez: {gap: "no repeat-sales index outside the US in the catalog", substitute: "housing.property_prices_intl"}
+  gb: {gap: "no repeat-sales index outside the US in the catalog", substitute: "housing.property_prices_intl"}
+  jp: {gap: "no repeat-sales index outside the US in the catalog", substitute: "housing.property_prices_intl"}
+  cn: {gap: "no repeat-sales index outside the US in the catalog", substitute: "housing.property_prices_intl"}
+  ca: {gap: "no repeat-sales index outside the US in the catalog", substitute: "housing.property_prices_intl"}
+  de: {gap: "no repeat-sales index outside the US in the catalog", substitute: "housing.property_prices_intl"}
+housing.affordability:
+  us: {op: macro_country_section, key: us/fixhai, transforms: [mom_pct, yoy_pct], unit: index}
+housing.mortgage_rate:
+  us: {op: macro_country_section, key: us/mortgage-30y, transforms: [dod_bps], unit: pct, note: "weekly: dod_bps is the week change"}
+housing.market_rent:
+  us:
+    op: real_estate_rents_geo_type
+    params: {geo_type: national}
+    unit: usd
+    note: "USD per month, smoothed, NSA: year-on-year only; name it by concept, not by source"
+housing.property_prices_intl:
+  us:
+    op: bis_property
+    params: {country: us}
+    unit: index
+  de: {op: macro_country_section, key: de/qder628bis, transforms: [mom_pct, yoy_pct], unit: index, note: "real, quarterly, 2010=100"}
+  cn: {op: macro_country_section, key: cn/qcnr628bis, transforms: [mom_pct, yoy_pct], unit: index, note: "real, quarterly, 2010=100"}
+  ca: {op: macro_country_section, key: ca/qcar628bis, transforms: [mom_pct, yoy_pct], unit: index, note: "real, quarterly, 2010=100"}
+  au: {op: macro_country_section, key: au/qaur628bis, transforms: [mom_pct, yoy_pct], unit: index, note: "real, quarterly, 2010=100"}
+  other:
+    op: bis_property
+    params: {country: "<iso2>"}
+    unit: index

@@ -1,0 +1,64 @@
+# Logistics bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any airport, port or place on Earth; us, fr = routes that exist for that country only.
+logistics.airport_weather:
+  other:
+    op: transport_aviation_metar
+    params: {ids: "<ICAO ids, comma-separated>"}
+    unit: other
+    note: "decoded METAR worldwide with flight category (VFR, MVFR, IFR, LIFR), UTC; the aerodrome forecast is transport_aviation_taf with the same ids; destination and connecting airports too"
+    fallback:
+      op: weather_nws_aviation_taf_station_id
+      params: {station_id: "<ICAO id>"}
+      note: "the latest TAF of one station, issued every 6 hours"
+logistics.aviation_advisories:
+  other:
+    op: transport_aviation_advisories
+    unit: other
+    note: "active SIGMETs worldwide and US convective SIGMETs, AIRMETs and G-AIRMETs in one list; advisory_type and hazard (TS, CONVECTIVE, TURB, IFR, MTN_OBSCN) narrow it, a box on the advisory centroid too"
+    fallback:
+      op: weather_nws_aviation_sigmets
+      params: {atsu: "<ATS unit code, e.g. ZAN>"}
+      note: "active SIGMETs of one ATS unit; always set atsu: the unfiltered list exceeds the response cap"
+logistics.aviation_delays:
+  us:
+    op: transport_aviation_delays
+    params: {airports: "<FAA or ICAO codes, comma-separated>"}
+    unit: other
+    note: "ground stops, ground delay programmes, closures and delays the FAA has in force, with its verbatim reason; observed, never blended with the computed risk index"
+  other: {gap: "no delay programmes outside the US", substitute: "logistics.airport_weather and logistics.disruption_risk for the airport, said to be weather, not delays"}
+logistics.disruption_risk:
+  other:
+    op: transport_disruption_risk_forecast
+    params: {airport: "<ICAO or IATA code>", hours: 48}
+    unit: index
+    note: "a computed index 0-100 with a band and the dominant factor, hour by hour; never an official notice; lat and lon for a point instead; a route: transport_disruption_risk_route with path (waypoints joined by semicolons), a sampling corridor, not a flight or sea route"
+    fallback:
+      op: transport_disruption_risk
+      params: {airport: "<ICAO or IATA code>"}
+      note: "the index now"
+logistics.port_calls_deviation:
+  other:
+    op: transport_ports_congestion
+    params: {country: "<ISO3>"}
+    unit: other
+    note: "IMF PortWatch: the latest port calls against each port's own baseline as a z-score, not a queue or a wait; several days stale; the weather overlay beside it is never blended in; ports for given port ids"
+logistics.port_activity:
+  other:
+    op: maritime_ports_activity
+    params: {country: "<ISO3>"}
+    unit: count
+    note: "IMF PortWatch daily port calls and trade volumes; port_id for one port (ids from maritime_ports); vessel counts without tonnage"
+logistics.port_disruptions:
+  other:
+    op: maritime_disruptions
+    params: {country: "<country name>"}
+    unit: other
+    note: "events (cyclones, earthquakes, conflicts) linked to the ports they affect, with distance in km and dates; reported events, not measured delay"
+logistics.road_events:
+  fr:
+    op: transport_road_events
+    unit: other
+    note: "closures, works, accidents and weather conditions on the French non-concessioned national roads; weather_related keeps the weather events; a box narrows it"
+  other: {gap: "road events exist for France only", substitute: "hazards.official_warnings and weather.forecast along the road, and the road authority by link"}
+logistics.freight_rates:
+  other: {gap: "no container, dry bulk or tanker freight rates", substitute: "trade.strait_transits and logistics.port_calls_deviation as signs of the flow, named as substitutes; a published rate only by link with its date and rights holder"}

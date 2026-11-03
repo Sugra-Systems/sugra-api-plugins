@@ -1,0 +1,32 @@
+# Climate bindings: concept id -> place -> call spec, gap or compute. Read mechanics.md first.
+# other = any place on Earth.
+climate.annual_series:
+  other:
+    op: climate_historical
+    params: {latitude: "<lat>", longitude: "<lon>", start_year: 1991, end_year: 2024}
+    unit: other
+    note: "annual temperature and precipitation aggregates from 1950, degC and mm; end_year at most 2024, the last full year; start_year 1991 to end_year 2020 gives the standard normal; city with a separate country instead of the point"
+    fallback:
+      op: weather_history
+      params: {latitude: "<lat>", longitude: "<lon>", start_date: "<YYYY-01-01>", end_date: "<YYYY-12-31>"}
+      note: "daily only, one year per call: aggregate to years yourself, labelled computed"
+climate.projection_annual:
+  other:
+    op: climate_projection
+    params: {latitude: "<lat>", longitude: "<lon>", end_year: 2050}
+    unit: other
+    note: "CMIP6 annual temperature and precipitation to 2050, degC and mm; a projection, never a forecast; the scenario cannot be chosen: say which one the response names, or that it names none; give the spread across models where the response holds it"
+climate.projection_daily:
+  other:
+    op: weather_climate
+    params: {latitude: "<lat>", longitude: "<lon>", start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "daily series of up to seven HighResMIP models, 1950-2050, one run per model (models, comma-separated); no scenario choice (weather_climate_scenarios is a reference list only); values for past and current dates are not the weather that happened, and its soil moisture is never an observation"
+climate.enso_state:
+  other: {gap: "no official El Nino / La Nina status, index or phase probabilities", substitute: "the official monthly discussion of the national climate centre by link, with its date and the next issue date; the consequences checked in data: weather.history rainfall of the season against its normal, hazards.tropical_cyclones in force. Never the phase from memory"}
+climate.transition_scenarios:
+  other:
+    op: boc_climate_risk
+    params: {recent_years: 20}
+    unit: other
+    note: "Bank of Canada stress-test transition scenarios: global GDP-weighted shadow carbon price, emissions path and sector trajectories; scenarios, not forecasts; units per row in the response"

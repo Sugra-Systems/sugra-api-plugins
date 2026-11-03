@@ -1,0 +1,113 @@
+# Rates bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+rates.policy_rate:
+  us:
+    op: macro_country_section
+    key: us/fedfunds-target
+    transforms: [dod_bps]
+    unit: pct
+    note: "upper bound of the target range; lower bound = upper - 0.25"
+    fallback:
+      op: bis_cb_rates_country
+      params: {country: US}
+  ez: {op: macro_country_section, key: eu/ecbdfr, transforms: [dod_bps], unit: pct, note: "deposit facility rate, the ECB policy rate"}
+  gb: {op: boe_rate, unit: pct, note: "Bank Rate; the response also carries SONIA"}
+  jp:
+    op: boj_rates
+    params: {start_date: "<YYYYMM, a few months back>", end_date: "<YYYYMM>"}
+    unit: pct
+    note: "the whole history exceeds the response cap: always pass the window; the monthly series is the basic loan rate, set 0.25 above the policy rate, so the policy rate is that value minus 0.25, labelled computed; the daily uncollateralised overnight call rate trades near the policy rate and is not it"
+    fallback:
+      op: bis_cb_rates_country
+      params: {country: JP}
+      note: "the policy rate as a monthly panel, about a month behind"
+  cn:
+    op: bis_cb_rates_country
+    params: {country: CN}
+    unit: pct
+  ca:
+    op: boc_policy_rate
+    params: {recent_years: 1}
+    unit: pct
+    note: "overnight rate target; a daily list, so a long window is a large answer: keep recent_years at 1 unless the question needs more; the dates where the value changes are the decision dates (there is no meeting calendar for Canada)"
+  de: {op: macro_country_section, key: eu/ecbdfr, transforms: [dod_bps], unit: pct, note: "euro area rate set by the ECB"}
+  au: {op: rba_cash_rate, unit: pct}
+  ch: {op: snb_policy_rate, unit: pct}
+  br: {op: bcb_selic, unit: pct, note: "target per annum; the effective rate is per day"}
+  ar: {op: central_banks_bcra_policy_rate, unit: pct, note: "TAMAR is the de facto reference since late 2024"}
+  se:
+    op: bis_cb_rates_country
+    params: {country: SE}
+    unit: pct
+  other:
+    op: bis_cb_rates_country
+    params: {country: "<ISO2>"}
+    unit: pct
+rates.effective_rate:
+  us: {op: macro_country_section, key: us/dff, transforms: [dod_bps, wow_bps], unit: pct}
+  gb: {op: boe_sonia, unit: pct}
+rates.reserve_rate:
+  us: {op: macro_country_section, key: us/iorb, transforms: [dod_bps], unit: pct}
+  ez: {op: macro_country_section, key: eu/ecbdfr, transforms: [dod_bps], unit: pct}
+rates.money_market_rate:
+  us:
+    op: fed_rates_rate_type
+    params: {rate_type: SOFR}
+    unit: pct
+    note: "secured; EFFR, OBFR, TGCR and BGCR also accepted"
+  ez: {op: macro_country_section, key: us/ecbestrvolwgttrmdmnrt, transforms: [dod_bps], unit: pct, note: "euro short-term rate, filed under the us prefix"}
+  gb: {op: boe_sonia, unit: pct}
+  ca: {op: boc_corra, unit: pct}
+rates.treasury_3m:
+  us: {op: macro_country_section, key: us/t3m, transforms: [dod_bps, wow_bps], unit: pct}
+  ca: {op: boc_tbill_yields, unit: pct}
+rates.treasury_2y:
+  us: {op: macro_country_section, key: us/t2y, transforms: [dod_bps, wow_bps], unit: pct}
+  ez: {op: ecb_yield_curve, unit: ratio, note: "AAA spot curve, row year_2 as a fraction, x100 for pct"}
+  ca: {op: boc_yields, unit: pct}
+  au: {op: rba_bond_yields, unit: pct}
+rates.treasury_10y:
+  us:
+    op: macro_country_section
+    key: us/t10y
+    transforms: [dod_bps, wow_bps]
+    unit: pct
+    note: "daily; for the latest few days use last_n 10; for a history over a month prefer the fallback, a short answer, with limit and sort_order desc (a year of daily points here is 20k+ characters)"
+    fallback: {op: fred_series_series_id, series_id: DGS10, note: "constant maturity yield; observation_start for the start date, or limit 60 with sort_order desc; units chg gives the change in pp"}
+  ez: {op: ecb_yield_curve, unit: ratio, note: "AAA spot curve, row year_10 as a fraction, x100 for pct"}
+  gb: {op: boe_yields, unit: pct, note: "nominal par yield"}
+  ca: {op: boc_yields, unit: pct}
+  au: {op: rba_bond_yields, unit: pct}
+rates.spread_10y_2y:
+  us:
+    op: macro_country_section
+    key: us/t10y-t2y
+    transforms: [dod_bps, wow_bps]
+    unit: pp
+    note: "latest value: last_n 3; how long it was inverted: as rates.spread_10y_3m, with the fallback series"
+    fallback: {op: fred_series_series_id, series_id: T10Y2Y}
+rates.spread_10y_3m:
+  us:
+    op: macro_country_section
+    key: us/t10y-t3m
+    transforms: [dod_bps, wow_bps]
+    unit: pp
+    note: "latest value: last_n 3. How long it was inverted: ONE call over the whole window, never two windows added. The cheap form is the fallback with frequency m and observation_start (monthly averages, about 24 rows for 2 years): count the months below zero. A day count needs the daily rows of one call (start and end here): count the rows of the value column below zero and name the first and last such date. Label either computed"
+    fallback: {op: fred_series_series_id, series_id: T10Y3M, note: "daily; with frequency m the monthly average"}
+rates.real_yield_10y:
+  us: {op: macro_country_section, key: us/tips10y, transforms: [dod_bps, wow_bps], unit: pct}
+rates.futures_path:
+  us:
+    op: futures_root_curve
+    params: {root: ZQ}
+    unit: other
+    note: "30-day fed funds futures prices by expiry; implied rate = 100 minus price"
+rates.decision_odds:
+  us:
+    op: predictions_search
+    params: {q: "Fed rate decision"}
+    unit: other
+    note: "market list; read the outcome price as a probability, never as a consensus"
+  other:
+    op: predictions_search
+    params: {q: "<bank> rate decision"}
+    unit: other

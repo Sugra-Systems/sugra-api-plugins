@@ -1,0 +1,71 @@
+# Liquidity bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+liquidity.cb_balance_sheet:
+  us:
+    op: fed_h41
+    unit: usd_mn
+    note: "USD mn, total assets line; Wednesday level, released Thursday"
+    fallback:
+      op: bis_cb_assets
+      params: {country: us}
+  ez: {op: macro_country_section, key: eu/ecbassetsw, transforms: [mom_pct, yoy_pct], unit: lcu_mn, note: "EUR mn, weekly"}
+  gb:
+    op: bis_cb_assets
+    params: {country: gb}
+    unit: other
+    note: "read the unit field of the response"
+  jp: {op: macro_country_section, key: jp/jpnassets, transforms: [mom_pct, yoy_pct], unit: lcu, note: "JPY in units of 100 million yen, monthly"}
+  cn:
+    op: bis_cb_assets
+    params: {country: cn}
+    unit: other
+    note: "read the unit field of the response"
+  ca: {op: boc_balance_sheet, unit: lcu_mn, note: "CAD mn, month-end"}
+  de: {op: macro_country_section, key: eu/ecbassetsw, transforms: [mom_pct, yoy_pct], unit: lcu_mn, note: "euro area total, EUR mn; no national split in the catalog"}
+liquidity.treasury_account:
+  us:
+    op: treasury_daily_statement
+    unit: usd_mn
+    note: "USD mn, operating cash balance, daily"
+    fallback: {op: macro_country_section, key: us/wtregen, note: "weekly, USD mn"}
+liquidity.reverse_repo:
+  us: {op: macro_country_section, key: us/rrpontsyd, unit: usd_bn, note: "USD bn, daily; take changes in USD bn from levels"}
+liquidity.net_liquidity:
+  us: {op: macro_net_liquidity, unit: usd_bn, note: "computed by the service with a 13-week change; a heuristic, not an official measure"}
+liquidity.regime:
+  us: {op: macro_regime, unit: other, note: "the service's composite of liquidity, credit and policy votes over 13 weeks, with the inputs of each vote; quote the label, the votes and their as-of dates"}
+liquidity.money_supply:
+  us: {op: macro_country_section, key: us/m2, transforms: [mom_pct, yoy_pct], unit: usd_bn}
+  gb: {op: boe_monetary, unit: lcu_mn, note: "GBP mn, M4"}
+  jp: {op: boj_monetary, unit: lcu, note: "JPY in units of 100 million yen, M2"}
+  ca: {op: boc_money_supply, unit: lcu_mn, note: "CAD mn; M2++ is the broad measure"}
+liquidity.money_market_funds:
+  us: {op: macro_country_section, key: us/wrmfns, transforms: [mom_pct, yoy_pct], unit: usd_bn, note: "retail funds only, weekly"}
+liquidity.bank_credit:
+  us: {op: fed_h8, unit: usd_bn, note: "no bank credit total: add the loan lines and the government securities line, labelled a partial sum; weekly"}
+liquidity.consumer_credit:
+  us: {op: fed_g19, unit: usd_bn, note: "released about the 5th business day, not mid-month"}
+liquidity.consumer_credit_revolving:
+  us: {op: fed_g19, unit: usd_bn, note: "revolving line of the same release"}
+liquidity.financial_conditions:
+  us: {op: macro_country_section, key: us/nfci, unit: index, note: "centred on 0: read the level and the change in points, never mom_pct"}
+  ez: {gap: "no financial conditions index for the euro area in the catalog", substitute: "rates.policy_rate and rates.treasury_10y, named as a partial view"}
+  gb: {gap: "no financial conditions index for the UK in the catalog", substitute: "rates.policy_rate and rates.treasury_10y, named as a partial view"}
+  jp: {gap: "no financial conditions index for Japan in the catalog", substitute: "rates.policy_rate, named as a partial view"}
+  cn: {gap: "no financial conditions index for China in the catalog", substitute: "rates.policy_rate and liquidity.credit_gap, named as a partial view"}
+  ca: {gap: "no financial conditions index for Canada in the catalog", substitute: "rates.policy_rate and rates.treasury_10y, named as a partial view"}
+  de: {gap: "no financial conditions index for Germany in the catalog", substitute: "rates.policy_rate and rates.treasury_10y for the euro area, named as a partial view"}
+liquidity.financial_stress:
+  us: {op: macro_country_section, key: us/stlfsi, unit: index, note: "centred on 0: level and point change only"}
+liquidity.credit_spread_hy:
+  us: {op: fred_series_series_id, series_id: BAMLH0A0HYM2, transforms: [chg, ch1], unit: pp, note: "level in pp; chg is the change in pp, times 100 is bp; licensed: attribute to the rights holder named in the response, link, never reprint tables"}
+liquidity.credit_spread_ig:
+  us: {op: macro_country_section, key: us/bamlc0a0cm, transforms: [dod_bps, wow_bps], unit: pp, note: "licensed: attribute to the rights holder named in the response, link, never reprint tables"}
+liquidity.credit_gap:
+  us:
+    op: bis_credit_gap
+    params: {country: us}
+    unit: pp
+  other:
+    op: bis_credit_gap
+    params: {country: "<iso2>"}
+    unit: pp

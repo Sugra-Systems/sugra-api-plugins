@@ -1,0 +1,48 @@
+# Fiscal bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+fiscal.budget_balance:
+  us:
+    op: treasury_deficit
+    unit: usd
+    note: "month and fiscal year to date; the fiscal year starts in October; negative is a deficit"
+    fallback: {op: macro_country_section, key: us/mtsds133fms, note: "monthly, USD mn"}
+  ez: {gap: "no monthly budget balance for the euro area in the catalog", substitute: "fiscal.debt_to_gdp of member countries"}
+  gb: {gap: "no monthly budget balance for the UK in the catalog", substitute: "fiscal.debt_to_gdp, annual"}
+  jp: {gap: "no budget balance for Japan in the catalog", substitute: "fiscal.debt_to_gdp, annual"}
+  cn: {gap: "no budget balance for China in the catalog", substitute: "fiscal.debt_to_gdp, annual"}
+  ca: {gap: "no budget balance for Canada in the catalog", substitute: "fiscal.debt_to_gdp, annual"}
+  de: {gap: "no budget balance for Germany in the catalog", substitute: "fiscal.debt_to_gdp, annual"}
+fiscal.debt:
+  us:
+    op: treasury_debt
+    unit: usd
+    note: "total public debt outstanding, daily, newest first, a few rows; it takes no parameters; a longer span comes through the gateway's top-level limit (about 262 rows a year of business days) with fields; for one past date use the fallback"
+    fallback:
+      op: treasury_data_dataset
+      params: {dataset: debt_to_penny, filter: "record_date:gte:<date>,record_date:lte:<date>", sort: record_date, fields: "record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt"}
+      note: "a window of a few days around the date; amounts are strings in USD; take the row on or before the date and name its date"
+  jp: {op: boj_public_finance, unit: lcu, note: "JPY, national government debt outstanding"}
+fiscal.debt_to_gdp:
+  us: {op: macro_country_section, key: us/gfdegdq188s, transforms: [mom_pp, yoy_pp], unit: pct, note: "federal debt, quarterly"}
+  jp: {op: macro_country_section, key: jp/gggdtajpa188n, transforms: [yoy_pp], unit: pct, note: "general government gross debt, annual"}
+  cn: {op: macro_country_section, key: cn/gggdtacna188n, transforms: [yoy_pp], unit: pct, note: "general government gross debt, annual"}
+  de: {op: macro_country_section, key: de/gggdtadea188n, transforms: [yoy_pp], unit: pct, note: "general government gross debt, annual"}
+  br: {op: bcb_debt, unit: pct, note: "gross and net public debt, monthly"}
+  other:
+    op: macro_country_profile
+    params: {country: "<ISO2>"}
+    unit: ratio
+    note: "debt to GDP as a fraction, x100 for pct"
+fiscal.deficit_to_gdp:
+  us: {op: macro_country_section, key: us/fyfsgda188s, transforms: [yoy_pp], unit: pct, note: "fiscal year; negative is a deficit"}
+fiscal.interest_outlays:
+  us:
+    op: treasury_interest_expense
+    unit: usd
+    note: "gross interest, fiscal year to date: read fytd_total_public_debt, never sum rows; name it gross"
+    fallback: {op: fred_series_series_id, series_id: FYOINT, note: "net interest, annual: name it net, never gross; read the units field of the response"}
+fiscal.auction_results:
+  us:
+    op: fixed_income_treasury_auctions_results
+    unit: other
+    note: "bid-to-cover, yields, bidder shares"
+    fallback: {op: treasury_auctions}

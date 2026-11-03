@@ -1,0 +1,205 @@
+# Power bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# Grid data come by region code, not by operator name: US balancing areas (US48, PJM, ERCO, CISO, MISO, ...), GB, DK1/DK2,
+# the zones DE_LU, FR, NL, ES, IT_NORD, PL, and the AU NEM regions (NSW1, QLD1, SA1, TAS1, VIC1).
+power.load:
+  us:
+    op: energy_grid
+    params: {region: "<US48, PJM, ERCO, CISO, MISO or another balancing area>", metric: demand, frequency: local_hourly}
+    unit: other
+    note: "hourly demand in MW, preliminary; local hours for the evening peak; limit up to 5000 with start and end takes a whole summer in one call, for the historical peak"
+  gb:
+    op: energy_grid
+    params: {region: GB, metric: demand}
+    unit: other
+    note: "demand outturn in MW, half-hourly, UTC"
+  dk:
+    op: energy_grid
+    params: {region: "<DK1 or DK2>", metric: demand}
+    unit: other
+    note: "hourly demand in MW, UTC"
+  de:
+    op: energy_grid
+    params: {region: DE_LU, metric: demand}
+    unit: other
+    note: "ENTSO-E load in MW at the native resolution, Germany with Luxembourg, UTC"
+  fr:
+    op: energy_grid
+    params: {region: FR, metric: demand}
+    unit: other
+    note: "ENTSO-E load in MW at the native resolution, UTC"
+  nl:
+    op: energy_grid
+    params: {region: NL, metric: demand}
+    unit: other
+    note: "ENTSO-E load in MW at the native resolution, UTC"
+  es:
+    op: energy_grid
+    params: {region: ES, metric: demand}
+    unit: other
+    note: "ENTSO-E load in MW at the native resolution, UTC"
+  it:
+    op: energy_grid
+    params: {region: IT_NORD, metric: demand}
+    unit: other
+    note: "ENTSO-E load in MW of the northern zone only, UTC"
+  pl:
+    op: energy_grid
+    params: {region: PL, metric: demand}
+    unit: other
+    note: "ENTSO-E load in MW at the native resolution, UTC"
+  au:
+    op: energy_grid
+    params: {region: "<NSW1, QLD1, SA1, TAS1 or VIC1>", metric: demand}
+    unit: other
+    note: "NEM region demand in MW, UTC; a region, not the country"
+  other: {gap: "no grid operating data for this country", substitute: "weather.forecast and weather.degree_days at its largest cities, said to be a temperature proxy, not load"}
+power.load_forecast:
+  us:
+    op: energy_grid
+    params: {region: "<balancing area>", metric: demand_forecast, frequency: local_hourly}
+    unit: other
+    note: "the operator's day-ahead forecast in MW, hourly; day-ahead error = (actual - forecast) / forecast against power.load, labelled computed"
+  gb:
+    op: energy_grid
+    params: {region: GB, metric: demand_forecast}
+    unit: other
+    note: "day-ahead forecast in MW, half-hourly, nearest future periods first; a past start returns superseded forecasts"
+  other: {gap: "an operator load forecast exists only for US balancing areas and GB", substitute: "power.load of the past days and weather.forecast for the coming ones, said to be no operator forecast"}
+power.fuel_mix:
+  us:
+    op: energy_grid_fuel_mix
+    params: {region: "<balancing area>", frequency: local_hourly}
+    unit: other
+    note: "hourly generation by fuel in MW, preliminary; a latest net snapshot comes with it; net load = load minus wind and solar, labelled computed"
+  gb:
+    op: energy_grid_fuel_mix
+    params: {region: GB}
+    unit: other
+    note: "half-hourly generation by category in MW, UTC"
+  dk:
+    op: energy_grid_fuel_mix
+    params: {region: "<DK1 or DK2>"}
+    unit: other
+    note: "hourly generation by type in MW, UTC"
+  de:
+    op: energy_grid_fuel_mix
+    params: {region: DE_LU}
+    unit: other
+    note: "ENTSO-E generation by type in MW, production positive and consumption negative, UTC"
+  fr:
+    op: energy_grid_fuel_mix
+    params: {region: FR}
+    unit: other
+    note: "ENTSO-E generation by type in MW, production positive and consumption negative, UTC"
+  nl:
+    op: energy_grid_fuel_mix
+    params: {region: NL}
+    unit: other
+    note: "ENTSO-E generation by type in MW, production positive and consumption negative, UTC"
+  es:
+    op: energy_grid_fuel_mix
+    params: {region: ES}
+    unit: other
+    note: "ENTSO-E generation by type in MW, production positive and consumption negative, UTC"
+  it:
+    op: energy_grid_fuel_mix
+    params: {region: IT_NORD}
+    unit: other
+    note: "ENTSO-E generation by type in MW, northern zone only, UTC"
+  pl:
+    op: energy_grid_fuel_mix
+    params: {region: PL}
+    unit: other
+    note: "ENTSO-E generation by type in MW, production positive and consumption negative, UTC"
+  other: {gap: "no generation by fuel for this country (Australia included)", substitute: "power.plants by fuel and capacity, an inventory, not output"}
+power.interchange:
+  us:
+    op: energy_grid_interchange
+    params: {region: "<sending balancing area>", frequency: local_hourly}
+    unit: other
+    note: "hourly MW out of the region: positive is an export, negative an import into it"
+  gb:
+    op: energy_grid_interchange
+    params: {region: GB}
+    unit: other
+    note: "half-hourly MW per interconnector: positive is an import into GB"
+  dk:
+    op: energy_grid_interchange
+    params: {region: "<DK1 or DK2>"}
+    unit: other
+    note: "hourly MW per border: positive is an import into the price area"
+  au:
+    op: energy_grid_interchange
+    params: {region: "<NSW1, QLD1, SA1, TAS1 or VIC1>"}
+    unit: other
+    note: "5-minute MW per interconnector: positive is an import into the region"
+  other: {gap: "no interchange data for this country", substitute: "power.load and power.fuel_mix where the country has them"}
+power.wholesale_price:
+  us: {gap: "no wholesale electricity price for the US", substitute: "power.load against its historical peak and the gas market (commodities.natgas_price); energy_retail_price is the monthly retail price, never wholesale"}
+  gb: {gap: "no wholesale electricity price for GB", substitute: "power.load and power.fuel_mix of GB, and the gas market (commodities.natgas_price)"}
+  de:
+    op: energy_grid
+    params: {region: DE_LU, metric: price}
+    unit: other
+    note: "day-ahead price in EUR/MWh at the native resolution, UTC"
+  fr:
+    op: energy_grid
+    params: {region: FR, metric: price}
+    unit: other
+    note: "day-ahead price in EUR/MWh at the native resolution, UTC"
+  nl:
+    op: energy_grid
+    params: {region: NL, metric: price}
+    unit: other
+    note: "day-ahead price in EUR/MWh at the native resolution, UTC"
+  es:
+    op: energy_grid
+    params: {region: ES, metric: price}
+    unit: other
+    note: "day-ahead price in EUR/MWh at the native resolution, UTC"
+  it:
+    op: energy_grid
+    params: {region: IT_NORD, metric: price}
+    unit: other
+    note: "day-ahead price in EUR/MWh of the northern zone, UTC"
+  pl:
+    op: energy_grid
+    params: {region: PL, metric: price}
+    unit: other
+    note: "day-ahead price in EUR/MWh at the native resolution, UTC; the currency is the one the response names"
+  au:
+    op: energy_grid
+    params: {region: "<NSW1, QLD1, SA1, TAS1 or VIC1>", metric: price}
+    unit: other
+    note: "NEM regional price in AUD/MWh, the currency as the response names it"
+  other: {gap: "a wholesale price exists only for the ENTSO-E zones and the NEM regions", substitute: "power.load where the country has it; never another country's price"}
+power.solar_observed:
+  us: {gap: "no observed satellite irradiance over North America: the record covers the Meteosat disc only", substitute: "solar generation in power.fuel_mix and the radiation of weather.history or weather.forecast, a model"}
+  other:
+    op: energy_solar
+    params: {lat: "<lat>", lon: "<lon>"}
+    unit: other
+    note: "observed daily surface radiation in W/m2 (global horizontal, direct, direct normal) and sunshine duration, about 3 days behind; Europe, Africa, the Atlantic and eastern South America only; outside the disc it is a gap"
+power.plants:
+  other:
+    op: power_plants_nearby
+    params: {latitude: "<lat>", longitude: "<lon>", radius_km: 100}
+    unit: other
+    note: "plants within the radius with fuel and capacity in MW; fuel filters by type (Gas, Coal, Oil, Nuclear, Hydro, Solar, Wind); an inventory, not an operating status"
+    fallback:
+      op: power_plants_search
+      params: {country: "<ISO3>"}
+      note: "by country, fuel, name or min_capacity"
+power.grid_assets:
+  other:
+    op: energy_assets
+    params: {min_lat: "<south>", max_lat: "<north>", min_lon: "<west>", max_lon: "<east>", asset_type: line}
+    unit: other
+    note: "OpenStreetMap power infrastructure in a box of at most 2 square degrees; asset_type is line, substation, generator or, by default, plants; credit OpenStreetMap contributors (ODbL)"
+power.outages:
+  us: {gap: "no count of customers without power", substitute: "a drop in power.load against the days before, and internet outage signals of network_outage_recent for the state or country, a weak sign; the utility's outage map by link"}
+  other: {gap: "no count of customers without power", substitute: "internet outage signals of network_outage_recent for the country, a weak sign, and power.load where the country has it"}
+power.generator_outages:
+  other: {gap: "no unplanned generator outages or their causes", substitute: "the fall of gas, coal and other generation in power.fuel_mix against the days before, in MW; causes only from operator reports by link"}
+power.scarcity_notices:
+  other: {gap: "no operator emergency or capacity-scarcity notices", substitute: "power.load_forecast against the region's historical peak from power.load, and the operator's notice page by link"}

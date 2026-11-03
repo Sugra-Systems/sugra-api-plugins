@@ -1,0 +1,41 @@
+# Predictions bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any event; the two venues in the catalog have their own identifiers, never mixed.
+predictions.contract_price:
+  other:
+    op: predictions_search
+    params: {q: "<event words>", limit: 10}
+    unit: pct
+    note: "events matching the words with their id and volume; the markets and their prices as probabilities (0.65 is 65 percent) come from predictions_events_event_id with that id; name the venue, the contract question and the time; a thin market is a weak signal"
+    fallback:
+      op: kalshi_events
+      params: {status: open, limit: 20}
+      note: "the regulated venue's open events with nested markets; series_ticker narrows to one series"
+predictions.price_history:
+  other:
+    op: predictions_price_history_token_id
+    params: {token_id: "<outcome token id from predictions_events_event_id>", interval: 1w}
+    unit: pct
+    note: "contract price history as probability; interval 1h, 6h, 1d, 1w, 1m or all; take the event id from predictions_search and the outcome token id from predictions_events_event_id; only a token id returns history (not a slug or a coin name)"
+    fallback:
+      op: kalshi_candlesticks_series_ticker_ticker
+      params: {series_ticker: "<series ticker from kalshi_events>", ticker: "<market ticker>", period: 1440}
+      note: "daily candles for a market of the regulated venue; hours_back sets the window"
+predictions.open_interest:
+  other:
+    op: kalshi_candlesticks_series_ticker_ticker
+    params: {series_ticker: "<series ticker from kalshi_events>", ticker: "<market ticker>", period: 1440}
+    unit: other
+    note: "open interest and volume per candle in contracts, each paying 1 USD at settlement; per market of the regulated venue"
+    fallback:
+      op: predictions_open_interest
+      note: "one venue's total open interest across all its markets in USD, not one contract's"
+predictions.orderbook:
+  other:
+    op: kalshi_orderbook_ticker
+    params: {ticker: "<market ticker from kalshi_events>", depth: 10}
+    unit: other
+    note: "bids for yes and for no by price level with size in contracts; a price in cents is a probability in percent"
+    fallback:
+      op: predictions_orderbook_token_id
+      params: {token_id: "<outcome token id from predictions_events_event_id>"}
+      note: "the other venue's book for one outcome token"

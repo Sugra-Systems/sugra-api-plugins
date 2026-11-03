@@ -28,7 +28,7 @@ Keyed responses carry `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit
 
 ## MCP
 
-How each MCP client signs in to the Sugra API MCP server: https://docs.sugra.ai/doc-2263382.
+How each MCP client signs in to the Sugra MCP server: https://docs.sugra.ai/doc-2263382.
 
 MCP tool JSON does not forward `X-RateLimit-*`. Read an MCP error's `error` first, then follow its `hint` or `retry_hint` when it has one. When the API answered, the error has a numeric `status_code`, plus `request_id` (the API's `X-Request-ID`) and `retry_after` (seconds) when the API sent them. A network failure (`upstream_timeout`, `upstream_connect_error`, `upstream_transport_error`) has no HTTP status and carries a `reason`. An answer too large for MCP comes back trimmed with `meta.truncated`, or as `response_too_large`: narrow the filters. Catalog and validation errors (`unknown_parameters`, `missing_required_parameters`, `needs_params`, `missing_required_parameter_groups`, `unknown_operation_id`) make no API call and carry their own fields (table below).
 
