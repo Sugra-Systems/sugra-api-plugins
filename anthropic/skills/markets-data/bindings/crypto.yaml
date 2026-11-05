@@ -1,0 +1,50 @@
+# Crypto bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any coin or the whole market; crypto has no country.
+crypto.price:
+  other:
+    op: crypto_coin_id_price
+    params: {coin_id: "<coin slug, e.g. bitcoin>", vs_currency: usd}
+    unit: usd
+    note: "price, market capitalisation, 24-hour volume and change in USD, aggregated across venues and refreshed every few minutes; name the time"
+crypto.price_history:
+  other:
+    op: crypto_coin_id_history
+    params: {coin_id: "<coin slug>", vs_currency: usd, days: "365"}
+    unit: usd
+    note: "price, market capitalisation and volume in USD; days 1, 7, 14, 30, 90, 180 or 365; points are minutely to 1 day, hourly to 90 days, daily beyond; hourly points fit one response up to days 14; a change over 30 days or longer reads the daily points of days 365, naming both dates"
+crypto.market:
+  other:
+    op: crypto_global
+    unit: usd_bn
+    note: "total crypto market capitalisation and 24-hour volume, returned in USD, and the dominance of bitcoin and ether in percent; convert to USD bn"
+crypto.stablecoin_supply:
+  other:
+    op: defi_stablecoins_chains
+    unit: usd
+    note: "circulating stablecoin supply now by blockchain in USD; the total is their sum, labelled computed; the supply history (all chains or one chain) and the per-coin list (defi_stablecoins) are larger than one response holds, so there is no supply history and no per-coin split here: give the current supply by chain and say a change over time was not retrieved"
+crypto.exchange_flows:
+  other:
+    op: onchain_metrics_asset_exchange_flows
+    params: {asset: "<asset slug, e.g. bitcoin>", limit: 30}
+    unit: usd
+    note: "daily coins moved into and out of exchanges, in native units and USD; net flow is inflow minus outflow, labelled computed; a net inflow is read as supply for sale only by convention; when the route says its source is unavailable, take the fallback, and if that fails too say the flows were not retrieved"
+    fallback:
+      op: onchain_metrics_asset_history_metric
+      params: {asset: "<asset slug, e.g. bitcoin>", metric: FlowInExUSD, limit: 30}
+      note: "one flow metric per call: FlowInExUSD, FlowOutExUSD, or FlowInExNtv and FlowOutExNtv in native units; net flow from the inflow and outflow calls, labelled computed"
+crypto.hashrate:
+  other:
+    op: onchain_bitcoin_mining_hashrate
+    params: {period: 1y}
+    unit: other
+    note: "bitcoin network hash rate over the period, in hashes per second as the response scales them (EH/s); period 24h, 3d, 1w, 1m, 3m, 6m, 1y, 2y or 3y"
+crypto.sentiment_index:
+  other:
+    op: crypto_fear_greed
+    params: {limit: 30}
+    unit: index
+    note: "a published daily composite sentiment score from 0 (extreme fear) to 100 (extreme greed); a third-party composite, never presented as computed here"
+crypto.derivatives:
+  other:
+    gap: "funding rates, futures open interest and liquidations of crypto derivatives are not in the data, so leverage cannot be stated"
+    substitute: "crypto.price_history for the move and crypto.exchange_flows for coins sent to venues, named as such; say plainly that leverage is unknown"

@@ -1,0 +1,13 @@
+# Industry bindings: concept id -> place -> call spec, gap or compute. Read mechanics.md first.
+# other = any place on Earth.
+industry.refineries:
+  other:
+    op: environment_ct_sources
+    params: {subsectors: "<refining slug, oil-and-gas-refining in the inventory>", year: "<latest full year>"}
+    unit: other
+    note: "Climate TRACE asset list ranked by annual emissions, with coordinates: an exposure list, not a register and not an operating status; confirm the slug with environment_ct_definitions_subsectors; there is no area filter here, so keep the rows of the country or the box asked; credit Climate TRACE (CC BY 4.0)"
+industry.offshore_shut_in:
+  us: {gap: "no shut-in shares of Gulf of Mexico oil and gas output and no count of platforms evacuated (the offshore regulator's storm summaries are not in the catalog)", substitute: "the storm's position and wind against the producing area from hazards.tropical_cyclones, the official outlook's production path (commodities.energy_outlook), and the regulator's daily summary by link with its date"}
+  other: {gap: "no offshore shut-in data", substitute: "the hazard position against the producing area and the operator's statements by link"}
+industry.refinery_status:
+  other: {gap: "no operating status of refineries or export terminals", substitute: "industry.refineries as exposure, hazards.official_warnings at the site, and logistics.port_disruptions; company statements by link"}

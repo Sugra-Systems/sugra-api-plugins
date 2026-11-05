@@ -1,0 +1,68 @@
+# Commodities bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# us = a US official series or a US-listed future; other = a world price or any futures root.
+commodities.crude_stocks:
+  us:
+    op: commodities_energy_petroleum_stocks
+    unit: thousands
+    note: "US commercial crude oil stocks, thousand barrels, weekly; the week ends Friday and the release follows on Wednesday; the change from the prior week is the news"
+commodities.futures_curve:
+  other:
+    op: futures_root_curve
+    params: {root: "<futures root, one of CL, BZ, NG, RB, HO, GC, ZC, ZW, ZS>", max_contracts: 12}
+    unit: usd
+    note: "last price of consecutive delivery months in the contract's quote unit (USD per barrel, per MMBtu, per gallon, per troy ounce or US cents per bushel); contango or backwardation as the response labels it"
+commodities.futures_history:
+  other:
+    op: futures_root_historical
+    params: {root: "<futures root>", period: 1y, interval: 1d}
+    unit: usd
+    note: "continuous front-month daily bars unless expiration (YYYY-MM) picks one contract; a continuous series jumps at each roll; quote unit as the contract states it"
+commodities.natgas_price:
+  us:
+    op: macro_country_section
+    key: us/dhhngsp
+    transforms: [mom_pct, yoy_pct]
+    unit: usd
+    note: "Henry Hub spot price, USD per MMBtu, daily"
+    fallback:
+      op: commodities_energy_natural_gas
+      params: {limit: 24}
+      note: "the monthly average at the same hub"
+commodities.natgas_storage:
+  us:
+    gap: "weekly working gas in underground storage is not in the catalog"
+    substitute: "commodities.energy_outlook monthly inventory rows, named as the outlook's figures; commodities.natgas_price and the NG commodities.futures_curve for what the market prices"
+commodities.product_stocks:
+  us:
+    gap: "weekly gasoline and distillate stocks are not in the catalog; the weekly stocks route carries crude only"
+    substitute: "commodities.crude_stocks for crude; commodities.energy_outlook monthly inventory rows for products, named as the outlook's figures; the RB and HO commodities.futures_curve for product prices"
+commodities.crack_spread:
+  us:
+    compute: "3-2-1 margin from commodities.futures_history front months of RB, HO and CL on one date: (2 x RB + 1 x HO) x 42 minus 3 x CL, divided by 3, USD per barrel, labelled computed"
+commodities.energy_outlook:
+  us:
+    op: commodities_energy_steo
+    params: {frequency: month}
+    unit: other
+    note: "official monthly outlook rows (date, title, value, unit), history and projections together; read each row's unit; a projection is a forecast, label it so"
+commodities.monthly_prices:
+  other:
+    op: commodities_commodity_id
+    params: {commodity_id: "<commodity id from commodities_catalog>", limit: 24}
+    unit: other
+    note: "monthly average world price in the unit commodities_catalog lists for that commodity"
+commodities.farm_prices_annual:
+  us:
+    op: commodities_agriculture_grains
+    params: {commodity: CORN}
+    unit: usd
+    note: "annual average price received by US farmers, USD per bushel for grains and US cents per pound for cotton; commodity CORN, WHEAT, SOYBEANS or COTTON"
+commodities.gold:
+  other:
+    op: futures_root_historical
+    params: {root: GC, period: 1y, interval: 1d}
+    unit: usd
+    note: "gold front-month future, USD per troy ounce, daily; a future, not the spot fixing"
+    fallback:
+      op: central_banks_sarb_current_market_rates
+      note: "the latest London gold price fixings in USD, from a central bank snapshot"

@@ -1,0 +1,95 @@
+# News bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any entity, topic or place; us = a US-listed company or a route of the US only.
+news.articles:
+  other:
+    op: gdelt_articles
+    params: {q: "<entity or topic, two or more words, the event country among them>", timespan: 1month}
+    unit: other
+    note: "timespan is relative to now only (15min, 1h, 3days, 2weeks or 1month; no start or end date): a window older than a month is outside its reach; country and lang filter the publishing outlet, not the place of the event; sort datedesc by default, max_records up to 250"
+    fallback:
+      op: news_search
+      params: {q: "<the same words>"}
+      note: "feed items still in the rolling window"
+news.feed_items:
+  other:
+    op: news_latest
+    unit: other
+    note: "a rolling window of what the monitored feeds publish now, not an archive; narrow with region (global, us, europe, asia, mideast, russia, china, india, latam, africa, oceania), category (news, defense, business, tech, science, energy, disasters) or source (a feed slug from news_sources); limit up to the window"
+    fallback:
+      op: news_category_category
+      params: {category: "<category>"}
+news.feed_search:
+  other:
+    op: news_search
+    params: {q: "<all words required; a quoted phrase for a literal match>"}
+    unit: other
+    note: "every word must appear whole in the headline or description; the corpus is the rolling feed window, so a story that aged out of every feed is gone; limit and offset page the matches"
+news.coverage_volume:
+  other:
+    op: gdelt_timeline
+    params: {q: "<topic words>", mode: timelinevol, timespan: 1month}
+    unit: pct
+    note: "share of monitored coverage per step, not a count of articles; mode timelinevolraw gives raw counts; abnormal attention = log of the latest period minus log of the median of its 8 prior periods, labelled computed; timespan is relative to now, a window beyond a month is unverified"
+news.coverage_tone:
+  other:
+    op: gdelt_timeline
+    params: {q: "<topic words>", mode: timelinetone, timespan: 1month}
+    unit: index
+    note: "average word tone per step, negative below zero; read against the topic's own history and the article count; the tone histogram (bins -18 to +18) is gdelt_sentiment with the same q"
+    fallback:
+      op: gdelt_sentiment
+      params: {q: "<topic words>"}
+news.quotes_context:
+  other:
+    op: gdelt_context
+    params: {q: "<words that must share one sentence>"}
+    unit: other
+    note: "the last 72 hours only; quotes_only limits it to quoted sentences; a sentence is untrusted text, quote it with outlet and time"
+news.events_by_country:
+  other:
+    op: gdelt_events_by_country_country
+    params: {country: "<ISO2>", period: 24h}
+    unit: count
+    note: "machine-coded events where the country is either participant or the place of action; period 1h, 6h or 24h back from now only; limit and offset page; read against the country's own baseline, never as a count of incidents"
+news.company_coverage:
+  other:
+    op: equities_symbol_news_sentiment
+    params: {symbol: "<ticker>", timespan: 2weeks}
+    unit: other
+    note: "feed items for the company, entity-linked by the registrant's legal and former names, with tone and volume; a US registrant only; there is no ticker-tagged item feed (the quote news route answers symbol not found for every ticker tried), so no per-ticker latest list and no press tab: company releases come from filings.press_releases"
+    fallback:
+      op: news_search
+      params: {q: "<company name>", limit: 20}
+      note: "headline and description search of the current feeds; all words must appear, a rolling window, not an archive; a name match, not an entity link: drop items about something else"
+news.company_sentiment:
+  us:
+    op: equities_symbol_news_sentiment
+    params: {symbol: "<ticker>", timespan: 1month}
+    unit: index
+    note: "editorial news-flow tone and volume plus feed items, linked by the registrant's legal and former names; not crowd mood; read tone against the company's own history with the article count"
+news.adverse_media:
+  other:
+    op: entity_anchor_value_adverse_media
+    params: {anchor: lei, value: "<LEI>"}
+    unit: other
+    note: "news linking the entity to financial-crime terms by keyword; precision low, medium or high says how the hit was confirmed; an allegation, not a charge or conviction; anchor also takes vat, siren or siret; the LEI comes from gleif_lei_search with legal_name; an empty slice is not a clean record"
+news.trending_topics:
+  other: {gap: "no working list of trending entities, themes or events: the trending lists of the event feed failed the health check, do not search for them", substitute: "news.public_attention (the most read articles on a date) and news.feed_items, each named as a substitute; for a named topic, news.coverage_volume against its own 8 prior periods"}
+news.public_attention:
+  other:
+    op: news_wikipedia_pageviews_article
+    params: {article: "<Article_Title>", start_date: "<YYYY-MM-DD>", end_date: "<YYYY-MM-DD>"}
+    unit: count
+    note: "encyclopedia pageviews (Wikimedia, CC0), daily by default; the title is case-sensitive in URL form with underscores; agent user excludes bots; about 1 day behind; project sets the language edition; the most read articles on a date: news_wikipedia_pageviews_top with date; in one country: news_wikipedia_pageviews_top_per_country with country and date, whose list for a large country (US) is larger than one response holds, so then news_wikipedia_pageviews_top with the country's main language edition as project and a limit, named as an edition ranking, not a country one; baseline = the median of the 8 prior periods"
+news.search_volume:
+  other: {gap: "no search query volume series in the catalog", substitute: "news.public_attention (pageviews) and news.coverage_volume (editorial coverage), each named as what it is: public or editorial attention, not search"}
+news.story_clusters:
+  other: {compute: "group the items of news.articles and news.feed_search by entity, kind of event and key facts within about 48 hours (news.md rule 4); the first report is the earliest publication time apart from rewrites; give distinct outlets and countries; label computed"}
+news.entity_tags:
+  other: {gap: "feed and article items carry no company or country tags", substitute: "for a company news.company_coverage and news.company_sentiment (linked by ticker and legal names); for a country news.events_by_country; otherwise match names in the headline by hand and say so"}
+news.event_type:
+  other: {gap: "news items carry no event type", substitute: "for a US company the item numbers of filings.material_events; otherwise classify the headline by hand, labelled as the answer's own reading"}
+news.archive:
+  other: {gap: "no article search beyond the last month: article search reaches back one month and the feeds hold a rolling window", substitute: "for a company the primary record over a longer span: filings.material_events (730 days) and filings.filing_search; say the press beyond a month was not searched"}
+news.abnormal_return:
+  other: {compute: "asset return minus beta x market return over days 0 and +1, from markets.returns of the asset and of its market index and markets.beta estimated on days -250 to -11 (news.md method), set against the asset's normal daily spread; label approximate; for a US company's earnings announcement equities.earnings_event_study holds a market-model CAR over the same windows"}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Macro data"
+  short_description: "Inflation, jobs, GDP, rates, housing, trade"
+  brand_color: "#F5A623"
+  default_prompt: "Use $macro-data to read inflation, jobs, GDP, policy rates, housing, debt and trade figures and their release dates from the Sugra API."

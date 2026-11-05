@@ -1,0 +1,5 @@
+interface:
+  display_name: "Markets data"
+  short_description: "Prices, earnings, yields, volatility, FX, crypto"
+  brand_color: "#F5A623"
+  default_prompt: "Use $markets-data to read prices, earnings, yields, volatility, exchange rates, commodities, crypto and prediction-market odds from the Sugra API."

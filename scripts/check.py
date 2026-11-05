@@ -27,7 +27,7 @@ PLUGIN = "sugra-api-skills"
 DISPLAY_NAME = "Sugra API Skills"
 # each package releases on its own; bump only the package that changed
 VERSIONS = {
-    "anthropic": "1.2.1", "openai": "1.2.2", "xai": "1.2.1", "cursor": "1.2.1", "antigravity": "1.0.0"
+    "anthropic": "1.3.0", "openai": "1.3.0", "xai": "1.3.0", "cursor": "1.3.0", "antigravity": "1.1.0"
 }
 HOMEPAGE = "https://sugra.ai"
 # one description and one keyword list for every manifest and marketplace entry
@@ -59,7 +59,7 @@ ANTHROPIC_LINKS = {
     "termsOfServiceUrl": "https://sugra.systems/terms-of-service",
     "icon": "./assets/logo.png",
 }
-# <package>/.mcp.json of every MCP_PACKAGES package: the hosted Sugra API MCP server, the server of
+# <package>/.mcp.json of every MCP_PACKAGES package: the hosted Sugra MCP server, the server of
 # the Sugra API connector in Anthropic's directory, https://claude.ai/directory/sugra-api. The same
 # URL lets the two listings be paired and lets Claude Code count them as one server; Grok reads the
 # same file from the xai package. A URL only: no headers, no credentials.
@@ -102,6 +102,14 @@ TIER_C = (
     "cboe",
 )
 BANS = ("real-time", "realtime", "financial intelligence", "blackbox")
+# The bans are copy rules: they govern prose, not the machine identifiers a binding has to spell
+# to call the API (an operation id, a router prefix or a path is not a copy-rule violation). An
+# operation id (cboe_volatility) or a lookup key (us/sahmrealtime), a
+# token joined by underscores or slashes, is stripped before both scans; an all-capitals series
+# code of four or more letters and digits (SAHMREALTIME) is stripped before the phrase scan only,
+# so a commercial name written as a bare word is still caught.
+JOINED = re.compile(r"\b[A-Za-z0-9]+(?:[_/][A-Za-z0-9]+)+\b")
+CODE = re.compile(r"\b[A-Z][A-Z0-9]{3,}\b")
 # The copy rules ban the em dash (a hyphen is the only dash) and emoji, not Unicode as such.
 # Written as code points so this file stays plain ASCII. Banned: the dashes other than the
 # hyphen and the keycap; IGNORABLE_RANGES; and EMOJI_RANGES. A character outside them that
@@ -211,10 +219,12 @@ def copy_lint(text: str, label: str) -> None:
         found = FORBIDDEN.search(view)
         if found:
             fail(f"{label}: U+{ord(found.group()):04X} is a banned dash, emoji or invisible character")
-        lowered = view.lower()
+        named = JOINED.sub(" ", view)
+        prose = CODE.sub(" ", named).lower()
         for ban in BANS:
-            if ban in lowered:
+            if ban in prose:
                 fail(f"{label}: banned phrase {ban}")
+        lowered = named.lower()
         for fragment in TIER_C:
             if fragment in lowered:
                 fail(f"{label}: commercial name {fragment}")

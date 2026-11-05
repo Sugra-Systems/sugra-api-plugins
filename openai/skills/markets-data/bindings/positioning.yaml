@@ -1,0 +1,127 @@
+# Positioning bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# us = a US-listed security or a US filing; gb = a UK disclosure; other = any market.
+positioning.insider_transactions:
+  us:
+    op: insiders_transactions
+    params: {symbol: "<ticker>", from_date: "<YYYY-MM-DD>", to_date: "<YYYY-MM-DD>"}
+    unit: other
+    note: "Form 4 rows: date, insider, role, code, shares and price in USD; 90 days back by default and about two years held; filter_type narrows to purchase or sale; an open-market purchase is the signal, awards and exercises are not"
+    fallback:
+      op: sec_edgar_insider_cik_transactions
+      params: {cik: "<from resolve_entity: the issuer CIK>", from_date: "<YYYY-MM-DD>", to_date: "<YYYY-MM-DD>"}
+      note: "the same filings by issuer CIK; both dates required, within the last 365 days"
+positioning.insider_net_buying:
+  us:
+    op: insiders_sentiment
+    params: {symbol: "<ticker>"}
+    unit: other
+    note: "purchases against sales by insiders over the window, a year back by default; read the counts and the share totals, name the window"
+positioning.insider_history_3y:
+  us:
+    gap: "three years of classified insider trades are not held: the insider rows reach about two years back and the trades stay unclassified"
+    substitute: "positioning.insider_transactions over the longest window held, with the window named; positioning.insider_net_buying for the last year"
+positioning.blockholders:
+  us:
+    op: sec_edgar_13d_g_cik_positions
+    params: {cik: "<from resolve_entity: the issuer CIK>", from_date: "<YYYY-MM-DD>", to_date: "<YYYY-MM-DD>"}
+    unit: pct
+    note: "holders of 5 percent or more from 13D and 13G filings, percent of the class; 13D is an activist intent, 13G a passive one; schedule narrows to one"
+positioning.institutional_holdings:
+  us:
+    op: sec_13f_consensus_cusip
+    params: {cusip: "<from resolve_entity: the 9-character CUSIP>"}
+    unit: other
+    note: "13F holders of the security for the latest quarter, value in USD thousands and shares; filed 45 days after the quarter end, so a quarter old at best; the change between quarters: the same call with quarter set to the earlier stem from sec_13f_quarters, compared, labelled computed; the holder-level diff (sec_13f_holders_of_cusip_changes) suits a thinly held security only: for a widely held one it is larger than one response holds"
+    fallback:
+      op: sec_13f_holders_of_cusip
+      params: {cusip: "<the same CUSIP>", limit: 25}
+      note: "the holders of the latest quarter, one row per manager with shares and value; limit caps the list, read the order from the response"
+positioning.holders_summary:
+  other:
+    op: quotes_symbol_holders_summary
+    params: {symbol: "<ticker>"}
+    unit: pct
+    note: "shares held by insiders and by institutions in percent, with the largest holders of each kind"
+positioning.congress_trades:
+  us:
+    op: equities_symbol_congress_trades
+    params: {symbol: "<ticker>"}
+    unit: other
+    note: "House members' periodic transaction reports for the ticker, current and prior year; amounts are USD ranges, not exact values; the Senate is not covered"
+positioning.short_interest:
+  us:
+    op: short_interest_symbol_symbol
+    params: {symbol: "<ticker>", limit: 20}
+    unit: count
+    note: "shares sold short, twice a month by settlement date, published about a week later; read days to cover from the response when present"
+positioning.days_to_cover:
+  us:
+    compute: "positioning.short_interest shares divided by the average daily volume from markets.price_history over the same weeks, labelled computed"
+positioning.short_pct_float:
+  us:
+    compute: "positioning.short_interest shares divided by the float share count from equities.float_shares, in percent, labelled computed; when only a dollar float is filed, divide it by markets.price first and name that step"
+positioning.short_volume:
+  us:
+    op: short_interest_daily_volume_symbol
+    params: {symbol: "<ticker>", limit: 20}
+    unit: count
+    note: "daily short-sale volume against total volume on reporting venues; daily short volume is a trading flow, not short interest"
+positioning.fails_to_deliver:
+  us:
+    op: short_side_fails_to_deliver_symbol
+    params: {symbol: "<ticker>"}
+    unit: count
+    note: "failed-share quantity by settlement date with the prior close and the CUSIP; published twice a month with a lag of about two weeks; a fail is a settlement event, not proof of naked shorting; the call returns the whole history, which for an actively traded name is larger than one response holds: then the fallback"
+    fallback:
+      op: short_side_fails_to_deliver
+      note: "the market leaderboard of the latest SEC period, ranked by failed shares; the ticker appears only when it ranks, and an absence is not zero"
+positioning.uk_short_disclosures:
+  gb:
+    op: fca_shorts_aggregate_isin
+    params: {isin: "<from resolve_entity: the ISIN>"}
+    unit: pct
+    note: "sum of disclosed net short positions of 0.5 percent or more of issued shares, and the holder count"
+    fallback:
+      op: fca_shorts_isin
+      params: {isin: "<the same ISIN>"}
+      note: "one row per disclosed holder"
+  us:
+    gap: "the UK disclosure register covers shares admitted in the UK only; a US listing has no such register"
+    substitute: "positioning.short_interest for the US listing"
+positioning.borrow_fee:
+  other:
+    gap: "the cost to borrow a share is not in the data"
+    substitute: "positioning.days_to_cover, positioning.short_pct_float and positioning.fails_to_deliver as signs of a crowded short, named as such; never quote a fee"
+positioning.etf_flows:
+  us:
+    op: etf_symbol_flows
+    params: {symbol: "<fund ticker>", lookback_days: 90}
+    unit: usd
+    note: "net flow estimated from changes in shares outstanding times net asset value, USD, one period per change in the filed values; an estimate, labelled so; lookback_days 1 to 90; a period whose own note says the share delta is rounding noise holds no flow: when every period says so, say the fund's flow could not be measured for the window and never quote the dollar figure; the market-wide weekly flows are positioning.market_fund_flows"
+positioning.market_fund_flows:
+  us:
+    op: etf_flows_aggregate
+    unit: usd_mn
+    note: "the weekly ICI release of estimated long-term fund flows and ETF net issuance, USD mn, with five weeks of history; attribute it to ICI"
+positioning.etf_holdings:
+  us:
+    op: etf_symbol_holdings_sec
+    params: {symbol: "<fund ticker>"}
+    unit: pct
+    note: "full holdings list from the latest quarterly N-PORT filing, weight in percent of net assets; as of the filing period, not today; the list of a fund with several hundred holdings (broad index funds) is larger than one response holds: then the fallback; names that entered, left or changed weight among the top ten come from etf_symbol_top_holdings_changes with from_date and to_date both inside the last 90 days (snapshots are kept 90 days) and not in the future"
+    fallback:
+      op: etf_symbol_snapshot
+      params: {symbol: "<fund ticker>"}
+      note: "the latest snapshot: a top-10 holdings sample with sector, asset-class and country weights; a sample, not the full list"
+positioning.futures_positions:
+  us:
+    op: cot_market_market_name
+    params: {market_name: "<exact market name from cot_search>", report_type: legacy, limit: 8}
+    unit: count
+    note: "weekly futures positions in contracts by trader group; positions as of Tuesday, released Friday 15:30 ET; report_type legacy, disaggregated (managed money, producers and swap dealers for commodities), tff (financial futures) or cit, name the one used; the main NYMEX crude contract is listed as WTI-PHYSICAL, and the Treasury futures as UST 2Y NOTE, UST 5Y NOTE, UST 10Y NOTE and UST BOND (search UST: the older names such as 10-YEAR U.S. TREASURY NOTES stop in 2022); one weekly record is large, so limit 8 for the latest weeks and a longer history in calls of at most 10 weeks bounded by start_date and end_date: the default limit exceeds the response cap, here and on the per-report routes (cot_legacy, cot_disaggregated, cot_financial), which work with a market and a limit of 10 or less"
+positioning.futures_percentile:
+  us:
+    op: cot_extremes
+    params: {report_type: legacy, lookback_weeks: 260}
+    unit: pct
+    note: "markets ranked by where net positioning sits in its own range over lookback_weeks, as a percentile; a ranked list across markets, so find the asked market in it; above 90 or below 10 is extreme by convention"

@@ -1,0 +1,89 @@
+# Growth bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+growth.real_gdp:
+  us: {op: macro_country_section, key: us/real-gdp, transforms: [qoq_ann_pct, yoy_pct], unit: usd_bn, note: "chained 2017 dollars, SAAR; US growth is quoted annualised"}
+  ez: {op: macro_country_section, key: eu/gdp, transforms: [yoy_pct, qoq_ann_pct], unit: lcu_mn, note: "EUR mn, chained; the published q/q is not annualised: derive it from levels"}
+  gb:
+    op: ons_gdp
+    unit: lcu_mn
+    note: "GBP mn, series ABMI; IHYQ q/q and IHYR y/y in pct, not annualised"
+    fallback: {op: macro_country_section, key: gb/gdp}
+  jp: {op: macro_country_section, key: jp/gdp, transforms: [yoy_pct, qoq_ann_pct], unit: lcu_bn, note: "JPY bn, chained"}
+  cn:
+    op: macro_country_section
+    key: cn/chngdpnqdsmei
+    unit: pct
+    note: "already year-on-year, quarterly, no level series; each date is the first day of its quarter (a date in October is the fourth quarter); it lags by about 2 months: report the latest quarter it holds with its lag and do not chase other series to find a newer one"
+    fallback:
+      op: imf_country_indicator
+      params: {country: CHN, indicator: gdp_growth}
+  ca: {op: macro_country_section, key: ca/ngdprsaxdccaq, transforms: [mom_pct, yoy_pct], unit: lcu_mn, note: "CAD mn; mom_pct is the quarter change, not annualised"}
+  de:
+    op: macro_country_section
+    key: de/clvmnacscab1gqde
+    transforms: [mom_pct, yoy_pct]
+    unit: lcu_mn
+    note: "EUR mn, chained; mom_pct is the quarter change"
+    fallback: {op: macro_country_section, key: de/ngdprsaxdcdeq}
+  in: {op: macro_country_section, key: in/ngdprnsaxdcinq, transforms: [yoy_pct], unit: lcu_mn, note: "INR mn, NSA: year-on-year only"}
+  kr: {op: macro_country_section, key: kr/ngdprsaxdckrq, transforms: [mom_pct, yoy_pct], unit: lcu_mn, note: "KRW mn"}
+growth.gdi:
+  us: {op: fred_series_series_id, series_id: A261RX1Q020SBEA, transforms: [pc1, pca], unit: usd_bn, note: "chained 2017 dollars, SAAR; pca is annualised; the average of GDP and GDI growth: us/pb0000091q225sbea, label it the average"}
+growth.gdp_contributions:
+  us: {op: fred_series_series_id, series_id: DPCERY2Q224SBEA, unit: pp, note: "consumption, pp of annualised growth; one call per component: investment A006RY2Q224SBEA, net exports A019RY2Q224SBEA, government A822RY2Q224SBEA; they add up to real GDP growth"}
+growth.final_sales_private:
+  us: {gap: "final sales to private domestic purchasers are not in the catalog", substitute: "growth.real_consumption"}
+growth.gdp_nowcast:
+  us:
+    op: fred_series_series_id
+    series_id: GDPNOW
+    unit: pct
+    note: "model nowcast, quarter growth annualised; published by the Federal Reserve Bank of Atlanta under its own terms: cite the publisher, never present it as computed here; a second model, monthly: us/bbkmgdp"
+    fallback: {op: macro_country_section, key: us/stleni, transforms: [mom_pp], note: "a different Fed model, quarter growth annualised: name it so"}
+growth.manufacturing_pmi:
+  us: {gap: "the manufacturing purchasing managers' index is not in the catalog and no search or FRED id finds it (NAPM is withdrawn): stop here, no search, and answer with the substitute", substitute: "growth.manufacturing_output, hard data, named as such; growth.business_survey is a different survey (normal = 100, not 50) and is named so; never a PMI number from memory"}
+growth.manufacturing_output:
+  us: {op: macro_country_section, key: us/ipman, transforms: [mom_pct, yoy_pct], unit: index, note: "industrial production of manufacturing only, SA, 2017 = 100; expanding means a positive change over 3 and 12 months, computed from levels"}
+growth.industrial_production:
+  us: {op: macro_country_section, key: us/ip, transforms: [mom_pct, yoy_pct], unit: index}
+growth.capacity_utilisation:
+  us: {op: macro_country_section, key: us/tcu, transforms: [mom_pp, yoy_pp], unit: pct}
+growth.retail_sales:
+  us: {op: macro_country_section, key: us/retail-sales, transforms: [mom_pct, yoy_pct], unit: usd_mn, note: "retail trade without food services; not ex autos and gas as the title says"}
+growth.real_consumption:
+  us: {op: macro_country_section, key: us/pcec96, transforms: [mom_pct, yoy_pct], unit: usd_bn, note: "chained 2017 dollars, SAAR"}
+growth.real_disposable_income:
+  us: {op: fred_series_series_id, series_id: DSPIC96, transforms: [pch, pc1], unit: usd_bn, note: "chained 2017 dollars, SAAR; before-tax real personal income: us/rpi"}
+growth.saving_rate:
+  us: {op: macro_country_section, key: us/psavert, transforms: [mom_pp, yoy_pp], unit: pct}
+growth.durable_goods_orders:
+  us: {op: macro_country_section, key: us/dgorder, transforms: [mom_pct, yoy_pct], unit: usd_mn, note: "ex transportation: us/adxtno"}
+growth.inventories_to_sales:
+  us: {op: macro_country_section, key: us/isratio, unit: ratio, note: "typed as a rate: take changes from levels"}
+growth.consumer_sentiment:
+  us: {op: macro_country_section, key: us/umich-sentiment, transforms: [mom_pct, yoy_pct], unit: index}
+  gb: {op: macro_country_section, key: gb/cscicp02gbm460s, transforms: [mom_pp, yoy_pp], unit: pct, note: "balance of opinion"}
+  cn: {op: macro_country_section, key: cn/cscicp02cnm460s, transforms: [mom_pp, yoy_pp], unit: pct, note: "balance of opinion"}
+growth.business_survey:
+  us: {op: macro_country_section, key: us/bscicp03usm665s, transforms: [mom_pct, yoy_pct], unit: index, note: "business confidence, 100 = normal"}
+  jp: {op: boj_tankan, unit: index, note: "diffusion index, quarterly; changes in points"}
+  ca: {op: boc_business_outlook_survey, unit: index, note: "balance of opinion, quarterly"}
+growth.leading_index:
+  us: {op: macro_country_section, key: us/usalolitonostsam, transforms: [mom_pct], unit: index, note: "100 = trend"}
+growth.activity_index:
+  us: {op: fred_series_series_id, series_id: CFNAIMA3, unit: index, note: "3-month average, the reading to use; monthly: series CFNAI; published by the Federal Reserve Bank of Chicago under its own terms: cite the publisher, never present it as computed here; coincident index: us/usphci"}
+growth.recession_signals:
+  us: {compute: "count the growth.md signals firing: labour.sahm_rule, rates.spread_10y_3m, growth.gdp_recession_index, growth.leading_index, growth.recession_probability, liquidity.credit_gap"}
+  ez: {compute: "count the growth.md signals bound here: labour.sahm_rule, liquidity.credit_gap"}
+  gb: {compute: "count the growth.md signals bound here: labour.sahm_rule, liquidity.credit_gap"}
+  jp: {compute: "count the growth.md signals bound here: labour.sahm_rule, liquidity.credit_gap"}
+  cn: {compute: "count the growth.md signals bound here: labour.sahm_rule, liquidity.credit_gap"}
+  ca: {compute: "count the growth.md signals bound here: labour.sahm_rule, liquidity.credit_gap"}
+  de: {compute: "count the growth.md signals bound here: labour.sahm_rule, liquidity.credit_gap"}
+growth.recession_probability:
+  us: {op: macro_country_section, key: us/recprousm156n, transforms: [mom_pp], unit: pct, note: "model probability, about 2 months behind"}
+growth.curve_recession_probability:
+  us: {gap: "the yield-curve recession probability is not in the catalog", substitute: "rates.spread_10y_3m on monthly averages, method in growth.md; never refit the model"}
+growth.gdp_recession_index:
+  us: {op: macro_country_section, key: us/jhgdpbrindx, unit: pct, note: "a quarter behind GDP, not revised"}
+growth.recession_dates:
+  us: {op: research_nber_recession_dates, unit: other, note: "peak and trough months, oldest first"}

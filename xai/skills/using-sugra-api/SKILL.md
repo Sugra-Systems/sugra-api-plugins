@@ -6,9 +6,9 @@ license: MIT
 
 # Using the Sugra API
 
-Sugra API is intelligence infrastructure: one HTTP API, one key, seven product directions. Domain-agnostic. Do not frame it through one vertical.
+Sugra is intelligence infrastructure: one data service, Sugra Data, in seven directions, reached through two products, Sugra API (HTTP with one key) and Sugra MCP (any MCP client). Domain-agnostic. Do not frame it through one vertical.
 
-The surface is LLM-friendly: one `x-api-key`, one JSON envelope `{data, meta}` on most payloads (a few are flat, with `meta` or `_meta` on the record; see envelope-and-attribution), MCP as the agent-native entry. Documentation truth is https://docs.sugra.ai (search and Ask AI). This skill is a map, not the catalog.
+The surface is LLM-friendly: one `x-api-key`, one JSON envelope `{data, meta}` on most payloads (a few are flat, with `meta` or `_meta` on the record; see envelope-and-attribution), Sugra MCP as the entry for AI assistants and agents. Documentation truth is https://docs.sugra.ai (search and Ask AI). This skill is a map, not the catalog.
 
 These files are English. Reply in the user's language.
 
@@ -18,10 +18,10 @@ Public hedge (not a live count): 1,600+ endpoints, 160+ primary sources, 36 doma
 
 | Surface | When | How |
 |---|---|---|
-| HTTPS `https://sugra.ai` | The agent can GET/POST | `x-api-key` on `/api/v1/...` |
-| MCP | The host is an MCP client | the Sugra API MCP server; setup for each client: https://docs.sugra.ai/doc-2263382 |
+| Sugra API, HTTPS `https://sugra.ai` | The agent can GET/POST | `x-api-key` on `/api/v1/...` |
+| Sugra MCP | The host is an MCP client | the Sugra MCP server; setup for each client: https://docs.sugra.ai/doc-2263382 |
 
-Both reach the same API. Use the surface the host already has, or the one the user named. Key: sign up at https://app.sugra.ai/register (a key is issued at signup), manage keys at https://app.sugra.ai/developer/keys. Free: 50 requests a day per account. Do not log the key.
+Both reach the same data. Use the surface the host already has, or the one the user named. Key: sign up at https://app.sugra.ai/register (a key is issued at signup), manage keys at https://app.sugra.ai/developer/keys. Free: 50 requests a day per account. Do not log the key.
 
 ## Before quoting a figure
 

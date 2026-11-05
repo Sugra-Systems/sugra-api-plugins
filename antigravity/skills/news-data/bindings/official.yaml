@@ -1,0 +1,52 @@
+# Official records bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+# other = any entity or country; us = the US legislature; ru = the Russian domestic registers.
+official.sanctions_match:
+  other:
+    op: post_entity_screen
+    unit: other
+    note: "POST with a request body: name (required), and country, dob or an as-of date when known; corpus sanctions (the default: Western and intergovernmental lists plus PEP lists) or all; returns clear, review or hit with the matched records; a stale list turns hit or clear into review; a name match is a candidate until a second identifier agrees; a passport, national id, tax id, vessel IMO or aircraft tail: entity_id_id_type_value_screen; a crypto wallet: entity_wallet_address_screen; candidates with confidence and no verdict: post_entity_resolve"
+official.sanctions_sources:
+  other:
+    op: entity_sources
+    unit: other
+    note: "the lists loaded, each list's freshness and staleness threshold, the regimes covered and what is not covered; check it before reading a clear result; the Russian domestic lists: entity_rf_watchlists_sources"
+official.watchlist_match:
+  ru:
+    op: post_entity_rf_watchlists_screen
+    unit: other
+    note: "POST with a request body: a name or one Russian registry identifier (inn, ogrn, snils, reg number, domain or url), never both; active listings by default; Russian domestic regulatory lists only, not a sanctions screen; coverage and freshness: entity_rf_watchlists_sources"
+  other: {gap: "no national regulatory watchlist outside the Russian domestic lists in the catalog", substitute: "official.sanctions_match, named as a sanctions screen and not a regulator's watchlist; the regulator's own list by link"}
+official.bill_status:
+  us:
+    op: congress_bills_congress_bill_type_number
+    params: {congress: "<congress number>", bill_type: "<hr, s, hjres, sjres, hconres, sconres, hres or sres>", number: "<bill number>", expand: actions}
+    unit: other
+    note: "the bill record with its actions inlined: quote the latest action and its date; a bill number restarts each Congress (119 = 2025-2026); text versions: congress_bills_congress_bill_type_number_text; summaries lag the text"
+    fallback:
+      op: congress_bills
+      params: {congress: "<congress number>"}
+      note: "recent bills by update date with the latest action; no keyword search: bill_type, start_date and end_date narrow it"
+  other: {gap: "no legislature record outside the US Congress in the catalog", substitute: "the legislature's own record by link; a stage reported only in the news reads as reported"}
+official.enacted_laws:
+  us:
+    op: congress_laws
+    params: {congress: "<congress number>"}
+    unit: other
+    note: "enacted laws of one Congress; law_type pub or priv; enactment is not effect: give the effective date the text sets"
+  other: {gap: "no register of enacted laws outside the US in the catalog", substitute: "the official gazette by link"}
+official.hearings:
+  us:
+    op: congress_hearings
+    params: {congress: "<congress number>"}
+    unit: other
+    note: "committee hearings; the reports accompanying legislation: congress_committee_reports with congress"
+  other: {gap: "no committee hearings outside the US Congress in the catalog", substitute: "the legislature's own record by link"}
+official.legislative_record:
+  us:
+    op: congress_record
+    unit: other
+    note: "the latest daily issues of the record of proceedings (floor debate, votes); limit sets the count, no date filter; nominations: congress_nominations; treaties: congress_treaties, each with congress"
+  other: {gap: "no record of proceedings outside the US Congress in the catalog", substitute: "the legislature's own record by link"}
+official.regulatory_notices:
+  us: {gap: "no register of agency rules and notices (proposed and final, with effective dates) in the catalog", substitute: "the agency's own record by link; congress_communications_chamber with chamber house or senate lists executive communications, reports of final rules among them, named as a substitute; a proposed rule is not a final rule"}
+  other: {gap: "no register of agency rules and notices in the catalog", substitute: "the agency's own record or the official gazette by link"}

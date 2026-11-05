@@ -1,0 +1,42 @@
+# Calendar bindings: concept id -> country -> call spec, gap or compute. Read mechanics.md first.
+calendar.release_dates:
+  us: {op: macro_releases, unit: other, note: "upcoming by default; narrow with release cpi, nfp, gdp, pce, jolts or fomc; employment returns 400; the rows hold dates only: a time of day is quoted only when a field of a response holds it, never from memory"}
+  gb: {op: ons_releases, unit: other}
+  ez: {gap: "no euro area release calendar in the catalog", substitute: "the publisher's calendar by link; a date inferred from past releases is labelled estimated"}
+  jp: {gap: "no release calendar for Japan in the catalog", substitute: "the publisher's calendar by link; a date inferred from past releases is labelled estimated"}
+  cn: {gap: "no release calendar for China in the catalog", substitute: "the publisher's calendar by link; a date inferred from past releases is labelled estimated"}
+  ca: {gap: "no forward release calendar for Canada in the catalog", substitute: "statcan_updated_date lists tables updated on a past date; the agency calendar by link"}
+  de: {gap: "no release calendar for Germany in the catalog", substitute: "the publisher's calendar by link; a date inferred from past releases is labelled estimated"}
+calendar.cb_meetings:
+  us:
+    op: macro_cb_calendar_bank
+    params: {bank: fomc}
+    unit: other
+    note: "the response carries the decision time and a notes field with the statement and press conference times: quote a time only from them, with the zone, and not from memory"
+  ez:
+    op: macro_cb_calendar_bank
+    params: {bank: ecb}
+    unit: other
+  gb:
+    op: macro_cb_calendar_bank
+    params: {bank: boe}
+    unit: other
+  jp:
+    op: macro_cb_calendar_bank
+    params: {bank: boj}
+    unit: other
+  cn: {gap: "no meeting calendar for China in the catalog", substitute: "change dates of rates.policy_rate; say no schedule is published here"}
+  ca: {gap: "the meeting calendar op does not cover Canada", substitute: "the dates on which the target of rates.policy_rate changed, and the published schedule by link; do not call the meeting calendar for Canada"}
+  de:
+    op: macro_cb_calendar_bank
+    params: {bank: ecb}
+    unit: other
+    note: "euro area meetings"
+  ch:
+    op: macro_cb_calendar_bank
+    params: {bank: snb}
+    unit: other
+  se:
+    op: macro_cb_calendar_bank
+    params: {bank: riksbank}
+    unit: other
