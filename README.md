@@ -9,7 +9,7 @@
   <a href="https://github.com/Sugra-Systems/sugra-api-plugins/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sugra-Systems/sugra-api-plugins?label=License" alt="License"></a>
 </p>
 
-Plugins for [Sugra API](https://sugra.ai) and Sugra MCP, for Claude, ChatGPT, Codex, GitHub Copilot, Grok, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, GitHub Copilot, Grok, Cursor and Antigravity plugins also connect the hosted Sugra MCP server, and the ChatGPT listing holds that server beside the skills; the Codex plugin carries the skills only.
+Plugins for [Sugra API](https://sugra.ai) and Sugra MCP, for Claude, ChatGPT, Codex, GitHub Copilot, Grok, Cursor and Antigravity, one folder per vendor. Each plugin carries the Sugra API skills. The Claude, GitHub Copilot, Grok, Cursor and Antigravity plugins also connect the hosted Sugra MCP server, and the ChatGPT Plugins Directory package, the ZIP that `scripts/build_openai_zip.py` builds from `openai/`, also carries an `mcp.json` that names that server; the Codex plugin carries the skills only.
 
 | Repository | What |
 |---|---|
@@ -109,6 +109,8 @@ python scripts/sync.py --source <clone of sugra-api-skills> --commit <commit on 
 python scripts/check.py --source <clone of sugra-api-skills>
 SKILLS_SOURCE=<clone of sugra-api-skills> python -m unittest discover -s scripts -p "test_*.py"
 ```
+
+The last line is for a POSIX shell (bash, zsh). In PowerShell, run `$env:SKILLS_SOURCE = "<clone of sugra-api-skills>"` first, then the same command without the `SKILLS_SOURCE=...` prefix. A `SKILLS_SOURCE` that names no directory fails the ZIP tests; with none set they look for the clone at `.skills-source/` and are skipped when it is not there.
 
 Documentation: [https://docs.sugra.ai](https://docs.sugra.ai)
 

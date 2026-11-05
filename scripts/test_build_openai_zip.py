@@ -3,8 +3,9 @@
     SKILLS_SOURCE=<clone of sugra-api-skills> python -m unittest discover -s scripts -p "test_*.py"
 
 The builder reads HEAD, so commit openai/ and skills-source.json first. Without
-SKILLS_SOURCE the clone is looked for at .skills-source/, where CI checks it out;
-when neither is there the tests are skipped.
+SKILLS_SOURCE the clone is looked for at .skills-source/, where CI checks it out,
+and the tests are skipped when it is not there. A SKILLS_SOURCE that names no
+directory fails the tests instead, so CI, which sets it, cannot pass unverified.
 """
 
 from __future__ import annotations
@@ -22,7 +23,8 @@ from pathlib import Path
 import build_openai_zip
 import sync
 
-SOURCE = Path(os.environ.get("SKILLS_SOURCE") or sync.ROOT / ".skills-source")
+EXPLICIT = os.environ.get("SKILLS_SOURCE")
+SOURCE = Path(EXPLICIT or sync.ROOT / ".skills-source")
 # the MCP server the Sugra API listing already holds; the directory refuses a package
 # that omits it and does not support a change of its URL
 LISTING_MCP = {
@@ -31,9 +33,10 @@ LISTING_MCP = {
 }
 
 
-@unittest.skipUnless(SOURCE.is_dir(), f"no sugra-api-skills clone at {SOURCE}; set SKILLS_SOURCE")
+@unittest.skipUnless(EXPLICIT or SOURCE.is_dir(), f"no sugra-api-skills clone at {SOURCE}; set SKILLS_SOURCE")
 class DirectoryZip(unittest.TestCase):
     def setUp(self) -> None:
+        self.assertTrue(SOURCE.is_dir(), f"SKILLS_SOURCE={EXPLICIT} names no directory")
         dist = sync.ROOT / "dist"
         dist.mkdir(exist_ok=True)
         self.dist = Path(tempfile.mkdtemp(dir=dist, prefix=".test-"))
