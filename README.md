@@ -39,6 +39,8 @@ codex plugin add sugra-api-skills@sugra-api-plugins
 
 ### GitHub Copilot
 
+In VS Code or the GitHub Copilot app, the [GitHub MCP Registry](https://url.sugra.ai/gh) installs the hosted MCP server (Install MCP server).
+
 Copilot CLI installs the same package as Claude Code:
 
 ```
