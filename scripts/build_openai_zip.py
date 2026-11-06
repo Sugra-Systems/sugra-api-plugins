@@ -40,10 +40,10 @@ DIST = ROOT / "dist"
 LISTING_NAME = "app-6a33ce728e488191a82df247ab605e91"
 # the listing carries the hosted MCP server beside the skills, so its fields describe both
 LISTING_INTERFACE = {
-    "displayName": "Sugra API",
+    "displayName": "Sugra MCP",
     "shortDescription": "Data from primary sources",
     "longDescription": (
-        "Sugra API brings data from primary sources into ChatGPT and Codex: economic indicators, "
+        "Sugra MCP brings data from primary sources into ChatGPT and Codex: economic indicators, "
         "central banks, market data, company filings, news, weather and climate, and more. "
         "The plugin connects the hosted Sugra MCP server and adds skills to find the right endpoint, "
         "call it with the right parameters, and cite the source and date of every figure. "
