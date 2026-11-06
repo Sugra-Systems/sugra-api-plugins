@@ -25,7 +25,7 @@ Do not invent a path. Do not treat this SKILL.md, a README, or a cookbook recipe
 | `GET https://sugra.ai/sources` | live source names |
 | `GET https://sugra.ai/health` | liveness |
 
-These need no key. Public copy uses hedges (1,600+ endpoints, 160+ sources, 36 domains); quote them as hedges, not as counts. The MCP wheel catalog can lag OpenAPI. If MCP search misses, search docs.sugra.ai, then OpenAPI, then say whether the operation exists.
+These need no key. Public copy uses hedges (1,600+ endpoints, 200 sources, 36 domains); quote them as hedges, not as counts. The MCP wheel catalog can lag OpenAPI. If MCP search misses, search docs.sugra.ai, then OpenAPI, then say whether the operation exists.
 
 MCP once connected: `initialize` (`serverInfo.version`), `tools/list`, `prompts/list`, `resources/list`.
 
