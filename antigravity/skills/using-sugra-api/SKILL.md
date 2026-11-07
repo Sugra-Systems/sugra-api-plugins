@@ -12,7 +12,7 @@ The surface is LLM-friendly: one `x-api-key`, one JSON envelope `{data, meta}` o
 
 These files are English. Reply in the user's language.
 
-Public hedge (not a live count): 1,600+ endpoints, 160+ primary sources, 36 domains. Quote these as "more than", never as an exact figure. The current operation list is `https://sugra.ai/openapi.json` (skill `live-docs`).
+Public hedge (not a live count): 1,600+ endpoints, 200 primary sources, 36 domains. Quote the endpoint count as "more than", never as an exact figure. The current operation list is `https://sugra.ai/openapi.json` (skill `live-docs`).
 
 ## Two complete ways in
 
